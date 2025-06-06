@@ -18,6 +18,8 @@ const HomeScreen: React.FC = () => {
             title={calculator.name}
             description={calculator.description}
             icon={calculator.icon}
+            iconColor={'#FF4B2B'}
+            titleColor={'#2563FF'}
             onClick={() => navigate(calculator.route)}
           />
         ))}

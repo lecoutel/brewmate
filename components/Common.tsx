@@ -65,15 +65,17 @@ interface CardProps {
   icon: React.ElementType;
   onClick: () => void;
   className?: string;
+  iconColor?: string;
+  titleColor?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ title, description, icon: Icon, onClick, className }) => (
+export const Card: React.FC<CardProps> = ({ title, description, icon: Icon, onClick, className, iconColor, titleColor }) => (
   <div onClick={onClick} className={`${COMMON_CLASSES.card} ${className} group`}>
     <div className="flex items-center justify-between">
       <div className="flex items-center">
-        <Icon className={`w-10 h-10 mr-4 text-[${THEME_COLORS.light.primary}] dark:text-[${THEME_COLORS.dark.primary}] group-hover:scale-110 transition-transform duration-200`} />
+        <Icon className={`w-10 h-10 mr-4 group-hover:scale-110 transition-transform duration-200`} style={iconColor ? { color: iconColor } : {}} />
         <div>
-          <h3 className="text-xl font-semibold text-light-on-surface dark:text-dark-on-surface">{title}</h3>
+          <h3 className="text-xl font-semibold" style={titleColor ? { color: titleColor } : {}}>{title}</h3>
           <p className={`${COMMON_CLASSES.textMuted} mt-1`}>{description}</p>
         </div>
       </div>
@@ -137,20 +139,24 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
       <Header />
       {/* Card pour le bouton retour uniquement */}
       {showBackButton && (
-        <div className="max-w-2xl w-full mx-auto mb-6 p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <Link to="/" className="mr-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Go back">
+        <div className="max-w-2xl w-full mx-auto mb-6 p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700 flex items-center">
+          <Link to="/" className="mr-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center" aria-label="Go back">
             <Icons.ArrowLeftIcon className="w-6 h-6 text-light-on-background dark:text-dark-on-background" />
+            <span className="ml-2 text-xl font-semibold text-light-on-background dark:text-dark-on-background">Retour</span>
           </Link>
-          <span className="text-xl font-semibold text-light-on-background dark:text-dark-on-background ml-auto">{title}</span>
         </div>
       )}
       <main className="flex-grow">
         <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700`}>
+          {title && (
+            <h1 className="text-2xl font-bold mb-6 text-left text-light-on-background dark:text-dark-on-background">{title}</h1>
+          )}
           {children}
         </div>
       </main>
       <footer className="text-center mt-8 py-4">
         <p className={COMMON_CLASSES.textMuted}>BrewMate &copy; {new Date().getFullYear()}</p>
+        <p className={COMMON_CLASSES.textMuted}>Fait pour vous avec amour à Loos Angeles par Coutel</p>
       </footer>
     </div>
   );

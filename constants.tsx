@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BeakerIcon, ScaleIcon, EyeIcon, SunIcon, MoonIcon, CogIcon, ChevronRightIcon, InformationCircleIcon, ArrowLeftIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { CalculatorRoute, CalculatorMeta, GravityUnit, CorrectionStage, AromaticProfileKey, TeaTypeKey } from './types'; // Added AromaticProfileKey, TeaTypeKey
@@ -6,46 +5,46 @@ import { CalculatorRoute, CalculatorMeta, GravityUnit, CorrectionStage, Aromatic
 // Theme Colors (using Tailwind arbitrary values)
 export const THEME_COLORS = {
   light: {
-    primary: '#FFC107', // amber-400
-    onPrimary: '#000000', // black
-    primaryContainer: '#FFD54F', // amber-300
-    onPrimaryContainer: '#212121', // neutral-800
-    surface: '#FDFDFD', // neutral-50
-    onSurface: '#1C1B1F', // neutral-900
-    background: '#F5F5F5', // neutral-100
-    onBackground: '#1C1B1F', // neutral-900
-    error: '#B00020', // red-700
-    errorContainer: '#FDE8E8',
-    onErrorContainer: '#B00020',
-    toastSuccessBg: '#dcfce7', // green-100
-    toastSuccessText: '#15803d', // green-700
-    toastErrorBg: '#fee2e2', // red-100
-    toastErrorText: '#b91c1c', // red-700
-    toastInfoBg: '#dbeafe', // blue-100
-    toastInfoText: '#1d4ed8', // blue-700
-    toastWarningBg: '#fefce8', // yellow-100
-    toastWarningText: '#a16207', // yellow-700
+    primary: '#2563FF', // bleu électrique du logo
+    onPrimary: '#FFFFFF', // blanc pour contraste
+    primaryContainer: '#E6EEFF', // bleu très clair, désaturé
+    onPrimaryContainer: '#1A237E', // bleu foncé pour contraste
+    surface: '#F9FAFB', // blanc cassé
+    onSurface: '#181A1B', // gris très foncé
+    background: '#F5F7FA', // gris très clair
+    onBackground: '#181A1B', // gris très foncé
+    error: '#FF4B2B', // rouge orangé du logo
+    errorContainer: '#FFE6E1', // rouge très clair
+    onErrorContainer: '#B71C1C', // rouge foncé
+    toastSuccessBg: '#dcfce7', // inchangé
+    toastSuccessText: '#15803d', // inchangé
+    toastErrorBg: '#ffe6e1', // adapté au nouveau rouge
+    toastErrorText: '#b71c1c', // adapté au nouveau rouge foncé
+    toastInfoBg: '#e6eeff', // adapté au nouveau bleu
+    toastInfoText: '#2563ff', // bleu logo
+    toastWarningBg: '#fff8e1', // jaune très clair
+    toastWarningText: '#a16207', // inchangé
   },
   dark: {
-    primary: '#D4A106', // amber-600
-    onPrimary: '#000000', // black (Note: low contrast on D4A106, per spec)
-    primaryContainer: '#B38600', // amber-800 (adjusted from spec #B38600 for better name)
-    onPrimaryContainer: '#E0E0E0', // neutral-200
-    surface: '#2C2C2E', // neutral-800
-    onSurface: '#EAEAEA', // neutral-100
-    background: '#0f172a', // slate-900
-    onBackground: '#EAEAEA', // neutral-100
-    error: '#CF6679', // red-400 (adjusted from spec for Tailwind palette)
-    errorContainer: '#4A1313',
-    onErrorContainer: '#CF6679',
-    toastSuccessBg: '#166534', // green-800
-    toastSuccessText: '#dcfce7', // green-100
-    toastErrorBg: '#991b1b', // red-800
-    toastErrorText: '#fee2e2', // red-100
-    toastInfoBg: '#1e40af', // blue-800
-    toastInfoText: '#dbeafe', // blue-100
-    toastWarningBg: '#854d0e', // yellow-800
-    toastWarningText: '#fefce8', // yellow-100
+    primary: '#2563FF', // même bleu électrique
+    onPrimary: '#FFFFFF', // blanc
+    primaryContainer: '#1A237E', // bleu nuit foncé
+    onPrimaryContainer: '#E6EEFF', // bleu très clair
+    surface: '#181A1B', // gris anthracite
+    onSurface: '#EAEAEA', // gris clair
+    background: '#10141A', // bleu nuit très foncé
+    onBackground: '#EAEAEA', // gris clair
+    error: '#FF6A4D', // rouge orangé légèrement éclairci
+    errorContainer: '#4A1313', // inchangé
+    onErrorContainer: '#FFB3A7', // rouge clair
+    toastSuccessBg: '#166534', // inchangé
+    toastSuccessText: '#dcfce7', // inchangé
+    toastErrorBg: '#4a1313', // inchangé
+    toastErrorText: '#ffb3a7', // adapté au nouveau rouge clair
+    toastInfoBg: '#1a237e', // bleu nuit foncé
+    toastInfoText: '#e6eeff', // bleu très clair
+    toastWarningBg: '#4a3b0b', // jaune foncé
+    toastWarningText: '#fff8e1', // jaune très clair
   },
 };
 
@@ -53,15 +52,15 @@ export const THEME_COLORS = {
 export const BrewMateCircularLogo: React.FC<{className?: string}> = ({ className }) => (
   <div className={`flex flex-col items-center justify-center ${className}`}>
     <svg viewBox="0 0 100 100" className="w-24 h-24 sm:w-32 sm:h-32 mb-2" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="50" r="48" strokeWidth="4" className="stroke-[#3B82F6] dark:stroke-[#60A5FA]" fill="transparent" />
-      <circle cx="50" cy="50" r="40" strokeWidth="3" className="stroke-[#EF4444] dark:stroke-[#F87171]" fill="transparent" strokeDasharray="4 4" />
+      <circle cx="50" cy="50" r="48" strokeWidth="4" className="stroke-[#2563FF] dark:stroke-[#2563FF]" fill="transparent" />
+      <circle cx="50" cy="50" r="40" strokeWidth="3" className="stroke-[#FF4B2B] dark:stroke-[#FF6A4D]" fill="transparent" strokeDasharray="4 4" />
 
       {/* B */}
-      <text x="35%" y="60%" dominantBaseline="middle" textAnchor="middle" fontSize="40" fontWeight="bold" className="fill-[#3B82F6] dark:fill-[#60A5FA]">
+      <text x="35%" y="60%" dominantBaseline="middle" textAnchor="middle" fontSize="40" fontWeight="bold" className="fill-[#2563FF] dark:fill-[#E6EEFF]">
         B
       </text>
       {/* M */}
-      <text x="65%" y="60%" dominantBaseline="middle" textAnchor="middle" fontSize="40" fontWeight="bold" className="fill-[#EF4444] dark:fill-[#F87171]">
+      <text x="65%" y="60%" dominantBaseline="middle" textAnchor="middle" fontSize="40" fontWeight="bold" className="fill-[#FF4B2B] dark:fill-[#FF6A4D]">
         M
       </text>
     </svg>
