@@ -18,7 +18,7 @@ export const Input: React.FC<InputProps> = ({ label, id, error, wrapperClassName
     <label htmlFor={id} className={COMMON_CLASSES.label}>
       {label}
     </label>
-    <input id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? `border-[${THEME_COLORS.light.error}] dark:border-[${THEME_COLORS.dark.error}] focus:ring-[${THEME_COLORS.light.error}] dark:focus:ring-[${THEME_COLORS.dark.error}]` : ''}`} />
+    <input id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? `border-[${THEME_COLORS.light.error}] focus:ring-[${THEME_COLORS.light.error}]` : ''}`} />
     {error && <p className={`mt-1 ${COMMON_CLASSES.errorText}`}>{error}</p>}
   </div>
 );
@@ -35,7 +35,7 @@ export const Select: React.FC<SelectProps> = ({ label, id, options, error, wrapp
     <label htmlFor={id} className={COMMON_CLASSES.label}>
       {label}
     </label>
-    <select id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? `border-[${THEME_COLORS.light.error}] dark:border-[${THEME_COLORS.dark.error}]` : ''}`}>
+    <select id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? `border-[${THEME_COLORS.light.error}]` : ''}`}>
       {options.map(option => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -79,7 +79,7 @@ export const Card: React.FC<CardProps> = ({ title, description, icon: Icon, onCl
           <p className={`${COMMON_CLASSES.textMuted} mt-1`}>{description}</p>
         </div>
       </div>
-      <Icons.ChevronRightIcon className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform duration-200" />
+      <Icons.ChevronRightIcon className="w-6 h-6 text-gray-400 group-hover:translate-x-1 transition-transform duration-200" />
     </div>
   </div>
 );
@@ -104,13 +104,13 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ infoText, children, cl
         className="ml-2 focus:outline-none"
         aria-label="More info"
       >
-        <Icons.InformationCircleIcon className={`${iconClassName ?? 'w-5 h-5'} text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors`} />
+        <Icons.InformationCircleIcon className={`${iconClassName ?? 'w-5 h-5'} text-gray-400 hover:text-gray-600`} />
       </button>
       {isOpen && (
         <div className="absolute z-10 bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 p-3
-                        bg-gray-100 dark:bg-gray-800 
-                        text-gray-800 dark:text-gray-100
-                        rounded-lg shadow-xl border border-gray-300 dark:border-gray-600 text-sm">
+                        bg-gray-100 
+                        text-gray-800
+                        rounded-lg shadow-xl border border-gray-300 text-sm">
           {infoText}
         </div>
       )}
@@ -120,10 +120,10 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ infoText, children, cl
 
 // Nouveau composant Header
 export const Header: React.FC = () => (
-  <div className="flex items-center mb-6 bg-light-surface dark:bg-dark-surface rounded-xl shadow-lg px-6 py-3"
+  <div className="flex items-center mb-6 bg-light-surface rounded-xl shadow-lg px-6 py-3"
        style={{ borderBottom: '1px solid var(--tw-border-opacity,0.1)' }}>
     <img src="/logo.png" alt="Logo BrewMate" className="h-10 w-10 mr-3" />
-    <span className="text-2xl font-bold text-light-on-background dark:text-dark-on-background">BrewMate</span>
+    <span className="text-2xl font-bold text-light-on-background">BrewMate</span>
   </div>
 );
 
@@ -139,24 +139,26 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
       <Header />
       {/* Card pour le bouton retour uniquement */}
       {showBackButton && (
-        <div className="max-w-2xl w-full mx-auto mb-6 p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700 flex items-center">
-          <Link to="/" className="mr-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center" aria-label="Go back">
-            <Icons.ArrowLeftIcon className="w-6 h-6 text-light-on-background dark:text-dark-on-background" />
-            <span className="ml-2 text-xl font-semibold text-light-on-background dark:text-dark-on-background">Retour</span>
+        <div className="max-w-2xl w-full mx-auto mb-6 p-6 rounded-xl shadow-md bg-light-surface border border-gray-200 flex items-center">
+          <Link to="/" className="mr-2 p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center" aria-label="Go back">
+            <Icons.ArrowLeftIcon className="w-6 h-6" style={{ color: '#2563FF' }} />
+            <span className="ml-2 text-xl font-semibold" style={{ color: '#2563FF' }}>Retour</span>
           </Link>
         </div>
       )}
       <main className="flex-grow">
-        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700`}>
+        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-2xl bg-light-surface border border-gray-200 z-10 relative`}>
           {title && (
-            <h1 className="text-2xl font-bold mb-6 text-left text-light-on-background dark:text-dark-on-background">{title}</h1>
+            <h1 className="text-2xl font-bold mb-6 text-left">{title}</h1>
           )}
           {children}
         </div>
       </main>
       <footer className="text-center mt-8 py-4">
         <p className={COMMON_CLASSES.textMuted}>BrewMate &copy; {new Date().getFullYear()}</p>
-        <p className={COMMON_CLASSES.textMuted}>Fait pour vous avec amour à Loos Angeles par Coutel</p>
+        <p className={COMMON_CLASSES.textMuted}>
+          Fait avec <span style={{ color: '#FF4B2B', fontWeight: 'bold' }}>amour</span> à Loos Angeles par <span style={{ color: '#2563FF', fontWeight: 'bold' }}>Coutel</span>
+        </p>
       </footer>
     </div>
   );
@@ -165,8 +167,8 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
 export const ResultDisplay: React.FC<{ results: string[] | string, error?: string, type?: 'success' | 'error' | 'info' }> = ({ results, error, type = 'success' }) => {
   if (error) {
     return (
-      <div className={`mt-6 p-4 rounded-lg bg-[${THEME_COLORS.light.errorContainer}] dark:bg-[${THEME_COLORS.dark.errorContainer}] border border-[${THEME_COLORS.light.error}] dark:border-[${THEME_COLORS.dark.error}]`}>
-        <p className={`text-[${THEME_COLORS.light.onErrorContainer}] dark:text-[${THEME_COLORS.dark.onErrorContainer}] font-semibold`}>{error}</p>
+      <div className={`mt-6 p-4 rounded-lg bg-[${THEME_COLORS.light.errorContainer}] border border-[${THEME_COLORS.light.error}]`}>
+        <p className={`text-[${THEME_COLORS.light.onErrorContainer}] font-semibold`}>{error}</p>
       </div>
     );
   }
@@ -176,11 +178,11 @@ export const ResultDisplay: React.FC<{ results: string[] | string, error?: strin
   let textClass = '';
 
   if (type === 'success') {
-    specificClass = `bg-green-50 dark:bg-green-900_bg_opacity_30 border-green-200 dark:border-green-700`;
-    textClass = `text-green-700 dark:text-green-300`;
+    specificClass = `bg-green-50 border-green-200`;
+    textClass = `text-green-700`;
   } else if (type === 'info') {
-     specificClass = `bg-blue-50 dark:bg-blue-900_bg_opacity_30 border-blue-200 dark:border-blue-700`;
-     textClass = `text-blue-700 dark:text-blue-300`;
+     specificClass = `bg-blue-50 border-blue-200`;
+     textClass = `text-blue-700`;
   }
 
 
