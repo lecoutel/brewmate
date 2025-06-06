@@ -11,7 +11,7 @@ import { KOMBUCHA_AROMATIC_PROFILE_OPTIONS, KOMBUCHA_TEA_TYPE_OPTIONS, Icons, TH
 
 const KombuchaGeneratorScreen: React.FC = () => {
   const [inputs, setInputs] = useState<KombuchaRecipeInputs>({
-    desiredVolumeL: 4,
+    desiredVolumeL: 4.5,
     aromaticProfileKey: 'CLASSIC_BALANCED',
     teaTypeKey: 'BLACK_TEA',
   });

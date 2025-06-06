@@ -149,7 +149,7 @@ const PreBoilDensityScreen: React.FC = () => {
 
       {result && (
         <ResultDisplay 
-            results={result.message} 
+            results={<span style={result.message && (result.message.includes('La densité est trop basse') || result.message.includes('La densité est trop haute')) ? { color: '#181A1B', fontWeight: 'bold' } : {}}>{result.message}</span>} 
             error={result.error} 
             type={result.error ? 'error' : (result.message.includes("déjà à la cible") ? 'info' : 'success')}
         />

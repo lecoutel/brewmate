@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageLayout, Input, Button, ResultDisplay, InfoTooltip, COMMON_CLASSES, Select } from '../components/Common';
 import { PhCalculationInputs, PhCalculationResult, WaterProfile, CorrectionStage } from '../types';
@@ -196,8 +195,8 @@ const PhCalculatorScreen: React.FC = () => {
         />
 
         {stage === CorrectionStage.MASH && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900_bg_opacity_20 rounded-md border border-blue-200 dark:border-blue-700">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+          <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+            <p className="text-sm text-blue-800 font-semibold">
               Pour l'empâtage, un fichier BeerXML est nécessaire pour analyser les malts et obtenir la meilleure précision. Le profil d'eau "Loos" est utilisé par défaut.
             </p>
           </div>
