@@ -1,0 +1,5 @@
+{
+  "name": "BrewMate - Brewing Calculators",
+  "description": "A modern web application providing reliable calculation utilities for amateur brewers. Features pH correction, pre-boil density, post-boil density, and refractometer correction calculators with an adaptive light/dark theme.",
+  "requestFramePermissions": []
+}
