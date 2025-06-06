@@ -91,7 +91,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     name: 'Correction Densité Fin d\'Ébullition',
     route: CalculatorRoute.PostBoilDensity,
     description: 'Corrigez votre densité finale (dilution, évaporation, sucre).',
-    icon: SparklesIcon, // Was ScaleIcon, changed to avoid repetition, SparklesIcon seems more fitting for "correction"
+    icon: ScaleIcon, // Was ScaleIcon, changed to avoid repetition, SparklesIcon seems more fitting for "correction"
   },
   {
     id: 'refractometer',
