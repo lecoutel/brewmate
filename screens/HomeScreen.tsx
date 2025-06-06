@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CALCULATORS, APP_TITLE } from '../constants';
@@ -10,7 +9,7 @@ const HomeScreen: React.FC = () => {
   // Theme toggle logic and state removed
 
   return (
-    <PageLayout title={APP_TITLE}>
+    <PageLayout title="">
         {/* Theme toggle button removed from here */}
       <div className="grid grid-cols-1 gap-6 md:gap-8">
         {CALCULATORS.map((calculator) => (

@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { COMMON_CLASSES as CC, THEME_COLORS, Icons } from '../constants'; // Aliased to avoid conflict
@@ -117,6 +116,14 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ infoText, children, cl
   );
 };
 
+// Nouveau composant Header
+export const Header: React.FC = () => (
+  <div className="flex items-center mb-6 bg-light-surface dark:bg-dark-surface rounded-xl shadow-lg px-6 py-3"
+       style={{ borderBottom: '1px solid var(--tw-border-opacity,0.1)' }}>
+    <img src="/logo.png" alt="Logo BrewMate" className="h-10 w-10 mr-3" />
+    <span className="text-2xl font-bold text-light-on-background dark:text-dark-on-background">BrewMate</span>
+  </div>
+);
 
 interface PageLayoutProps {
   title: string;
@@ -127,14 +134,16 @@ interface PageLayoutProps {
 export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, children }) => {
   return (
     <div className="min-h-screen flex flex-col p-4 sm:p-6 md:p-8">
-      <header className="mb-6 flex items-center">
-        {showBackButton && (
+      <Header />
+      {/* Card pour le bouton retour uniquement */}
+      {showBackButton && (
+        <div className="max-w-2xl w-full mx-auto mb-6 p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <Link to="/" className="mr-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Go back">
             <Icons.ArrowLeftIcon className="w-6 h-6 text-light-on-background dark:text-dark-on-background" />
           </Link>
-        )}
-        <h1 className="text-3xl font-bold text-light-on-background dark:text-dark-on-background">{title}</h1>
-      </header>
+          <span className="text-xl font-semibold text-light-on-background dark:text-dark-on-background ml-auto">{title}</span>
+        </div>
+      )}
       <main className="flex-grow">
         <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-2xl bg-light-surface dark:bg-dark-surface border border-gray-200 dark:border-gray-700`}>
           {children}
