@@ -11,7 +11,8 @@ import PhCalculatorScreen from './screens/PhCalculatorScreen';
 import PreBoilDensityScreen from './screens/PreBoilDensityScreen';
 import PostBoilDensityScreen from './screens/PostBoilDensityScreen';
 import RefractometerScreen from './screens/RefractometerScreen';
-import KombuchaGeneratorScreen from './screens/KombuchaGeneratorScreen'; // New Screen
+import KombuchaGeneratorScreen from './screens/KombuchaGeneratorScreen';
+import WaterQualityScreen from './screens/WaterQualityScreen'; // New Screen
 
 const App: React.FC = () => {
   useTheme(); // Initialize and apply theme
@@ -25,7 +26,8 @@ const App: React.FC = () => {
         <Route path={CalculatorRoute.PreBoilDensity} element={<PreBoilDensityScreen />} />
         <Route path={CalculatorRoute.PostBoilDensity} element={<PostBoilDensityScreen />} />
         <Route path={CalculatorRoute.Refractometer} element={<RefractometerScreen />} />
-        <Route path={CalculatorRoute.KombuchaGenerator} element={<KombuchaGeneratorScreen />} /> {/* New Route */}
+        <Route path={CalculatorRoute.KombuchaGenerator} element={<KombuchaGeneratorScreen />} />
+        <Route path={CalculatorRoute.WaterQuality} element={<WaterQualityScreen />} /> {/* New Route */}
         <Route path="*" element={<Navigate to={CalculatorRoute.Splash} replace />} />
       </Routes>
     </HashRouter>

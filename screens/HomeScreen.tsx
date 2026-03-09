@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CALCULATORS, APP_TITLE } from '../constants';
@@ -9,7 +10,7 @@ const HomeScreen: React.FC = () => {
   // Theme toggle logic and state removed
 
   return (
-    <PageLayout title="">
+    <PageLayout title={APP_TITLE}>
         {/* Theme toggle button removed from here */}
       <div className="grid grid-cols-1 gap-6 md:gap-8">
         {CALCULATORS.map((calculator) => (
@@ -18,8 +19,6 @@ const HomeScreen: React.FC = () => {
             title={calculator.name}
             description={calculator.description}
             icon={calculator.icon}
-            iconColor={'#FF4B2B'}
-            titleColor={'#2563FF'}
             onClick={() => navigate(calculator.route)}
           />
         ))}

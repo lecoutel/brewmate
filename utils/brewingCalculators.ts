@@ -1,7 +1,7 @@
 
 import {
   PreBoilDensityInputs, PreBoilDensityResult, GravityUnit,
-  PostBoilDensityInputs, PostBoilDensityResult, PostBoilDensityResultOption,
+  PostBoilDensityInputs, PostBoilDensityResult, DensityCorrectionOption,
   RefractometerInputs, RefractometerResult
 } from '../types';
 
@@ -17,13 +17,13 @@ export function calculatePreBoilDensity(inputs: PreBoilDensityInputs): PreBoilDe
   const { volumePreBoil, gravityUnit, measuredGravity, targetGravity } = inputs;
 
   if (volumePreBoil <= 0 || measuredGravity <= 0 || (gravityUnit === GravityUnit.DI && measuredGravity < 1) || targetGravity <= 0 || (gravityUnit === GravityUnit.DI && targetGravity < 1) ) {
-    return { message: '', error: "Veuillez entrer des valeurs valides. Le volume doit être > 0. La Densité spécifique doit être >= 1." };
+    return { options: [], message: '', error: "Veuillez entrer des valeurs valides. Le volume doit être > 0. La Densité spécifique doit être >= 1." };
   }
   if (gravityUnit === GravityUnit.DI && (measuredGravity > 2 || targetGravity > 2)) {
-    return { message: '', error: "Pour la Densité spécifique, entrez la valeur complète (ex: 1.052), pas 52." };
+    return { options: [], message: '', error: "Pour la Densité spécifique, entrez la valeur complète (ex: 1.052), pas 52." };
   }
   if ((gravityUnit === GravityUnit.Brix || gravityUnit === GravityUnit.Plato) && (measuredGravity > 50 || targetGravity > 50)) {
-     return { message: '', error: `Pour ${gravityUnit}, entrez une valeur réaliste (ex: 13.0).` };
+     return { options: [], message: '', error: `Pour ${gravityUnit}, entrez une valeur réaliste (ex: 13.0).` };
   }
 
 
@@ -31,23 +31,53 @@ export function calculatePreBoilDensity(inputs: PreBoilDensityInputs): PreBoilDe
   const gpTarget = convertToPD(targetGravity, gravityUnit);
 
   if (gpTarget === 0) {
-    return { message: '', error: "La densité cible ne peut pas être zéro." };
+    return { options: [], message: '', error: "La densité cible ne peut pas être zéro." };
   }
 
   if (gpCurrent === gpTarget) {
-    return { message: "La densité est déjà à la cible. Aucune correction nécessaire." };
+    return { options: [], message: "La densité est déjà à la cible. Aucune correction nécessaire." };
   }
 
+  const options: DensityCorrectionOption[] = [];
   const volumeTarget = (volumePreBoil * gpCurrent) / gpTarget;
 
   if (gpCurrent > gpTarget) { // Density too high, need to dilute
     const waterToAdd = volumeTarget - volumePreBoil;
-    if (waterToAdd < 0) return { message: '', error: "Erreur de calcul pour l'ajout d'eau." }; // Should not happen
-    return { waterToAdd, message: `Ajouter ${waterToAdd.toFixed(2)} litres d'eau pour atteindre la densité cible.` };
+    if (waterToAdd < 0) return { options: [], message: '', error: "Erreur de calcul pour l'ajout d'eau." };
+    options.push({
+      type: 'dilute',
+      amount: waterToAdd,
+      unit: 'litres',
+      description: `Ajouter ${waterToAdd.toFixed(2)} litres d'eau pour atteindre la densité cible.`,
+    });
+    return { options, message: "La densité est trop haute. Action suggérée :" };
   } else { // Density too low, need to concentrate
     const waterToEvaporate = volumePreBoil - volumeTarget;
-     if (waterToEvaporate < 0) return { message: '', error: "Erreur de calcul pour l'évaporation." }; // Should not happen
-    return { waterToEvaporate, message: `Il faut évaporer ${waterToEvaporate.toFixed(2)} litres d'eau en plus de votre évaporation habituelle pour atteindre la densité cible.` };
+    if (waterToEvaporate > 0) {
+      options.push({
+        type: 'evaporate',
+        amount: waterToEvaporate,
+        unit: 'litres',
+        description: `Évaporer ${waterToEvaporate.toFixed(2)} litres d'eau en plus de votre évaporation habituelle.`,
+      });
+    }
+    
+    const pointsDeficitTotal = (gpTarget - gpCurrent) * volumePreBoil;
+    const sugarAmountGrams = pointsDeficitTotal / 0.4;
+    
+    if (sugarAmountGrams > 0) {
+      options.push({
+        type: 'addSugarPowder',
+        amount: sugarAmountGrams,
+        unit: 'grammes',
+        description: `Ajouter ${sugarAmountGrams.toFixed(0)} grammes de sucre de table ou candy blanc.`,
+      });
+    }
+
+    return { 
+      options, 
+      message: "La densité est trop basse. Pour atteindre votre densité cible, vous pouvez choisir l'une des options suivantes :" 
+    };
   }
 }
 
@@ -76,7 +106,7 @@ export function calculatePostBoilDensity(inputs: PostBoilDensityInputs): PostBoi
     return { options: [], message: "Félicitations, votre densité est à la cible !" };
   }
 
-  const options: PostBoilDensityResultOption[] = [];
+  const options: DensityCorrectionOption[] = [];
 
   if (gpCurrent > gpTarget) { // Density too high, dilute
     const volumeTarget = (volumePostBoil * gpCurrent) / gpTarget;
@@ -131,14 +161,24 @@ export function calculatePostBoilDensity(inputs: PostBoilDensityInputs): PostBoi
 
 
 // --- Refractometer Correction Calculator ---
-function sgToBrix(sg: number): number {
+export function sgToBrix(sg: number): number {
   if (sg < 1) return 0; 
   return -668.962 + (1262.45 * sg) - (776.43 * Math.pow(sg, 2)) + (182.94 * Math.pow(sg, 3));
 }
 
-function brixToSG(brix: number): number {
+export function brixToSG(brix: number): number {
   if (brix <=0) return 1.000;
   return 1 + (brix / (258.6 - ((brix / 258.2) * 227.1)));
+}
+
+export function sgToPlato(sg: number): number {
+  if (sg < 1) return 0;
+  return (-1 * 616.868) + (1111.14 * sg) - (630.272 * Math.pow(sg, 2)) + (135.997 * Math.pow(sg, 3));
+}
+
+export function platoToSG(plato: number): number {
+  if (plato <= 0) return 1.000;
+  return 1 + (plato / (258.6 - ((plato / 258.2) * 227.1))); // Approximation similar to Brix
 }
 
 
@@ -189,23 +229,12 @@ export function calculateRefractometer(inputs: RefractometerInputs): Refractomet
 
   const abv = (ogSG - fgCorrectedSG) * 131.25;
 
-  let finalResultDisplay: number;
-  if (gravityUnit === GravityUnit.DI) {
-    finalResultDisplay = fgCorrectedSG;
-  } else { 
-    finalResultDisplay = sgToBrix(fgCorrectedSG);
-    if (finalResultDisplay < 0) finalResultDisplay = 0;
-  }
-  
-  const formatNumber = (num: number, unit: GravityUnit) => {
-    if (unit === GravityUnit.DI) return num.toFixed(3);
-    // For Brix or Plato, spec says 1 or 2 decimals. Let's use 1 for cleaner display for typical Brix values.
-    return num.toFixed(1); 
-  };
+  const correctedBrix = Math.max(0, sgToBrix(fgCorrectedSG));
+  const correctedPlato = Math.max(0, sgToPlato(fgCorrectedSG));
 
   return {
-    correctedFinalGravity: parseFloat(formatNumber(finalResultDisplay, gravityUnit)), // parseFloat to convert string back to number
+    correctedFinalGravity: parseFloat(fgCorrectedSG.toFixed(3)),
     abv: parseFloat(abv.toFixed(2)),
-    message: `Densité finale corrigée : ${formatNumber(finalResultDisplay, gravityUnit)} ${gravityUnit}\nTaux d'alcool (ABV) estimé : ${abv.toFixed(2)} %`
+    message: `Densité finale corrigée :\n• ${fgCorrectedSG.toFixed(3)} (Densité Spécifique)\n• ${correctedBrix.toFixed(1)} °Brix\n• ${correctedPlato.toFixed(1)} °Plato\n\nTaux d'alcool (ABV) estimé : ${abv.toFixed(2)} %`
   };
 }

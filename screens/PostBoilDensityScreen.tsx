@@ -1,44 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { PageLayout, Input, Select, Button, ResultDisplay, InfoTooltip } from '../components/Common';
-import { PostBoilDensityInputs, PostBoilDensityResult, GravityUnit, PostBoilDensityResultOption } from '../types';
+import { PageLayout, Input, ResultDisplay, DensityInputGroup, ResultActionCard } from '../components/Common';
+import { PostBoilDensityInputs, PostBoilDensityResult, GravityUnit, DensityCorrectionOption } from '../types';
 import { calculatePostBoilDensity } from '../utils/brewingCalculators';
-import { GRAVITY_UNIT_OPTIONS, COMMON_CLASSES, Icons } from '../constants';
+import { COMMON_CLASSES, Icons } from '../constants';
 
 interface PostBoilDensityStringInputs {
   volumePostBoil: string;
-  gravityUnit: GravityUnit;
-  measuredGravity: string;
-  targetGravity: string;
+  measuredSg: string;
+  measuredBrix: string;
+  measuredPlato: string;
+  targetSg: string;
+  targetBrix: string;
+  targetPlato: string;
 }
 
 const PostBoilDensityScreen: React.FC = () => {
   const [inputs, setInputs] = useState<PostBoilDensityStringInputs>({
     volumePostBoil: "20",
-    gravityUnit: GravityUnit.Brix,
-    measuredGravity: "12.0",
-    targetGravity: "12.5",
+    measuredSg: "1.048",
+    measuredBrix: "12.0",
+    measuredPlato: "12.0",
+    targetSg: "1.050",
+    targetBrix: "12.5",
+    targetPlato: "12.5",
   });
   const [result, setResult] = useState<PostBoilDensityResult | null>(null);
   const [formError, setFormError] = useState<string>('');
-  const [placeholder, setPlaceholder] = useState<string>("ex: 12.0");
 
-  useEffect(() => {
-    setPlaceholder(inputs.gravityUnit === GravityUnit.DI ? "ex: 1.048" : "ex: 12.0");
-    setResult(null);
-    setFormError('');
-  }, [inputs.gravityUnit]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInputs(prev => ({ ...prev, [name]: value }));
-    setResult(null);
-    setFormError('');
   };
   
   const validateAndParseInputs = (): PostBoilDensityInputs | null => {
     const volumePostBoilNum = parseFloat(inputs.volumePostBoil);
-    const measuredGravityNum = parseFloat(inputs.measuredGravity);
-    const targetGravityNum = parseFloat(inputs.targetGravity);
+    const measuredGravityNum = parseFloat(inputs.measuredSg);
+    const targetGravityNum = parseFloat(inputs.targetSg);
 
     if (isNaN(volumePostBoilNum) || volumePostBoilNum <= 0 || 
         isNaN(measuredGravityNum) || measuredGravityNum <= 0 || 
@@ -46,41 +43,36 @@ const PostBoilDensityScreen: React.FC = () => {
       setFormError("Toutes les valeurs numériques doivent être positives et valides.");
       return null;
     }
-    if (inputs.gravityUnit === GravityUnit.DI && (measuredGravityNum < 1 || targetGravityNum < 1)) {
+    if (measuredGravityNum < 1 || targetGravityNum < 1) {
        setFormError("Pour la Densité spécifique, la valeur doit être >= 1.000 (ex: 1.052).");
        return null;
     }
-    if (inputs.gravityUnit === GravityUnit.DI && (measuredGravityNum > 2 || targetGravityNum > 2 )) {
+    if (measuredGravityNum > 2 || targetGravityNum > 2) {
        setFormError("Pour la Densité spécifique, entrez la valeur complète (ex: 1.052), et non la partie décimale seule (ex: 52).");
        return null;
     }
     setFormError('');
     return {
       volumePostBoil: volumePostBoilNum,
-      gravityUnit: inputs.gravityUnit,
+      gravityUnit: GravityUnit.DI, // We always calculate using SG now
       measuredGravity: measuredGravityNum,
       targetGravity: targetGravityNum,
     };
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
     const parsedInputs = validateAndParseInputs();
-    if (!parsedInputs) {
+    if (parsedInputs) {
+      const calcResult = calculatePostBoilDensity(parsedInputs);
+      setResult(calcResult);
+    } else {
       setResult(null);
-      return;
     }
-    const calcResult = calculatePostBoilDensity(parsedInputs);
-    setResult(calcResult);
-  };
-
-  const measuredNum = parseFloat(inputs.measuredGravity);
-  const targetNum = parseFloat(inputs.targetGravity);
-  const isCalculationDisabled = !isNaN(measuredNum) && !isNaN(targetNum) && measuredNum === targetNum;
+  }, [inputs]);
 
   return (
     <PageLayout title="Correction Densité Fin d'Ébullition" showBackButton>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <Input
           label="Volume Post-Ébullition (litres)"
           type="number"
@@ -93,74 +85,59 @@ const PostBoilDensityScreen: React.FC = () => {
           placeholder="ex: 20"
           required
         />
-        <Select
-          label="Unité de Densité"
-          name="gravityUnit"
-          id="gravityUnit"
-          value={inputs.gravityUnit}
-          onChange={handleInputChange}
-          options={GRAVITY_UNIT_OPTIONS}
+        
+        <DensityInputGroup
+          label="Densité Mesurée"
+          sgValue={inputs.measuredSg}
+          brixValue={inputs.measuredBrix}
+          platoValue={inputs.measuredPlato}
+          onSgChange={(val) => setInputs(prev => ({ ...prev, measuredSg: val }))}
+          onBrixChange={(val) => setInputs(prev => ({ ...prev, measuredBrix: val }))}
+          onPlatoChange={(val) => setInputs(prev => ({ ...prev, measuredPlato: val }))}
         />
-        <Input
-          label={
-            <div className="flex items-center">
-              Densité Mesurée
-              {inputs.gravityUnit === GravityUnit.DI && (
-                <InfoTooltip infoText="Entrez la Densité Spécifique au format complet, par exemple '1.048' et non '48'." />
-              )}
-            </div>
-          }
-          type="number"
-          name="measuredGravity"
-          id="measuredGravity"
-          value={inputs.measuredGravity}
-          onChange={handleInputChange}
-          step={inputs.gravityUnit === GravityUnit.DI ? "0.001" : "0.1"}
-          min="0"
-          placeholder={placeholder}
-          required
-        />
-        <Input
+
+        <DensityInputGroup
           label="Densité Cible"
-          type="number"
-          name="targetGravity"
-          id="targetGravity"
-          value={inputs.targetGravity}
-          onChange={handleInputChange}
-          step={inputs.gravityUnit === GravityUnit.DI ? "0.001" : "0.1"}
-          min="0"
-          placeholder={placeholder}
-          required
+          sgValue={inputs.targetSg}
+          brixValue={inputs.targetBrix}
+          platoValue={inputs.targetPlato}
+          onSgChange={(val) => setInputs(prev => ({ ...prev, targetSg: val }))}
+          onBrixChange={(val) => setInputs(prev => ({ ...prev, targetBrix: val }))}
+          onPlatoChange={(val) => setInputs(prev => ({ ...prev, targetPlato: val }))}
         />
         
         {formError && <p className={COMMON_CLASSES.errorText}>{formError}</p>}
-
-        <Button type="submit" className="w-full" disabled={isCalculationDisabled || !!formError}>
-          Calculer
-        </Button>
-      </form>
+      </div>
 
       {result && (
-        <div className="mt-6">
-          {result.error && <ResultDisplay results={result.error ? [result.error] : []} error={result.error} type="error"/>}
+        <div className="mt-8">
+          {result.error && <ResultDisplay results={[]} error={result.error} type="error"/>}
+          
           {!result.error && result.message && (
-            <div className={`p-4 rounded-lg mb-4 ${result.message.includes("Félicitations") ? COMMON_CLASSES.infoText : 'bg-yellow-50 dark:bg-yellow-900_bg_opacity_30 border border-yellow-200 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300'}`}>
-              <p className="font-semibold">{result.message}</p>
-            </div>
+            <ResultDisplay 
+              results={result.message} 
+              type={result.message.includes("Félicitations") ? 'success' : 'info'} 
+            />
           )}
+
           {!result.error && result.options && result.options.length > 0 && (
-            <div className="space-y-3">
-              {result.options.map((opt: PostBoilDensityResultOption, index: number) => (
-                <div key={index} className={`p-4 rounded-lg ${COMMON_CLASSES.resultBox} border-opacity-50`}>
-                  <p className={`${COMMON_CLASSES.resultText}`}>{opt.description}</p>
-                  {opt.warning && (
-                    <p className={`${COMMON_CLASSES.textMuted} mt-1 flex items-start`}>
-                      <Icons.InformationCircleIcon className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0 text-yellow-500" />
-                      <span>{opt.warning}</span>
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-bold text-light-on-surface dark:text-dark-on-surface mb-3 flex items-center">
+                <span className="bg-[#E6EEFF] dark:bg-blue-900/40 text-[#1A237E] dark:text-blue-400 p-1 rounded mr-2">
+                  <Icons.CogIcon className="w-5 h-5" />
+                </span>
+                Options de correction
+              </h3>
+              <div className="space-y-3">
+                {result.options.map((opt: DensityCorrectionOption, index: number) => (
+                  <ResultActionCard 
+                    key={index}
+                    description={opt.description}
+                    warning={opt.warning}
+                    type={opt.warning ? 'warning' : 'primary'}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>

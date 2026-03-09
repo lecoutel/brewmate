@@ -146,19 +146,24 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
     const mEqFromAcidMalt = (acidMaltKg * 1000 / 100) * BREWING_CHEMISTRY_FACTORS.ACID_MALT_MEQ_PER_100G;
 
     const { ca, mg, hco3 } = waterProfile;
+    const alkalinityMEqPerL = hco3 / 61.0168;
     const alkalinityCaCO3 = hco3 * (50 / 61.0168);
     const residualAlkalinity = alkalinityCaCO3 - ((ca / 1.4) + (mg / 1.7));
 
+    // Malt buffering capacity (mEq/pH)
     const BF_BASE = 33.0, BF_CRYSTAL = 50.0, BF_ROASTED = 70.0;
     const maltBuffering =
         (maltComposition[MALT_TYPE.BASE] * BF_BASE) +
         (maltComposition[MALT_TYPE.CRYSTAL] * BF_CRYSTAL) +
         (maltComposition[MALT_TYPE.ROASTED] * BF_ROASTED);
 
-    const raContributionToBuffering = residualAlkalinity * 0.08;
-    const totalMashBuffering = maltBuffering + raContributionToBuffering;
+    // Water buffering capacity (mEq/pH) - Estimated at mash pH range (5.2-5.6)
+    // A common estimate is ~0.15 mEq/L/pH per mEq/L of alkalinity
+    const waterBuffering = volume * alkalinityMEqPerL * 0.15;
     
-    const initialMEqNeeded = totalMashBuffering * phDelta; // Negative if pH too low, positive if pH too high
+    const totalMashBuffering = maltBuffering + waterBuffering;
+    
+    const initialMEqNeeded = totalMashBuffering * phDelta; // Positive if acidify, negative if alkalinize
 
     let currentMashDetails: PhCalculationDetails = {
         ...baseDetailsForReturn,
@@ -175,17 +180,11 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
 
 
     if (phDelta > 0) { // Need to lower pH (acidification)
-      const netMEqNeededForAcidification = initialMEqNeeded - mEqFromAcidMalt;
+      // Since currentPh is measured, the acid malt already in the mash has already reacted.
+      // We only need to add acid to move the current measured pH to the target.
+      const netMEqNeededForAcidification = initialMEqNeeded;
       currentMashDetails.netMEqNeededForAcidification = parseFloat(netMEqNeededForAcidification.toFixed(2));
 
-      if (netMEqNeededForAcidification <= 0) {
-        return {
-          ...defaultResultBase,
-          correctionType: 'NONE',
-          message: "Le malt acidulé présent dans la recette suffit ou dépasse le besoin d'acidification. Aucun ajout d'acide liquide nécessaire.",
-          details: currentMashDetails,
-        };
-      }
       const lacticAcidMl = netMEqNeededForAcidification / BREWING_CHEMISTRY_FACTORS.LACTIC_ACID_80_MEQ_PER_ML;
       const phosphoricAcidMl = netMEqNeededForAcidification / BREWING_CHEMISTRY_FACTORS.PHOSPHORIC_ACID_75_MEQ_PER_ML;
       return {
@@ -197,7 +196,8 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
         details: currentMashDetails,
       };
     } else { // Need to raise pH (phDelta < 0, alkalinization)
-      const mEqToAlkalinize = Math.abs(initialMEqNeeded) + mEqFromAcidMalt;
+      // Same logic: move the current measured pH to the target.
+      const mEqToAlkalinize = Math.abs(initialMEqNeeded);
       currentMashDetails.mEqToAlkalinize = parseFloat(mEqToAlkalinize.toFixed(2));
 
       if (mEqToAlkalinize <= 0 && phDelta !==0) { 
@@ -221,7 +221,7 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
         ...defaultResultBase,
         correctionType: 'ALCALINIZE',
         bicarbonateGrams: parseFloat(bicarbonateGrams.toFixed(2)),
-        message: "Ajout de bicarbonate de sodium nécessaire pour atteindre le pH cible.",
+        message: "Ajout de bicarbonate de sodium alimentaire nécessaire pour augmenter le pH.",
         details: currentMashDetails,
       };
     }
@@ -234,25 +234,26 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
     }
 
     if (phDelta > 0) { // Acidification
-      const lacticAcidMl = 0.5 * volume * phDelta;
-      const phosphoricAcidMl = 0.15 * volume * phDelta;
+      const mEqNeeded = BREWING_CHEMISTRY_FACTORS.PRE_BOIL_WORT_BUFFERING_ESTIMATE_MEQ_PER_L_PH * volume * phDelta;
+      const lacticAcidMl = mEqNeeded / BREWING_CHEMISTRY_FACTORS.LACTIC_ACID_80_MEQ_PER_ML;
+      const phosphoricAcidMl = mEqNeeded / BREWING_CHEMISTRY_FACTORS.PHOSPHORIC_ACID_75_MEQ_PER_ML;
       return {
         ...defaultResultBase,
         correctionType: 'ACIDIFY',
         lacticAcidMl: parseFloat(lacticAcidMl.toFixed(2)),
         phosphoricAcidMl: parseFloat(phosphoricAcidMl.toFixed(2)),
-        message: "Ajout d'acide (calcul simplifié pré-ébullition).",
+        message: "Ajout d'acide pour corriger le pH pré-ébullition.",
         details: currentPreBoilDetails
       };
     } else { // Alkalinization (phDelta < 0)
-      const mEqToNeutralize_preboil = BREWING_CHEMISTRY_FACTORS.PRE_BOIL_WORT_BUFFERING_ESTIMATE_MEQ_PER_L_PH * volume * Math.abs(phDelta);
-      currentPreBoilDetails.mEqToAlkalinize = parseFloat(mEqToNeutralize_preboil.toFixed(2));
-      const bicarbonateGrams = mEqToNeutralize_preboil / BREWING_CHEMISTRY_FACTORS.SODIUM_BICARBONATE_MEQ_PER_GRAM;
+      const mEqNeeded = BREWING_CHEMISTRY_FACTORS.PRE_BOIL_WORT_BUFFERING_ESTIMATE_MEQ_PER_L_PH * volume * Math.abs(phDelta);
+      currentPreBoilDetails.mEqToAlkalinize = parseFloat(mEqNeeded.toFixed(2));
+      const bicarbonateGrams = mEqNeeded / BREWING_CHEMISTRY_FACTORS.SODIUM_BICARBONATE_MEQ_PER_GRAM;
       return {
         ...defaultResultBase,
         correctionType: 'ALCALINIZE',
         bicarbonateGrams: parseFloat(bicarbonateGrams.toFixed(2)),
-        message: "Ajout de bicarbonate de sodium (calcul simplifié pré-ébullition).",
+        message: "Ajout de bicarbonate de sodium alimentaire pour augmenter le pH pré-ébullition.",
         details: currentPreBoilDetails
       };
     }

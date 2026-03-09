@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 export enum Theme {
   Light = 'light',
   Dark = 'dark',
@@ -12,7 +14,8 @@ export enum CalculatorRoute {
   PreBoilDensity = '/pre-boil-density',
   PostBoilDensity = '/post-boil-density',
   Refractometer = '/refractometer',
-  KombuchaGenerator = '/kombucha-generator', // New route
+  KombuchaGenerator = '/kombucha-generator',
+  WaterQuality = '/water-quality', // New route
 }
 
 export interface CalculatorMeta {
@@ -21,6 +24,50 @@ export interface CalculatorMeta {
   route: CalculatorRoute;
   description: string;
   icon: React.ElementType; // Heroicon component
+}
+
+// --- Water Quality Types ---
+export interface WaterParameter {
+  value: number;
+  unit: string;
+  name: string;
+  symbol: string;
+  source?: 'HCO3' | 'TAC' | 'NONE';
+}
+
+export interface ProfileEvaluation {
+  id: string;
+  name: string;
+  description: string;
+  status: 'IDEAL' | 'AJUSTABLE' | 'ACIDE_REQUIS' | 'DECONSEILLE';
+  statusLabel: string;
+  statusColor: string;
+  statusBgColor: string;
+  statusBorderColor: string;
+  bjcpStyles: string[];
+  differences: string[];
+}
+
+export interface WaterQualityResult {
+  lastAnalysisDate: string;
+  parameters: {
+    ph?: WaterParameter;
+    calcium: WaterParameter;
+    magnesium: WaterParameter;
+    sodium: WaterParameter;
+    chlorides: WaterParameter;
+    sulfates: WaterParameter;
+    bicarbonates: WaterParameter;
+  };
+  commune: string;
+  dataSource?: 'hubeau' | 'sise-eaux';
+  error?: string;
+}
+
+export interface Commune {
+  nom: string;
+  code: string;
+  codesPostaux: string[];
 }
 
 // --- pH Calculator Types (New Unified with Stages) ---
@@ -53,6 +100,9 @@ export interface WaterProfile {
   ca: number; // Calcium in mg/L
   mg: number; // Magnesium in mg/L
   hco3: number; // Bicarbonates in mg/L
+  na?: number; // Sodium in mg/L
+  cl?: number; // Chlorides in mg/L
+  so4?: number; // Sulfates in mg/L
 }
 
 export interface PhCalculationInputs {
@@ -103,9 +153,16 @@ export interface PreBoilDensityInputs {
   targetGravity: number;
 }
 
+export interface DensityCorrectionOption {
+  type: 'dilute' | 'evaporate' | 'addSugarCandy' | 'addSugarPowder';
+  amount?: number;
+  unit?: 'litres' | 'grammes';
+  description: string;
+  warning?: string;
+}
+
 export interface PreBoilDensityResult {
-  waterToAdd?: number;
-  waterToEvaporate?: number;
+  options: DensityCorrectionOption[];
   message: string;
   error?: string;
 }
@@ -117,15 +174,8 @@ export interface PostBoilDensityInputs {
   targetGravity: number;
 }
 
-export interface PostBoilDensityResultOption {
-  type: 'dilute' | 'evaporate' | 'addSugarCandy' | 'addSugarPowder';
-  amount?: number;
-  unit?: 'litres' | 'grammes';
-  description: string;
-  warning?: string;
-}
 export interface PostBoilDensityResult {
-  options: PostBoilDensityResultOption[];
+  options: DensityCorrectionOption[];
   message: string;
   error?: string;
 }
