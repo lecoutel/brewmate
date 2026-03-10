@@ -52,11 +52,11 @@ export const THEME_COLORS = {
 
 export const COMMON_CLASSES = {
   label: 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1',
-  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all',
+  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all',
   buttonPrimary: 'w-full py-3 px-4 bg-[#2563FF] hover:bg-[#1d4ed8] text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed',
   buttonSecondary: 'w-full py-3 px-4 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold rounded-lg transition-all duration-200',
-  card: 'bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200',
-  textMuted: 'text-sm text-gray-500 dark:text-gray-400',
+  card: 'bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200',
+  textMuted: 'text-sm text-gray-500 dark:text-gray-300',
   errorText: 'text-sm text-red-600 dark:text-red-400',
   infoText: 'bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200', // Added for Kombucha screen
 };
@@ -81,7 +81,7 @@ export const Icons = {
 export const BrewMateCircularLogo: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`flex flex-col items-center justify-center ${className}`}>
     <img src="/logo.png" alt="BrewMate" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain" />
-    <span className="text-2xl sm:text-3xl font-bold text-light-on-background dark:text-dark-on-background">BrewMate</span>
+    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">BrewMate</span>
   </div>
 );
 
@@ -90,42 +90,42 @@ export const CALCULATORS: CalculatorMeta[] = [
     id: 'ph-correction',
     name: 'Correction du pH',
     route: CalculatorRoute.PhCorrection,
-    description: 'Calculez l\'acide nécessaire pour atteindre votre pH cible à l\'empâtage ou avant ébullition.',
+    description: 'Calculez la dose d\'acide (lactique, phosphorique) ou de bicarbonate pour atteindre votre pH cible.',
     icon: BeakerIcon,
   },
   {
     id: 'pre-boil-density',
     name: 'Densité Pré-Ébullition',
     route: CalculatorRoute.PreBoilDensity,
-    description: 'Ajustez votre volume ou votre densité avant de lancer l\'ébullition.',
+    description: 'Diluez ou concentrez votre maische pour atteindre la densité cible avant l\'ébullition.',
     icon: ScaleIcon,
   },
   {
     id: 'post-boil-density',
     name: 'Densité Post-Ébullition',
     route: CalculatorRoute.PostBoilDensity,
-    description: 'Corrigez votre densité finale avant fermentation par dilution ou ajout de sucre.',
+    description: 'Corrigez la densité de votre moût en fin d\'ébullition par dilution ou ajout de sucre ou d\'extrait.',
     icon: ScaleIcon,
   },
   {
     id: 'refractometer',
     name: 'Correcteur Réfractomètre',
     route: CalculatorRoute.Refractometer,
-    description: 'Corrigez la lecture du réfractomètre en présence d\'alcool et calculez l\'ABV.',
+    description: 'Corrigez votre lecture réfractomètre en cours de fermentation et obtenez l\'ABV final.',
     icon: EyeIcon,
   },
   {
     id: 'kombucha-generator',
     name: 'Générateur Kombucha',
     route: CalculatorRoute.KombuchaGenerator,
-    description: 'Créez une recette de kombucha équilibrée selon vos préférences.',
+    description: 'Générez une recette complète (thé, sucre, starter) adaptée à votre volume et profil aromatique.',
     icon: SparklesIcon,
   },
   {
     id: 'water-quality',
     name: 'Qualité de l\'eau',
     route: CalculatorRoute.WaterQuality,
-    description: 'Analysez votre eau locale et obtenez des recommandations de styles.',
+    description: 'Analysez les minéraux de votre eau du robinet et identifiez les styles BJCP compatibles.',
     icon: GlobeAltIcon,
   },
 ];

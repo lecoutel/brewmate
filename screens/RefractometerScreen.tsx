@@ -83,7 +83,7 @@ const RefractometerScreen: React.FC = () => {
               onClick={() => setTool('hydrometer')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
                 tool === 'hydrometer' 
-                ? 'bg-white dark:bg-gray-700 shadow-sm text-light-on-surface dark:text-dark-on-surface' 
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-gray-100' 
                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
@@ -93,7 +93,7 @@ const RefractometerScreen: React.FC = () => {
               onClick={() => setTool('refractometer')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
                 tool === 'refractometer' 
-                ? 'bg-white dark:bg-gray-700 shadow-sm text-light-on-surface dark:text-dark-on-surface' 
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-gray-100' 
                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
@@ -156,19 +156,19 @@ const RefractometerScreen: React.FC = () => {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">SG</div>
-                        <div className="text-lg font-bold text-light-on-surface dark:text-dark-on-surface">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {result.correctedFinalGravity.toFixed(3)}
                         </div>
                       </div>
                       <div className="text-center border-x border-gray-100 dark:border-gray-700">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">°Brix</div>
-                        <div className="text-lg font-bold text-light-on-surface dark:text-dark-on-surface">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {sgToBrix(result.correctedFinalGravity).toFixed(1)}
                         </div>
                       </div>
                       <div className="text-center">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">°Plato</div>
-                        <div className="text-lg font-bold text-light-on-surface dark:text-dark-on-surface">
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                           {sgToPlato(result.correctedFinalGravity).toFixed(1)}
                         </div>
                       </div>

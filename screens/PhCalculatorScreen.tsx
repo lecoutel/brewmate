@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { PageLayout, Input, Button, ResultDisplay, InfoTooltip, COMMON_CLASSES, Select } from '../components/Common';
+import { PageLayout, Input, Button, InfoTooltip, COMMON_CLASSES, Select, InfoPanel, ResultHero, ResultActionCard, ResultDisplay } from '../components/Common';
 import { PhCalculationInputs, PhCalculationResult, WaterProfile, CorrectionStage, Commune } from '../types';
 import { calculatePhCorrection } from '../services/phCalculatorService';
 import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network } from '../services/waterQualityService';
@@ -288,39 +288,12 @@ const PhCalculatorScreen: React.FC = () => {
   const isSubmitDisabled = isLoading || (stage === CorrectionStage.MASH && !beerXmlContent && !formError);
   const volumeLabel = stage === CorrectionStage.MASH ? "Volume de la Maische (L)" : "Volume Pré-ébullition (L)";
 
-  const renderResultMessages = () => {
-    if (!result) return null;
-    if (result.error) return null; 
-    if (result.message && (result.lacticAcidMl === 0 || typeof result.lacticAcidMl === 'undefined') && (result.phosphoricAcidMl === 0 || typeof result.phosphoricAcidMl === 'undefined') && (result.bicarbonateGrams === 0 || typeof result.bicarbonateGrams === 'undefined') ) {
-        return [result.message];
-    }
-
-
-    const messages: string[] = [];
-    if (typeof result.lacticAcidMl === 'number' && result.lacticAcidMl > 0) {
-      messages.push(`Ajouter ${result.lacticAcidMl.toFixed(2)} ml d'Acide Lactique 80%`);
-    }
-    if (typeof result.phosphoricAcidMl === 'number' && result.phosphoricAcidMl > 0) {
-      messages.push(`Ou ajouter ${result.phosphoricAcidMl.toFixed(2)} ml d'Acide Phosphorique 75%`);
-    }
-    if (typeof result.bicarbonateGrams === 'number' && result.bicarbonateGrams > 0) {
-        messages.push(`Ajouter ${result.bicarbonateGrams.toFixed(2)} g de Bicarbonate de Sodium Alimentaire`);
-    }
-
-    if (messages.length === 0 && result.message) { // e.g. pH already correct, or acid malt sufficient
-        return [result.message];
-    }
-    return messages.length > 0 ? messages : ["Aucun ajustement d'acide ou de bicarbonate calculé."];
-  };
-
   return (
     <PageLayout title="Calculateur de Correction de pH" showBackButton>
       <div className="space-y-6">
-        <div className="p-3 bg-blue-50 dark:bg-blue-900_bg_opacity_20 rounded-md border border-blue-200 dark:border-blue-700">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Ce calculateur permet de diminuer le pH (via acides lactique/phosphorique) ou de l'augmenter (via bicarbonate de sodium alimentaire) selon vos besoins.
-          </p>
-        </div>
+        <InfoPanel>
+          Ce calculateur permet de diminuer le pH (via acides lactique/phosphorique) ou de l'augmenter (via bicarbonate de sodium alimentaire) selon vos besoins.
+        </InfoPanel>
 
         <Select
           label="Étape de Correction"
@@ -332,18 +305,14 @@ const PhCalculatorScreen: React.FC = () => {
         />
 
         {stage === CorrectionStage.MASH && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900_bg_opacity_20 rounded-md border border-blue-200 dark:border-blue-700">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Pour l'empâtage, un fichier BeerXML est nécessaire pour analyser les malts et obtenir la meilleure précision. Le profil d'eau de votre commune est également requis.
-            </p>
-          </div>
+          <InfoPanel>
+            Pour l'empâtage, un fichier BeerXML est nécessaire pour analyser les malts et obtenir la meilleure précision. Le profil d'eau de votre commune est également requis.
+          </InfoPanel>
         )}
         {stage === CorrectionStage.PRE_BOIL && (
-           <div className="p-3 bg-blue-50 dark:bg-blue-900_bg_opacity_20 rounded-md border border-blue-200 dark:border-blue-700">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Pour la pré-ébullition, le calcul est simplifié. Le BeerXML est optionnel (pour auto-détection du volume).
-            </p>
-          </div>
+          <InfoPanel>
+            Pour la pré-ébullition, le calcul est simplifié. Le BeerXML est optionnel (pour auto-détection du volume).
+          </InfoPanel>
         )}
 
         <div>
@@ -357,10 +326,7 @@ const PhCalculatorScreen: React.FC = () => {
           <input
             type="file" id="beerXmlFile" name="beerXmlFile" accept=".xml,text/xml"
             onChange={handleFileChange}
-            className={`w-full text-sm p-2 border rounded-lg file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0 file:text-sm file:font-semibold
-                        file:bg-[${COMMON_CLASSES.buttonSecondary.match(/bg-\S+/)?.[0]}] file:text-[${COMMON_CLASSES.buttonSecondary.match(/text-\S+/)?.[0]}]
-                        hover:file:opacity-80 ${COMMON_CLASSES.input}`}
+            className={`w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-gray-700 file:text-gray-800 dark:file:text-gray-200 hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF]`}
             aria-describedby="beerXmlFile_help"
           />
           {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400">Fichier: {fileName}</p>}
@@ -426,7 +392,7 @@ const PhCalculatorScreen: React.FC = () => {
               </div>
 
               {showAutocomplete && communes.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-dark-surface border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
                   {communes.map((c) => (
                     <div
                       key={c.code}
@@ -439,6 +405,13 @@ const PhCalculatorScreen: React.FC = () => {
                   ))}
                 </div>
               )}
+              {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                    Aucune commune trouvée pour « {query} »
+                  </p>
+                </div>
+              )}
             </div>
 
             {networks.length > 1 && (
@@ -447,7 +420,7 @@ const PhCalculatorScreen: React.FC = () => {
                   Plusieurs points de captation (réseaux) disponibles. Veuillez en sélectionner un :
                 </label>
                 <select
-                  className={COMMON_CLASSES.input + " bg-white dark:bg-dark-surface"}
+                  className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700"}
                   value={selectedNetwork?.code || ''}
                   onChange={(e) => handleSelectNetwork(e.target.value)}
                 >
@@ -480,47 +453,107 @@ const PhCalculatorScreen: React.FC = () => {
       </div>
 
       {result && (
-        <>
-          <ResultDisplay 
-            results={result.error ? '' : renderResultMessages() ?? []}
-            error={result.error ?? undefined}
-            type={result.error ? 'error' : (result.message && (result.lacticAcidMl === 0 || typeof result.lacticAcidMl === 'undefined') && (result.phosphoricAcidMl === 0 || typeof result.phosphoricAcidMl === 'undefined') && (result.bicarbonateGrams === 0 || typeof result.bicarbonateGrams === 'undefined') ? 'info' : 'success')}
-          />
-          {result.details && stage === CorrectionStage.MASH && (
-            <div className="mt-4">
-              <button onClick={() => setShowDetails(!showDetails)}
-                className={`flex items-center justify-between w-full p-2 rounded-md ${COMMON_CLASSES.buttonSecondary} text-sm`}>
-                <span>{showDetails ? 'Cacher' : 'Afficher'} Détails (Empâtage)</span>
-                <Icons.ChevronRightIcon className={`w-5 h-5 transform transition-transform ${showDetails ? 'rotate-90' : ''}`} />
+        <div className="mt-6 space-y-3">
+          {/* Erreur fatale */}
+          {result.error && (
+            <ResultDisplay results={[]} error={result.error} type="error" />
+          )}
+
+          {/* pH déjà à la cible */}
+          {!result.error && result.correctionType === 'NONE' && (
+            <ResultHero
+              value="✓"
+              label={result.message || 'pH déjà à la cible'}
+              status="success"
+            />
+          )}
+
+          {/* Valeur principale en hero (ACIDIFY / ALCALINIZE) */}
+          {!result.error && result.correctionType !== 'NONE' && (() => {
+            const primaryValue = result.lacticAcidMl > 0
+              ? `${result.lacticAcidMl.toFixed(2)} ml`
+              : result.phosphoricAcidMl > 0
+                ? `${result.phosphoricAcidMl.toFixed(2)} ml`
+                : result.bicarbonateGrams > 0
+                  ? `${result.bicarbonateGrams.toFixed(2)} g`
+                  : null;
+            const primaryLabel = result.lacticAcidMl > 0
+              ? "Acide Lactique 80% à ajouter"
+              : result.phosphoricAcidMl > 0 && result.lacticAcidMl === 0
+                ? "Acide Phosphorique 75% à ajouter"
+                : "Bicarbonate de Sodium à ajouter";
+            return primaryValue ? (
+              <ResultHero value={primaryValue} label={primaryLabel} status="neutral" />
+            ) : null;
+          })()}
+
+          {/* Acide Lactique */}
+          {!result.error && result.lacticAcidMl > 0 && (
+            <ResultActionCard
+              description={`${result.lacticAcidMl.toFixed(2)} ml d'Acide Lactique 80%`}
+              badge={result.phosphoricAcidMl > 0 ? 'Option A' : undefined}
+            />
+          )}
+          {/* Acide Phosphorique */}
+          {!result.error && result.phosphoricAcidMl > 0 && (
+            <ResultActionCard
+              description={`${result.phosphoricAcidMl.toFixed(2)} ml d'Acide Phosphorique 75%`}
+              badge={result.lacticAcidMl > 0 ? 'Option B' : undefined}
+            />
+          )}
+          {/* Bicarbonate de Sodium — alcalinisation */}
+          {!result.error && result.bicarbonateGrams > 0 && (
+            <ResultActionCard
+              description={`${result.bicarbonateGrams.toFixed(2)} g de Bicarbonate de Sodium`}
+            />
+          )}
+          {/* Message seul (malt acide suffisant, etc.) */}
+          {!result.error && result.message && result.lacticAcidMl === 0 && result.phosphoricAcidMl === 0 && result.bicarbonateGrams === 0 && result.correctionType !== 'NONE' && (
+            <InfoPanel>{result.message}</InfoPanel>
+          )}
+
+          {/* Détails MASH */}
+          {!result.error && result.details && stage === CorrectionStage.MASH && (
+            <div>
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="w-full flex items-center justify-between px-4 py-3 mt-1 bg-gray-50 dark:bg-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Détails du calcul</span>
+                <Icons.ChevronRightIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showDetails ? 'rotate-90' : ''}`} />
               </button>
-              {showDetails && result.details && (
-                <div className={`mt-2 p-4 border rounded-lg bg-light-surface dark:bg-dark-surface border-gray-300 dark:border-gray-600 text-sm ${COMMON_CLASSES.textMuted} space-y-1`}>
-                  {typeof result.details.autoDetectedMashVolumeL === 'number' && <p><strong>Volume Maische Auto-Détecté:</strong> {result.details.autoDetectedMashVolumeL.toFixed(2)} L</p>}
-                  {typeof result.details.residualAlkalinity === 'number' && <p><strong>Alcalinité Résiduelle (AR):</strong> {result.details.residualAlkalinity.toFixed(2)} ppm as CaCO₃</p>}
-                  {typeof result.details.totalMashBuffering === 'number' && <p><strong>Pouvoir Tampon Total:</strong> {result.details.totalMashBuffering.toFixed(2)}</p>}
-                  {typeof result.details.initialMEqNeeded === 'number' && <p><strong>mEq Initiaux (avant malt acide):</strong> {result.details.initialMEqNeeded.toFixed(2)}</p>}
-                  {typeof result.details.mEqFromAcidMalt === 'number' && result.details.mEqFromAcidMalt > 0 && <p><strong>mEq apportés par Malt Acide:</strong> {result.details.mEqFromAcidMalt.toFixed(2)}</p>}
-                  {typeof result.details.netMEqNeededForAcidification === 'number' && result.correctionType === 'ACIDIFY' && <p><strong>mEq Nets (Acidification):</strong> {result.details.netMEqNeededForAcidification.toFixed(2)}</p>}
-                  {typeof result.details.mEqToAlkalinize === 'number' && result.correctionType === 'ALCALINIZE' && <p><strong>mEq (Alcalinisation):</strong> {result.details.mEqToAlkalinize.toFixed(2)}</p>}
-                  {result.details.maltComposition && (<>
-                    <p><strong>Composition Malts (kg):</strong></p>
-                    <ul className="list-disc list-inside pl-4">
-                      <li>Base: {result.details.maltComposition.BASE.toFixed(3)} kg</li>
-                      <li>Crystal: {result.details.maltComposition.CRYSTAL.toFixed(3)} kg</li>
-                      <li>Roasted: {result.details.maltComposition.ROASTED.toFixed(3)} kg</li>
-                      {result.details.maltComposition.SPECIALTY_ACIDIC ? <li>Acide: {result.details.maltComposition.SPECIALTY_ACIDIC.toFixed(3)} kg</li> : null}
-                      {result.details.maltComposition.SPECIALTY_OTHER ? <li>Autre Spéc.: {result.details.maltComposition.SPECIALTY_OTHER.toFixed(3)} kg</li> : null }
-                      {result.details.maltComposition.UNKNOWN ? <li>Inconnu: {result.details.maltComposition.UNKNOWN.toFixed(3)} kg</li> : null}
-                    </ul>
-                  </>)}
+              {showDetails && (
+                <div className="mt-2 p-4 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm space-y-1">
+                  {typeof result.details.autoDetectedMashVolumeL === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Volume Maische Auto-Détecté :</strong> {result.details.autoDetectedMashVolumeL.toFixed(2)} L</p>}
+                  {typeof result.details.residualAlkalinity === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Alcalinité Résiduelle (AR) :</strong> {result.details.residualAlkalinity.toFixed(2)} ppm as CaCO₃</p>}
+                  {typeof result.details.totalMashBuffering === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Pouvoir Tampon Total :</strong> {result.details.totalMashBuffering.toFixed(2)}</p>}
+                  {typeof result.details.initialMEqNeeded === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>mEq Initiaux (avant malt acide) :</strong> {result.details.initialMEqNeeded.toFixed(2)}</p>}
+                  {typeof result.details.mEqFromAcidMalt === 'number' && result.details.mEqFromAcidMalt > 0 && <p className={COMMON_CLASSES.textMuted}><strong>mEq apportés par Malt Acide :</strong> {result.details.mEqFromAcidMalt.toFixed(2)}</p>}
+                  {typeof result.details.netMEqNeededForAcidification === 'number' && result.correctionType === 'ACIDIFY' && <p className={COMMON_CLASSES.textMuted}><strong>mEq Nets (Acidification) :</strong> {result.details.netMEqNeededForAcidification.toFixed(2)}</p>}
+                  {typeof result.details.mEqToAlkalinize === 'number' && result.correctionType === 'ALCALINIZE' && <p className={COMMON_CLASSES.textMuted}><strong>mEq (Alcalinisation) :</strong> {result.details.mEqToAlkalinize.toFixed(2)}</p>}
+                  {result.details.maltComposition && (
+                    <>
+                      <p className={COMMON_CLASSES.textMuted}><strong>Composition Malts (kg) :</strong></p>
+                      <ul className="list-disc list-inside pl-4 space-y-0.5">
+                        <li className={COMMON_CLASSES.textMuted}>Base : {result.details.maltComposition.BASE.toFixed(3)} kg</li>
+                        <li className={COMMON_CLASSES.textMuted}>Crystal : {result.details.maltComposition.CRYSTAL.toFixed(3)} kg</li>
+                        <li className={COMMON_CLASSES.textMuted}>Roasted : {result.details.maltComposition.ROASTED.toFixed(3)} kg</li>
+                        {result.details.maltComposition.SPECIALTY_ACIDIC ? <li className={COMMON_CLASSES.textMuted}>Acide : {result.details.maltComposition.SPECIALTY_ACIDIC.toFixed(3)} kg</li> : null}
+                        {result.details.maltComposition.SPECIALTY_OTHER ? <li className={COMMON_CLASSES.textMuted}>Autre Spéc. : {result.details.maltComposition.SPECIALTY_OTHER.toFixed(3)} kg</li> : null}
+                        {result.details.maltComposition.UNKNOWN ? <li className={COMMON_CLASSES.textMuted}>Inconnu : {result.details.maltComposition.UNKNOWN.toFixed(3)} kg</li> : null}
+                      </ul>
+                    </>
+                  )}
                 </div>
               )}
             </div>
           )}
-           {result && result.details && typeof result.details.autoDetectedPreBoilVolumeL === 'number' && stage === CorrectionStage.PRE_BOIL && (
-             <p className={`${COMMON_CLASSES.textMuted} text-xs mt-2`}>Volume pré-ébullition auto-détecté du BeerXML : {result.details.autoDetectedPreBoilVolumeL.toFixed(2)} L.</p>
-           )}
-        </>
+
+          {/* Volume auto-détecté PRE_BOIL */}
+          {!result.error && result.details && typeof result.details.autoDetectedPreBoilVolumeL === 'number' && stage === CorrectionStage.PRE_BOIL && (
+            <p className={`${COMMON_CLASSES.textMuted} text-xs`}>Volume pré-ébullition auto-détecté du BeerXML : {result.details.autoDetectedPreBoilVolumeL.toFixed(2)} L.</p>
+          )}
+        </div>
       )}
     </PageLayout>
   );

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { PageLayout, Input, Select, Button, COMMON_CLASSES, ResultDisplay } from '../components/Common';
+import { PageLayout, Input, Select, Button, COMMON_CLASSES, ResultDisplay, SectionHeading, InfoPanel } from '../components/Common';
 import {
   KombuchaRecipeInputs,
   KombuchaRecipeResult,
@@ -86,23 +86,20 @@ const KombuchaGeneratorScreen: React.FC = () => {
 
       {result && !result.error && (
         <div className="mt-8 space-y-6">
-          <h2 className="text-2xl font-semibold text-light-on-background dark:text-dark-on-background">{result.title}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{result.title}</h2>
 
-          <div className={`p-4 rounded-lg bg-[${COMMON_CLASSES.infoText.match(/bg-\S+/)?.[0]}] text-[${COMMON_CLASSES.infoText.match(/text-\S+/)?.[0]}] border border-blue-300 dark:border-blue-700 dark:bg-[${COMMON_CLASSES.infoText.match(/dark:bg-\S+/)?.[0].replace('dark:','')}] dark:text-[${COMMON_CLASSES.infoText.match(/dark:text-\S+/)?.[0].replace('dark:','')}]`}>
-            <h3 className="text-lg font-semibold mb-2 flex items-center">
-              <Icons.SparklesIcon className={`w-5 h-5 mr-2 text-[${THEME_COLORS.light.primary}] dark:text-[${THEME_COLORS.dark.primary}]`} />
-              Profil de Goût Attendu
-            </h3>
-            <p className="text-sm">{result.expectedTasteProfile}</p>
-          </div>
-          
+          <InfoPanel icon={Icons.SparklesIcon}>
+            <strong className="block mb-1">Profil de Goût Attendu</strong>
+            {result.expectedTasteProfile}
+          </InfoPanel>
+
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-light-on-surface dark:text-dark-on-surface">Ingrédients :</h3>
+            <SectionHeading icon={Icons.BeakerIcon}>Ingrédients</SectionHeading>
             <ul className="list-none space-y-2">
               {result.ingredients.map((ing, index) => (
-                <li key={index} className={`p-3 rounded-md bg-gray-50 dark:bg-gray-700 flex justify-between items-center shadow-sm`}>
-                  <span className="text-light-on-surface dark:text-dark-on-surface">{ing.name}</span>
-                  <span className={`font-medium text-[${THEME_COLORS.light.primary}] dark:text-[${THEME_COLORS.dark.primary}]`}>
+                <li key={index} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700 flex justify-between items-center shadow-sm">
+                  <span className="text-gray-900 dark:text-gray-100">{ing.name}</span>
+                  <span className="font-semibold text-[#2563FF] dark:text-[#6b99ff]">
                     {ing.amount} {ing.unit}
                   </span>
                 </li>
@@ -111,14 +108,20 @@ const KombuchaGeneratorScreen: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-3 text-light-on-surface dark:text-dark-on-surface">Instructions (1ère Fermentation - F1) :</h3>
+            <SectionHeading icon={Icons.CogIcon}>Instructions (1ère Fermentation - F1)</SectionHeading>
             <ol className="list-decimal list-outside space-y-3 pl-5">
               {result.instructions.map((step) => (
-                <li key={step.step} className="text-light-on-surface dark:text-dark-on-surface leading-relaxed">
+                <li key={step.step} className="text-gray-700 dark:text-gray-300 leading-relaxed">
                   {step.text}
                 </li>
               ))}
             </ol>
+          </div>
+
+          <div className="mt-2 text-center">
+            <Button variant="secondary" onClick={() => setResult(null)}>
+              ← Nouvelle recette
+            </Button>
           </div>
         </div>
       )}

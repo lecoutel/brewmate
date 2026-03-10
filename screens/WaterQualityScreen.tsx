@@ -16,7 +16,8 @@ const WaterQualityScreen: React.FC = () => {
   const [error, setError] = useState('');
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [isProfilesExpanded, setIsProfilesExpanded] = useState(false);
-  
+  const [geolocSuccess, setGeolocSuccess] = useState(false);
+
   const [beerSearchQuery, setBeerSearchQuery] = useState('');
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
@@ -118,6 +119,8 @@ const WaterQualityScreen: React.FC = () => {
         const { latitude, longitude } = position.coords;
         const commune = await getCommuneByCoords(latitude, longitude);
         if (commune) {
+          setGeolocSuccess(true);
+          setTimeout(() => setGeolocSuccess(false), 3000);
           handleSelectCommune(commune, true);
         } else {
           setError("Impossible de déterminer votre commune.");
@@ -213,13 +216,16 @@ const WaterQualityScreen: React.FC = () => {
                 title="Ma position"
                 disabled={isLoading}
               >
-                <Icons.TargetIcon className="w-5 h-5" />
+                {geolocSuccess
+                  ? <Icons.CheckCircleIcon className="w-5 h-5 text-green-300" />
+                  : <Icons.TargetIcon className="w-5 h-5" />
+                }
               </Button>
             </div>
           </div>
 
           {showAutocomplete && communes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-dark-surface border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
               {communes.map((c) => (
                 <div
                   key={c.code}
@@ -232,6 +238,13 @@ const WaterQualityScreen: React.FC = () => {
               ))}
             </div>
           )}
+          {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                Aucune commune trouvée pour « {query} »
+              </p>
+            </div>
+          )}
         </div>
 
         {networks.length > 1 && (
@@ -240,7 +253,7 @@ const WaterQualityScreen: React.FC = () => {
               Plusieurs points de captation (réseaux) disponibles pour cette commune. Veuillez en sélectionner un :
             </label>
             <select
-              className={COMMON_CLASSES.input + " bg-white dark:bg-dark-surface"}
+              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700"}
               value={selectedNetwork?.code || ''}
               onChange={(e) => handleSelectNetwork(e.target.value)}
             >
@@ -266,11 +279,11 @@ const WaterQualityScreen: React.FC = () => {
         {result && !isLoading && stats && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <div className="bg-light-surface dark:bg-dark-surface p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Nom de profil</p>
-                  <h3 className="text-xl font-bold text-light-on-surface dark:text-dark-on-surface">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                     Eau robinet {result.commune} {selectedNetwork ? `(${selectedNetwork.name})` : ''}
                   </h3>
                   <p className="text-xs text-gray-400 mt-1">Dernière analyse : {result.lastAnalysisDate || 'Inconnue'}</p>
@@ -282,11 +295,11 @@ const WaterQualityScreen: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
-                  <p className="font-medium text-light-on-surface dark:text-dark-on-surface">Eau du réseau</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Eau du réseau</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500 dark:text-gray-400">pH</p>
-                  <p className="text-2xl font-bold text-light-on-surface dark:text-dark-on-surface">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
                   </p>
                 </div>
@@ -294,7 +307,7 @@ const WaterQualityScreen: React.FC = () => {
             </div>
 
             {Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0) ? (
-              <div className="bg-light-surface dark:bg-dark-surface p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 
                 {/* Cations */}
                 <div className="mb-8">
@@ -305,15 +318,15 @@ const WaterQualityScreen: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.calcium.value.toFixed(0)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.calcium.value.toFixed(0)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.magnesium.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.magnesium.value.toFixed(1)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.sodium.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sodium.value.toFixed(1)}</p>
                     </div>
                   </div>
                 </div>
@@ -324,15 +337,15 @@ const WaterQualityScreen: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.chlorides.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.chlorides.value.toFixed(1)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.sulfates.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sulfates.value.toFixed(1)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{result.parameters.bicarbonates.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.bicarbonates.value.toFixed(1)}</p>
                     </div>
                   </div>
                   {result.parameters.bicarbonates.source === 'TAC' && (
@@ -348,19 +361,19 @@ const WaterQualityScreen: React.FC = () => {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ratio</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{stats.ratio.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.ratio.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Dureté</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{stats.durete.toFixed(0)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.durete.toFixed(0)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Alcalinité</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{stats.alcalinite.toFixed(0)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.alcalinite.toFixed(0)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Alcalinité résiduelle</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-light-on-surface dark:text-dark-on-surface">{stats.alcaliniteResiduelle.toFixed(0)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.alcaliniteResiduelle.toFixed(0)}</p>
                     </div>
                   </div>
                 </div>
@@ -377,12 +390,12 @@ const WaterQualityScreen: React.FC = () => {
 
             {/* Beer Style Recommendations */}
             {beerRecommendations && (
-              <div className="bg-light-surface dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
                 <button 
                   onClick={() => setIsProfilesExpanded(!isProfilesExpanded)}
                   className="w-full flex items-center justify-between p-6 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
-                  <h4 className="font-bold text-lg text-light-on-surface dark:text-dark-on-surface flex items-center gap-2">
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <Icons.BeakerIcon className="w-5 h-5 text-[#2563FF]" />
                     Profils d'eau & Styles (BJCP)
                   </h4>
@@ -405,7 +418,7 @@ const WaterQualityScreen: React.FC = () => {
                           placeholder="Filtrer un style ou profil..."
                           value={beerSearchQuery}
                           onChange={(e) => setBeerSearchQuery(e.target.value)}
-                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-surface focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all"
+                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all"
                         />
                         {beerSearchQuery && (
                           <button 

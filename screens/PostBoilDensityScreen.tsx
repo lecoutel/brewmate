@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PageLayout, Input, ResultDisplay, DensityInputGroup, ResultActionCard } from '../components/Common';
+import { PageLayout, Input, ResultDisplay, DensityInputGroup, ResultActionCard, SectionHeading, ResultHero } from '../components/Common';
 import { PostBoilDensityInputs, PostBoilDensityResult, GravityUnit, DensityCorrectionOption } from '../types';
 import { calculatePostBoilDensity } from '../utils/brewingCalculators';
 import { COMMON_CLASSES, Icons } from '../constants';
@@ -112,29 +112,32 @@ const PostBoilDensityScreen: React.FC = () => {
       {result && (
         <div className="mt-8">
           {result.error && <ResultDisplay results={[]} error={result.error} type="error"/>}
-          
-          {!result.error && result.message && (
-            <ResultDisplay 
-              results={result.message} 
-              type={result.message.includes("Félicitations") ? 'success' : 'info'} 
-            />
-          )}
+
+          {!result.error && (() => {
+            const measured = parseFloat(inputs.measuredSg);
+            const target = parseFloat(inputs.targetSg);
+            const atTarget = Math.abs(measured - target) < 0.001;
+            const tooHigh = measured > target + 0.001;
+            return (
+              <ResultHero
+                value={atTarget ? '✓' : tooHigh ? 'Trop élevée' : 'Trop faible'}
+                label={atTarget ? 'Densité atteinte' : tooHigh ? 'Densité excessive — correction requise' : 'Densité insuffisante — correction requise'}
+                status={atTarget ? 'success' : 'warning'}
+              />
+            );
+          })()}
 
           {!result.error && result.options && result.options.length > 0 && (
-            <div className="mt-6 space-y-4">
-              <h3 className="text-lg font-bold text-light-on-surface dark:text-dark-on-surface mb-3 flex items-center">
-                <span className="bg-[#E6EEFF] dark:bg-blue-900/40 text-[#1A237E] dark:text-blue-400 p-1 rounded mr-2">
-                  <Icons.CogIcon className="w-5 h-5" />
-                </span>
-                Options de correction
-              </h3>
+            <div className="mt-4 space-y-4">
+              <SectionHeading icon={Icons.CogIcon}>Options de correction</SectionHeading>
               <div className="space-y-3">
                 {result.options.map((opt: DensityCorrectionOption, index: number) => (
-                  <ResultActionCard 
+                  <ResultActionCard
                     key={index}
                     description={opt.description}
                     warning={opt.warning}
                     type={opt.warning ? 'warning' : 'primary'}
+                    badge={index === 0 ? 'Option A' : 'Option B'}
                   />
                 ))}
               </div>
