@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, ResultDisplay, InfoTooltip, DensityInputGroup } from '../components/Common';
 import { RefractometerInputs, RefractometerResult, GravityUnit } from '../types';
 import { calculateRefractometer, sgToBrix, sgToPlato } from '../utils/brewingCalculators';
+import { useUrlParams } from '../hooks/useUrlParams';
 import { COMMON_CLASSES } from '../constants';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 interface RefractometerStringInputs {
   initialSg: string;
@@ -14,17 +16,89 @@ interface RefractometerStringInputs {
 }
 
 const RefractometerScreen: React.FC = () => {
-  const [tool, setTool] = useState<'hydrometer' | 'refractometer'>('hydrometer');
-  const [inputs, setInputs] = useState<RefractometerStringInputs>({
-    initialSg: "1.065",
-    initialBrix: "16.0", 
-    initialPlato: "16.0",
-    finalSg: "1.032",
-    finalBrix: "8.0",
-    finalPlato: "8.0",
-  });
+  const [tool, setTool, clearToolCache] = usePersistentState<'hydrometer' | 'refractometer'>(
+    'brewmate:abv:tool',
+    'hydrometer'
+  );
+  const initialInputs: RefractometerStringInputs = {
+    initialSg: "",
+    initialBrix: "",
+    initialPlato: "",
+    finalSg: "",
+    finalBrix: "",
+    finalPlato: "",
+  };
+  const [inputs, setInputs, clearInputsCache] = usePersistentState<RefractometerStringInputs>(
+    'brewmate:abv:inputs',
+    initialInputs
+  );
   const [result, setResult] = useState<RefractometerResult | null>(null);
   const [formError, setFormError] = useState<string>('');
+  const [urlParams, setUrlParams] = useUrlParams();
+  const hasHydratedFromUrlRef = useRef(false);
+
+  useEffect(() => {
+    if (hasHydratedFromUrlRef.current) return;
+    hasHydratedFromUrlRef.current = true;
+    const { tool: t, initialSg, finalSg } = urlParams;
+    if (t === 'hydrometer' || t === 'refractometer') setTool(t);
+    if (initialSg || finalSg) {
+      const initialNum = initialSg ? parseFloat(initialSg) : NaN;
+      const finalNum = finalSg ? parseFloat(finalSg) : NaN;
+      setInputs((prev) => ({
+        ...prev,
+        ...(initialSg != null && initialSg !== '' && !isNaN(initialNum) && {
+          initialSg,
+          initialBrix: sgToBrix(initialNum).toFixed(1),
+          initialPlato: sgToPlato(initialNum).toFixed(1),
+        }),
+        ...(finalSg != null && finalSg !== '' && !isNaN(finalNum) && {
+          finalSg,
+          finalBrix: sgToBrix(finalNum).toFixed(1),
+          finalPlato: sgToPlato(finalNum).toFixed(1),
+        }),
+      }));
+    }
+  }, [urlParams]);
+
+  useEffect(() => {
+    if (!hasHydratedFromUrlRef.current) return;
+    setUrlParams({
+      tool,
+      initialSg: inputs.initialSg || undefined,
+      finalSg: inputs.finalSg || undefined,
+    });
+  }, [tool, inputs.initialSg, inputs.finalSg]);
+
+  useEffect(() => {
+    // Migration one-shot: clear legacy demo defaults from persisted storage.
+    const hasLegacyDefaults =
+      inputs.initialSg === "1.065" &&
+      inputs.initialBrix === "16.0" &&
+      inputs.initialPlato === "16.0" &&
+      inputs.finalSg === "1.032" &&
+      inputs.finalBrix === "8.0" &&
+      inputs.finalPlato === "8.0";
+
+    if (hasLegacyDefaults) {
+      setInputs({
+        initialSg: '',
+        initialBrix: '',
+        initialPlato: '',
+        finalSg: '',
+        finalBrix: '',
+        finalPlato: '',
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleClearInputs = () => {
+    clearInputsCache();
+    clearToolCache();
+    setFormError('');
+    setResult(null);
+  };
 
   const validateAndParseInputs = (): RefractometerInputs | null => {
     const initialDensityNum = parseFloat(inputs.initialSg);
@@ -135,6 +209,14 @@ const RefractometerScreen: React.FC = () => {
         />
 
         {formError && <p className={COMMON_CLASSES.errorText}>{formError}</p>}
+
+        <button
+          type="button"
+          onClick={handleClearInputs}
+          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-lg transition-colors"
+        >
+          Vider les champs
+        </button>
       </div>
 
       {result && (

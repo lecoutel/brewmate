@@ -78,19 +78,7 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
       <label className={COMMON_CLASSES.label}>{label}</label>
       <div className="flex gap-2">
         <div className="flex-1">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">°Brix</div>
-          <input
-            type="number"
-            value={brixValue}
-            onChange={handleBrixChange}
-            step="0.1"
-            min="0"
-            placeholder="ex: 12.4"
-            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
-          />
-        </div>
-        <div className="flex-1">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Densité Spécifique</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Densité spécifique</div>
           <input
             type="number"
             value={sgValue}
@@ -113,6 +101,18 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
             className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
           />
         </div>
+        <div className="flex-1">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">°Brix</div>
+          <input
+            type="number"
+            value={brixValue}
+            onChange={handleBrixChange}
+            step="0.1"
+            min="0"
+            placeholder="ex: 12.4"
+            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
+          />
+        </div>
       </div>
       {error && <p className={`mt-1 ${COMMON_CLASSES.errorText}`}>{error}</p>}
     </div>
@@ -120,20 +120,55 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
 };
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: React.ReactNode; 
+  label: React.ReactNode;
   error?: string;
   wrapperClassName?: string;
+  clearable?: boolean;
+  onClear?: () => void;
 }
 
-export const Input: React.FC<InputProps> = ({ label, id, error, wrapperClassName, ...props }) => (
-  <div className={`mb-4 ${wrapperClassName}`}>
-    <label htmlFor={id} className={COMMON_CLASSES.label}>
-      {label}
-    </label>
-    <input id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] focus:ring-[#FF4B2B]' : ''}`} />
-    {error && <p className={`mt-1 ${COMMON_CLASSES.errorText}`}>{error}</p>}
-  </div>
-);
+export const Input: React.FC<InputProps> = ({
+  label,
+  id,
+  error,
+  wrapperClassName,
+  clearable,
+  onClear,
+  value,
+  className,
+  ...props
+}) => {
+  const hasValue = value != null && String(value).trim() !== '';
+  const inputClasses = `${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] focus:ring-[#FF4B2B]' : ''} ${clearable && hasValue ? 'pr-10' : ''} ${className ?? ''}`.trim();
+
+  return (
+    <div className={`mb-4 ${wrapperClassName}`}>
+      <label htmlFor={id} className={COMMON_CLASSES.label}>
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          value={value}
+          {...props}
+          className={inputClasses}
+        />
+        {clearable && hasValue && onClear && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 dark:text-gray-500 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563FF] focus:ring-offset-0"
+            title="Vider le champ"
+            aria-label="Vider le champ"
+          >
+            <IconsConst.XCircleIcon className="w-5 h-5" />
+          </button>
+        )}
+      </div>
+      {error && <p className={`mt-1 ${COMMON_CLASSES.errorText}`}>{error}</p>}
+    </div>
+  );
+};
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label: string;

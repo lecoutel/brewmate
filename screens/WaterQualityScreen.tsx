@@ -3,9 +3,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, Button, COMMON_CLASSES, Icons } from '../components/Common';
 import { WaterQualityResult, Commune } from '../types';
 import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, getBeerStyleRecommendations } from '../services/waterQualityService';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useUrlParams } from '../hooks/useUrlParams';
+
+export interface WaterApiCache {
+  result: WaterQualityResult;
+  selectedCommune: Commune;
+  selectedNetwork: Network | null;
+  networks: Network[];
+}
 
 const WaterQualityScreen: React.FC = () => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery, clearQueryCache] = usePersistentState('brewmate:water:query', '');
+  const [waterCache, setWaterCache, clearWaterCache] = usePersistentState<WaterApiCache | null>(
+    'brewmate:water:apiCache',
+    null
+  );
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -18,9 +31,28 @@ const WaterQualityScreen: React.FC = () => {
   const [isProfilesExpanded, setIsProfilesExpanded] = useState(false);
   const [geolocSuccess, setGeolocSuccess] = useState(false);
 
-  const [beerSearchQuery, setBeerSearchQuery] = useState('');
+  const [beerSearchQuery, setBeerSearchQuery, clearBeerSearchCache] = usePersistentState(
+    'brewmate:water:beerFilter',
+    ''
+  );
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
+  const searchActivatedRef = useRef(false);
+  const hydratedFromCacheRef = useRef(false);
+  const [urlParams, setUrlParams] = useUrlParams();
+  const hasHydratedFromUrlRef = useRef(false);
+
+  useEffect(() => {
+    if (hasHydratedFromUrlRef.current) return;
+    hasHydratedFromUrlRef.current = true;
+    const { city } = urlParams;
+    if (city != null && city !== '') setQuery(city);
+  }, [urlParams]);
+
+  useEffect(() => {
+    if (!hasHydratedFromUrlRef.current) return;
+    setUrlParams({ city: query || undefined });
+  }, [query]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -33,12 +65,35 @@ const WaterQualityScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (hydratedFromCacheRef.current) return;
+    if (!query || !waterCache || waterCache.selectedCommune.nom !== query) return;
+    hydratedFromCacheRef.current = true;
+    setResult(waterCache.result);
+    setSelectedCommune(waterCache.selectedCommune);
+    setSelectedNetwork(waterCache.selectedNetwork);
+    setNetworks(waterCache.networks);
+  }, [query, waterCache]);
+
+  useEffect(() => {
+    if (result && selectedCommune && !result.error) {
+      setWaterCache({
+        result,
+        selectedCommune,
+        selectedNetwork,
+        networks,
+      });
+    }
+  }, [result, selectedCommune, selectedNetwork, networks]);
+
+  useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (query.length >= 2 && !selectedCommune) {
         setIsSearching(true);
         const results = await searchCommunes(query);
         setCommunes(results);
-        setShowAutocomplete(true);
+        if (searchActivatedRef.current) {
+          setShowAutocomplete(true);
+        }
         setIsSearching(false);
       } else {
         setCommunes([]);
@@ -135,6 +190,28 @@ const WaterQualityScreen: React.FC = () => {
     );
   };
 
+  const handleRefreshWaterData = () => {
+    if (!selectedCommune) {
+      setError('Sélectionnez une commune avant de rafraîchir les données.');
+      return;
+    }
+    handleFetchData(selectedCommune.code, selectedNetwork?.code);
+  };
+
+  const handleClearWaterData = () => {
+    clearQueryCache();
+    clearBeerSearchCache();
+    clearWaterCache();
+    setCommunes([]);
+    setSelectedCommune(null);
+    setNetworks([]);
+    setSelectedNetwork(null);
+    setResult(null);
+    setError('');
+    setShowAutocomplete(false);
+    setIsProfilesExpanded(false);
+  };
+
   const calculateStats = (params: any) => {
     if (!params) return null;
     
@@ -191,8 +268,20 @@ const WaterQualityScreen: React.FC = () => {
                 name="city"
                 id="city"
                 value={query}
+                onFocus={() => {
+                  searchActivatedRef.current = true;
+                  if (communes.length > 0) setShowAutocomplete(true);
+                }}
                 onChange={(e) => {
                   setQuery(e.target.value);
+                  setSelectedCommune(null);
+                  setNetworks([]);
+                  setSelectedNetwork(null);
+                  setResult(null);
+                  setBeerSearchQuery('');
+                }}
+                onClear={() => {
+                  setQuery('');
                   setSelectedCommune(null);
                   setNetworks([]);
                   setSelectedNetwork(null);
@@ -202,6 +291,7 @@ const WaterQualityScreen: React.FC = () => {
                 placeholder="Ex: Lyon, Paris, Nantes..."
                 autoComplete="off"
                 wrapperClassName="!mb-0"
+                clearable
               />
               {isSearching && (
                 <div className="absolute right-3 top-10">
@@ -222,7 +312,23 @@ const WaterQualityScreen: React.FC = () => {
                 }
               </Button>
             </div>
+            {result && (
+              <div className="shrink-0">
+                <Button
+                  onClick={handleRefreshWaterData}
+                  className="h-[46px] px-3"
+                  title="Rafraîchir les données d'eau"
+                  disabled={isLoading || !selectedCommune}
+                >
+                  <Icons.RefreshIcon className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
           </div>
+
+          {isLoading && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
+          )}
 
           {showAutocomplete && communes.length > 0 && (
             <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
@@ -269,10 +375,36 @@ const WaterQualityScreen: React.FC = () => {
 
         {error && <p className={COMMON_CLASSES.errorText}>{error}</p>}
 
+        <Button type="button" variant="secondary" onClick={handleClearWaterData} className="w-full">
+          Effacer les valeurs
+        </Button>
+
         {isLoading && (
-          <div className="flex flex-col items-center justify-center py-10 space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF]"></div>
-            <p className="text-sm text-gray-500">Récupération des données Hub'Eau...</p>
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Skeleton qui préfigure la carte résultat */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+                <div className="space-y-2">
+                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+                </div>
+                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+              </div>
+              <div className="flex justify-between items-center gap-4">
+                <div className="space-y-1">
+                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                </div>
+                <div className="text-right space-y-1">
+                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-700 rounded animate-pulse ml-auto" />
+                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-600 rounded animate-pulse ml-auto" />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#2563FF]/30 border-t-[#2563FF]" />
+            </div>
           </div>
         )}
 

@@ -25,7 +25,8 @@ const App: React.FC = () => {
         <Route path={CalculatorRoute.PhCorrection} element={<PhCalculatorScreen />} />
         <Route path={CalculatorRoute.PreBoilDensity} element={<PreBoilDensityScreen />} />
         <Route path={CalculatorRoute.PostBoilDensity} element={<PostBoilDensityScreen />} />
-        <Route path={CalculatorRoute.Refractometer} element={<RefractometerScreen />} />
+        <Route path={CalculatorRoute.AbvCalculator} element={<RefractometerScreen />} />
+        <Route path={CalculatorRoute.RefractometerLegacy} element={<Navigate to={CalculatorRoute.AbvCalculator} replace />} />
         <Route path={CalculatorRoute.KombuchaGenerator} element={<KombuchaGeneratorScreen />} />
         <Route path={CalculatorRoute.WaterQuality} element={<WaterQualityScreen />} /> {/* New Route */}
         <Route path="*" element={<Navigate to={CalculatorRoute.Splash} replace />} />

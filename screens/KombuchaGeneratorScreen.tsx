@@ -1,23 +1,55 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, Select, Button, COMMON_CLASSES, ResultDisplay, SectionHeading, InfoPanel } from '../components/Common';
 import {
   KombuchaRecipeInputs,
   KombuchaRecipeResult,
-  AromaticProfileKey,
-  TeaTypeKey,
 } from '../types';
 import { generateKombuchaRecipe } from '../services/kombuchaCalculatorService';
 import { KOMBUCHA_AROMATIC_PROFILE_OPTIONS, KOMBUCHA_TEA_TYPE_OPTIONS, Icons, THEME_COLORS } from '../constants'; // Added THEME_COLORS
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useUrlParams } from '../hooks/useUrlParams';
 
 const KombuchaGeneratorScreen: React.FC = () => {
-  const [inputs, setInputs] = useState<KombuchaRecipeInputs>({
+  const initialInputs: KombuchaRecipeInputs = {
     desiredVolumeL: 4,
     aromaticProfileKey: 'CLASSIC_BALANCED',
     teaTypeKey: 'BLACK_TEA',
-  });
+  };
+  const [inputs, setInputs, clearInputsCache] = usePersistentState<KombuchaRecipeInputs>(
+    'brewmate:kombucha:inputs',
+    initialInputs
+  );
   const [result, setResult] = useState<KombuchaRecipeResult | null>(null);
   const [formError, setFormError] = useState<string>('');
+  const [urlParams, setUrlParams] = useUrlParams();
+  const hasHydratedFromUrlRef = useRef(false);
+
+  useEffect(() => {
+    if (hasHydratedFromUrlRef.current) return;
+    hasHydratedFromUrlRef.current = true;
+    const { volume, profile, tea } = urlParams;
+    const updates: Partial<KombuchaRecipeInputs> = {};
+    if (volume != null && volume !== '') {
+      const v = parseFloat(volume);
+      if (!isNaN(v) && v > 0) updates.desiredVolumeL = v;
+    }
+    if (profile === 'LIGHT_GENTLE' || profile === 'CLASSIC_BALANCED' || profile === 'INTENSE_VINEGARY') {
+      updates.aromaticProfileKey = profile;
+    }
+    if (tea === 'BLACK_TEA' || tea === 'GREEN_TEA' || tea === 'MIXED_TEA') {
+      updates.teaTypeKey = tea;
+    }
+    if (Object.keys(updates).length > 0) setInputs((prev) => ({ ...prev, ...updates }));
+  }, [urlParams]);
+
+  useEffect(() => {
+    if (!hasHydratedFromUrlRef.current) return;
+    setUrlParams({
+      volume: String(inputs.desiredVolumeL),
+      profile: inputs.aromaticProfileKey,
+      tea: inputs.teaTypeKey,
+    });
+  }, [inputs.desiredVolumeL, inputs.aromaticProfileKey, inputs.teaTypeKey]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -39,6 +71,12 @@ const KombuchaGeneratorScreen: React.FC = () => {
     setFormError('');
     const recipeResult = generateKombuchaRecipe(inputs);
     setResult(recipeResult);
+  };
+
+  const handleClearInputs = () => {
+    clearInputsCache();
+    setResult(null);
+    setFormError('');
   };
 
   return (
@@ -77,6 +115,9 @@ const KombuchaGeneratorScreen: React.FC = () => {
 
         <Button type="submit" className="w-full">
           Générer la Recette
+        </Button>
+        <Button type="button" variant="secondary" className="w-full" onClick={handleClearInputs}>
+          Vider les champs
         </Button>
       </form>
 

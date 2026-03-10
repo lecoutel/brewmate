@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, ResultDisplay, DensityInputGroup, ResultActionCard, SectionHeading, ResultHero } from '../components/Common';
 import { PostBoilDensityInputs, PostBoilDensityResult, GravityUnit, DensityCorrectionOption } from '../types';
-import { calculatePostBoilDensity } from '../utils/brewingCalculators';
+import { calculatePostBoilDensity, sgToBrix, sgToPlato } from '../utils/brewingCalculators';
 import { COMMON_CLASSES, Icons } from '../constants';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useUrlParams } from '../hooks/useUrlParams';
 
 interface PostBoilDensityStringInputs {
   volumePostBoil: string;
@@ -15,21 +17,90 @@ interface PostBoilDensityStringInputs {
 }
 
 const PostBoilDensityScreen: React.FC = () => {
-  const [inputs, setInputs] = useState<PostBoilDensityStringInputs>({
+  const initialInputs: PostBoilDensityStringInputs = {
     volumePostBoil: "20",
-    measuredSg: "1.048",
-    measuredBrix: "12.0",
-    measuredPlato: "12.0",
-    targetSg: "1.050",
-    targetBrix: "12.5",
-    targetPlato: "12.5",
-  });
+    measuredSg: "",
+    measuredBrix: "",
+    measuredPlato: "",
+    targetSg: "",
+    targetBrix: "",
+    targetPlato: "",
+  };
+  const [inputs, setInputs, clearInputsCache] = usePersistentState<PostBoilDensityStringInputs>(
+    'brewmate:postboil:inputs',
+    initialInputs
+  );
   const [result, setResult] = useState<PostBoilDensityResult | null>(null);
   const [formError, setFormError] = useState<string>('');
+  const [urlParams, setUrlParams] = useUrlParams();
+  const hasHydratedFromUrlRef = useRef(false);
+
+  useEffect(() => {
+    if (hasHydratedFromUrlRef.current) return;
+    hasHydratedFromUrlRef.current = true;
+    const { volumePostBoil, measuredSg, targetSg } = urlParams;
+    if (volumePostBoil || measuredSg || targetSg) {
+      const measuredNum = measuredSg ? parseFloat(measuredSg) : NaN;
+      const targetNum = targetSg ? parseFloat(targetSg) : NaN;
+      setInputs((prev) => ({
+        ...prev,
+        ...(volumePostBoil != null && volumePostBoil !== '' && { volumePostBoil }),
+        ...(measuredSg != null && measuredSg !== '' && !isNaN(measuredNum) && {
+          measuredSg,
+          measuredBrix: sgToBrix(measuredNum).toFixed(1),
+          measuredPlato: sgToPlato(measuredNum).toFixed(1),
+        }),
+        ...(targetSg != null && targetSg !== '' && !isNaN(targetNum) && {
+          targetSg,
+          targetBrix: sgToBrix(targetNum).toFixed(1),
+          targetPlato: sgToPlato(targetNum).toFixed(1),
+        }),
+      }));
+    }
+  }, [urlParams]);
+
+  useEffect(() => {
+    if (!hasHydratedFromUrlRef.current) return;
+    setUrlParams({
+      volumePostBoil: inputs.volumePostBoil || undefined,
+      measuredSg: inputs.measuredSg || undefined,
+      targetSg: inputs.targetSg || undefined,
+    });
+  }, [inputs.volumePostBoil, inputs.measuredSg, inputs.targetSg]);
+
+  useEffect(() => {
+    // Migration one-shot: clear legacy demo defaults from persisted storage.
+    const hasLegacyDefaults =
+      inputs.measuredSg === "1.048" &&
+      inputs.measuredBrix === "12.0" &&
+      inputs.measuredPlato === "12.0" &&
+      inputs.targetSg === "1.050" &&
+      inputs.targetBrix === "12.5" &&
+      inputs.targetPlato === "12.5";
+
+    if (hasLegacyDefaults) {
+      setInputs(prev => ({
+        ...prev,
+        measuredSg: '',
+        measuredBrix: '',
+        measuredPlato: '',
+        targetSg: '',
+        targetBrix: '',
+        targetPlato: '',
+      }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInputs(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleClearInputs = () => {
+    clearInputsCache();
+    setFormError('');
+    setResult(null);
   };
   
   const validateAndParseInputs = (): PostBoilDensityInputs | null => {
@@ -107,6 +178,14 @@ const PostBoilDensityScreen: React.FC = () => {
         />
         
         {formError && <p className={COMMON_CLASSES.errorText}>{formError}</p>}
+
+        <button
+          type="button"
+          onClick={handleClearInputs}
+          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-lg transition-colors"
+        >
+          Vider les champs
+        </button>
       </div>
 
       {result && (

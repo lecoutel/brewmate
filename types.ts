@@ -13,7 +13,8 @@ export enum CalculatorRoute {
   PhCorrection = '/ph-correction',
   PreBoilDensity = '/pre-boil-density',
   PostBoilDensity = '/post-boil-density',
-  Refractometer = '/refractometer',
+  AbvCalculator = '/abv-calculator',
+  RefractometerLegacy = '/refractometer',
   KombuchaGenerator = '/kombucha-generator',
   WaterQuality = '/water-quality', // New route
 }
