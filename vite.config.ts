@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          '/api/openfoodfacts-search': {
+            target: 'https://search.openfoodfacts.org',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api\/openfoodfacts-search/, ''),
+          },
+        },
       },
       plugins: [react()],
       define: {

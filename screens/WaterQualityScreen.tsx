@@ -3,8 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, Button, COMMON_CLASSES, Icons } from '../components/Common';
 import { WaterQualityResult, Commune } from '../types';
 import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, getBeerStyleRecommendations } from '../services/waterQualityService';
+import { searchBottledWaters, getBottledWaterProfile, BottledWaterSearchHit } from '../services/openFoodFactsService';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
+
+export type WaterSourceType = 'tap' | 'bottle';
 
 export interface WaterApiCache {
   result: WaterQualityResult;
@@ -13,12 +16,25 @@ export interface WaterApiCache {
   networks: Network[];
 }
 
+const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+function formatVerifiedDate(verifiedDate: string | undefined): string | null {
+  if (!verifiedDate) return null;
+  const [y, m] = verifiedDate.split('-').map(Number);
+  if (!y || !m || m < 1 || m > 12) return verifiedDate;
+  return `${MONTHS_FR[m - 1]} ${y}`;
+}
+
 const WaterQualityScreen: React.FC = () => {
+  const [waterSource, setWaterSource] = usePersistentState<WaterSourceType>('brewmate:water:source', 'tap');
   const [query, setQuery, clearQueryCache] = usePersistentState('brewmate:water:query', '');
   const [waterCache, setWaterCache, clearWaterCache] = usePersistentState<WaterApiCache | null>(
     'brewmate:water:apiCache',
     null
   );
+  const [bottleProductCode, setBottleProductCode] = usePersistentState<string | null>('brewmate:water:bottleCode', null);
+  const [bottleProductName, setBottleProductName] = usePersistentState<string>('brewmate:water:bottleName', '');
+
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -31,6 +47,11 @@ const WaterQualityScreen: React.FC = () => {
   const [isProfilesExpanded, setIsProfilesExpanded] = useState(false);
   const [geolocSuccess, setGeolocSuccess] = useState(false);
 
+  const [bottleQuery, setBottleQuery] = useState('');
+  const [bottleResults, setBottleResults] = useState<BottledWaterSearchHit[]>([]);
+  const [isBottleSearching, setIsBottleSearching] = useState(false);
+  const [showBottleAutocomplete, setShowBottleAutocomplete] = useState(false);
+
   const [beerSearchQuery, setBeerSearchQuery, clearBeerSearchCache] = usePersistentState(
     'brewmate:water:beerFilter',
     ''
@@ -38,6 +59,7 @@ const WaterQualityScreen: React.FC = () => {
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
   const searchActivatedRef = useRef(false);
+  const justSelectedBottleRef = useRef(false);
   const hydratedFromCacheRef = useRef(false);
   const [urlParams, setUrlParams] = useUrlParams();
   const hasHydratedFromUrlRef = useRef(false);
@@ -58,6 +80,7 @@ const WaterQualityScreen: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
         setShowAutocomplete(false);
+        setShowBottleAutocomplete(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -65,16 +88,17 @@ const WaterQualityScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (hydratedFromCacheRef.current) return;
+    if (hydratedFromCacheRef.current || waterSource !== 'tap') return;
     if (!query || !waterCache || waterCache.selectedCommune.nom !== query) return;
     hydratedFromCacheRef.current = true;
     setResult(waterCache.result);
     setSelectedCommune(waterCache.selectedCommune);
     setSelectedNetwork(waterCache.selectedNetwork);
     setNetworks(waterCache.networks);
-  }, [query, waterCache]);
+  }, [query, waterCache, waterSource]);
 
   useEffect(() => {
+    if (waterSource !== 'tap') return;
     if (result && selectedCommune && !result.error) {
       setWaterCache({
         result,
@@ -83,9 +107,19 @@ const WaterQualityScreen: React.FC = () => {
         networks,
       });
     }
-  }, [result, selectedCommune, selectedNetwork, networks]);
+  }, [waterSource, result, selectedCommune, selectedNetwork, networks]);
+
+  const prevWaterSourceRef = useRef<WaterSourceType>(waterSource);
+  useEffect(() => {
+    if (prevWaterSourceRef.current !== waterSource) {
+      prevWaterSourceRef.current = waterSource;
+      setResult(null);
+      setError('');
+    }
+  }, [waterSource]);
 
   useEffect(() => {
+    if (waterSource !== 'tap') return;
     const delayDebounceFn = setTimeout(async () => {
       if (query.length >= 2 && !selectedCommune) {
         setIsSearching(true);
@@ -102,7 +136,55 @@ const WaterQualityScreen: React.FC = () => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query, selectedCommune]);
+  }, [waterSource, query, selectedCommune]);
+
+  useEffect(() => {
+    if (waterSource !== 'bottle') return;
+    const t = setTimeout(async () => {
+      if (justSelectedBottleRef.current) {
+        justSelectedBottleRef.current = false;
+        return;
+      }
+      if (bottleQuery.trim().length < 2) {
+        setBottleResults([]);
+        setShowBottleAutocomplete(false);
+        return;
+      }
+      setIsBottleSearching(true);
+      const hits = await searchBottledWaters(bottleQuery.trim());
+      setBottleResults(hits);
+      setShowBottleAutocomplete(true);
+      setIsBottleSearching(false);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [waterSource, bottleQuery]);
+
+  useEffect(() => {
+    if (waterSource !== 'bottle' || !bottleProductCode) return;
+    let cancelled = false;
+    (async () => {
+      setIsLoading(true);
+      setError('');
+      const data = await getBottledWaterProfile(bottleProductCode);
+      if (!cancelled && data) {
+        setResult(data);
+        if (data.productName) setBottleProductName(data.productName);
+      } else if (!cancelled && data === null) {
+        setError('Impossible de récupérer les données de cette eau.');
+      }
+      if (!cancelled) setIsLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [waterSource, bottleProductCode]);
+
+  const handleSelectBottle = async (hit: BottledWaterSearchHit) => {
+    justSelectedBottleRef.current = true;
+    setShowBottleAutocomplete(false);
+    setBottleResults([]);
+    setBottleQuery(hit.name);
+    setBottleProductCode(hit.code);
+    setBottleProductName(hit.name);
+  };
 
   const handleSelectCommune = async (commune: Commune, isGeolocation: boolean = false) => {
     setSelectedCommune(commune);
@@ -202,6 +284,11 @@ const WaterQualityScreen: React.FC = () => {
     clearQueryCache();
     clearBeerSearchCache();
     clearWaterCache();
+    setBottleProductCode(null);
+    setBottleProductName('');
+    setBottleQuery('');
+    setBottleResults([]);
+    setShowBottleAutocomplete(false);
     setCommunes([]);
     setSelectedCommune(null);
     setNetworks([]);
@@ -259,6 +346,24 @@ const WaterQualityScreen: React.FC = () => {
   return (
     <PageLayout title="Qualité de l'eau (France)" showBackButton>
       <div className="space-y-6">
+        <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+          <button
+            type="button"
+            onClick={() => setWaterSource('tap')}
+            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+          >
+            Eau du robinet
+          </button>
+          <button
+            type="button"
+            onClick={() => setWaterSource('bottle')}
+            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+          >
+            Eau en bouteille
+          </button>
+        </div>
+
+        {waterSource === 'tap' && (
         <div className="relative" ref={autocompleteRef}>
           <div className="flex gap-2 items-end">
             <div className="relative flex-1">
@@ -352,8 +457,58 @@ const WaterQualityScreen: React.FC = () => {
             </div>
           )}
         </div>
+        )}
 
-        {networks.length > 1 && (
+        {waterSource === 'bottle' && (
+        <div className="relative" ref={autocompleteRef}>
+          <div className="relative">
+            <Input
+              label="Rechercher une eau en bouteille"
+              type="text"
+              name="bottle"
+              id="bottle"
+              value={bottleQuery}
+              onChange={(e) => {
+                setBottleQuery(e.target.value);
+                setBottleProductCode(null);
+                setResult(null);
+                setError('');
+              }}
+              placeholder="Ex: Evian, Volvic, Contrex..."
+              autoComplete="off"
+              wrapperClassName="!mb-0"
+            />
+            {isBottleSearching && (
+              <div className="absolute right-3 top-10">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+              </div>
+            )}
+          </div>
+          {showBottleAutocomplete && bottleResults.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+              {bottleResults.map((hit) => (
+                <div
+                  key={hit.code}
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                  onClick={() => handleSelectBottle(hit)}
+                >
+                  <div className="font-medium">{hit.name}</div>
+                  {hit.brand && hit.brand !== hit.name && <div className="text-xs text-gray-500">{hit.brand}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                Aucune eau trouvée pour « {bottleQuery} »
+              </p>
+            </div>
+          )}
+        </div>
+        )}
+
+        {waterSource === 'tap' && networks.length > 1 && (
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 animate-in fade-in">
             <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
               Plusieurs points de captation (réseaux) disponibles pour cette commune. Veuillez en sélectionner un :
@@ -416,18 +571,60 @@ const WaterQualityScreen: React.FC = () => {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Nom de profil</p>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    Eau robinet {result.commune} {selectedNetwork ? `(${selectedNetwork.name})` : ''}
+                    {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
+                      ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
+                      : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">Dernière analyse : {result.lastAnalysisDate || 'Inconnue'}</p>
+                  {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {result.dataSource === 'openfoodfacts'
+                        ? 'Source : Open Food Facts'
+                        : result.dataSource === 'sise-eaux'
+                        ? 'Source : SISE-Eaux'
+                        : "Source : Hub'Eau"}
+                    </p>
+                  )}
+                  {result.dataSource === 'local-db' && result.sourceNote && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">{result.sourceNote}</p>
+                  )}
+                  {result.dataSource === 'local-db' && (
+                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                      {result.citation && (
+                        <p className="text-gray-500 dark:text-gray-400">
+                          Source :{' '}
+                          <a
+                            href={result.citation.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            {result.citation.source}
+                            <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
+                          </a>
+                        </p>
+                      )}
+                      {result.citation?.verifiedDate && (
+                        <p className="text-gray-500 dark:text-gray-400">
+                          Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="bg-[#E6EEFF] dark:bg-blue-900/40 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-[#1A237E] dark:text-blue-200">
-                  {result.dataSource === 'sise-eaux' ? 'SISE-Eaux' : "Hub'Eau"}
-                </div>
+                {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
+                  <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-blue-900/40 text-[#1A237E] dark:text-blue-200">
+                    {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
+                      : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
+                      : "Hub'Eau"}
+                  </div>
+                )}
               </div>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">Eau du réseau</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500 dark:text-gray-400">pH</p>
@@ -438,7 +635,18 @@ const WaterQualityScreen: React.FC = () => {
               </div>
             </div>
 
-            {Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0) ? (
+            {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
+              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl text-sm text-amber-800 dark:text-amber-300">
+                <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
+                <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
+              </div>
+            )}
+
+            {(result.dataSource === 'local-db'
+              || (result.dataSource !== 'openfoodfacts'
+                  ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
+                  : (result.mineralCompleteness ?? 0) >= 3)
+            ) ? (
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 
                 {/* Cations */}
@@ -450,15 +658,15 @@ const WaterQualityScreen: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.calcium.value.toFixed(0)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.calcium.value.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.magnesium.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.magnesium.value.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sodium.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sodium.value.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -469,15 +677,15 @@ const WaterQualityScreen: React.FC = () => {
                   <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.chlorides.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.chlorides.value.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sulfates.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sulfates.value.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.bicarbonates.value.toFixed(1)}</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.bicarbonates.value.toFixed(2)}</p>
                     </div>
                   </div>
                   {result.parameters.bicarbonates.source === 'TAC' && (
@@ -515,7 +723,9 @@ const WaterQualityScreen: React.FC = () => {
               <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
                 <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">
-                  Les analyses sanitaires récentes pour cette commune ne contiennent pas les paramètres minéraux nécessaires au brassage (Calcium, Magnésium, etc.).
+                  {result.dataSource === 'openfoodfacts'
+                    ? 'Aucune donnée minérale disponible pour ce produit dans Open Food Facts. Essayez de scanner le code-barre ou de chercher une autre référence de la même marque.'
+                    : 'Les analyses sanitaires récentes pour cette commune ne contiennent pas les paramètres minéraux nécessaires au brassage (Calcium, Magnésium, etc.).'}
                 </p>
               </div>
             )}
@@ -622,7 +832,7 @@ const WaterQualityScreen: React.FC = () => {
 
             <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
               <p className="text-xs text-gray-500 leading-relaxed">
-                <strong>Note :</strong> Ces données proviennent {result.dataSource === 'sise-eaux' ? 'de la base nationale SISE-Eaux (data.gouv.fr) via moneaudebrassage.fr' : 'du portail national Hub\'Eau'}. Les valeurs peuvent varier selon le point de prélèvement et la période de l'année. Pour un brassage de précision, une analyse d'eau à domicile reste la référence.
+                <strong>Note :</strong> Ces données proviennent {result.dataSource === 'openfoodfacts' ? 'd\'Open Food Facts (base collaborative)' : result.dataSource === 'sise-eaux' ? 'de la base nationale SISE-Eaux (data.gouv.fr) via moneaudebrassage.fr' : 'du portail national Hub\'Eau'}. Les valeurs peuvent varier selon le point de prélèvement et la période de l'année. Pour un brassage de précision, une analyse d'eau à domicile reste la référence.
               </p>
             </div>
           </div>

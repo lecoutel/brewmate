@@ -3,8 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, Button, InfoTooltip, COMMON_CLASSES, Select, InfoPanel, ResultHero, ResultActionCard, ResultDisplay } from '../components/Common';
 import { PhCalculationInputs, PhCalculationResult, WaterProfile, CorrectionStage, Commune, MALT_TYPE } from '../types';
 import { calculatePhCorrection } from '../services/phCalculatorService';
-import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network } from '../services/waterQualityService';
+import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, parametersToWaterProfile } from '../services/waterQualityService';
+import { searchBottledWaters, getBottledWaterProfile, BottledWaterSearchHit } from '../services/openFoodFactsService';
 import { DEFAULT_LOOS_WATER_PROFILE, Icons, CORRECTION_STAGE_OPTIONS } from '../constants';
+
+type WaterSourceType = 'tap' | 'bottle';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
 
@@ -33,6 +36,7 @@ const PhCalculatorScreen: React.FC = () => {
   const [autoDetectedVolume, setAutoDetectedVolume] = useState<number | null>(null);
 
   // Water Quality State
+  const [waterSource, setWaterSource] = usePersistentState<WaterSourceType>('brewmate:ph:waterSource', 'tap');
   const [query, setQuery, clearWaterQueryCache] = usePersistentState('brewmate:ph:waterQuery', '');
   interface PhWaterCache {
     waterProfile: WaterProfile;
@@ -44,6 +48,9 @@ const PhCalculatorScreen: React.FC = () => {
     'brewmate:ph:waterApiCache',
     null
   );
+  const [phBottleProductCode, setPhBottleProductCode] = usePersistentState<string | null>('brewmate:ph:bottleCode', null);
+  const [phBottleProductName, setPhBottleProductName] = usePersistentState<string>('brewmate:ph:bottleName', '');
+
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -52,10 +59,16 @@ const PhCalculatorScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [waterError, setWaterError] = useState('');
+
+  const [bottleQuery, setBottleQuery] = useState('');
+  const [bottleResults, setBottleResults] = useState<BottledWaterSearchHit[]>([]);
+  const [isBottleSearching, setIsBottleSearching] = useState(false);
+  const [showBottleAutocomplete, setShowBottleAutocomplete] = useState(false);
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
   const beerXmlInputRef = useRef<HTMLInputElement>(null);
   const searchActivatedRef = useRef(false);
+  const justSelectedBottleRef = useRef(false);
   const hydratedFromWaterCacheRef = useRef(false);
   const [urlParams, setUrlParams] = useUrlParams();
   const hasHydratedFromUrlRef = useRef(false);
@@ -201,6 +214,7 @@ const PhCalculatorScreen: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
         setShowAutocomplete(false);
+        setShowBottleAutocomplete(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -208,6 +222,7 @@ const PhCalculatorScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (waterSource !== 'tap') return;
     if (hydratedFromWaterCacheRef.current) return;
     if (!query || !phWaterCache || phWaterCache.selectedCommune.nom !== query) return;
     hydratedFromWaterCacheRef.current = true;
@@ -215,9 +230,10 @@ const PhCalculatorScreen: React.FC = () => {
     setSelectedCommune(phWaterCache.selectedCommune);
     setSelectedNetwork(phWaterCache.selectedNetwork);
     setNetworks(phWaterCache.networks);
-  }, [query, phWaterCache]);
+  }, [waterSource, query, phWaterCache]);
 
   useEffect(() => {
+    if (waterSource !== 'tap') return;
     if (waterProfile && selectedCommune) {
       setPhWaterCache({
         waterProfile,
@@ -226,9 +242,19 @@ const PhCalculatorScreen: React.FC = () => {
         networks,
       });
     }
-  }, [waterProfile, selectedCommune, selectedNetwork, networks]);
+  }, [waterSource, waterProfile, selectedCommune, selectedNetwork, networks]);
+
+  const prevWaterSourceRef = useRef<WaterSourceType>(waterSource);
+  useEffect(() => {
+    if (prevWaterSourceRef.current !== waterSource) {
+      prevWaterSourceRef.current = waterSource;
+      setWaterProfile(null);
+      setWaterError('');
+    }
+  }, [waterSource]);
 
   useEffect(() => {
+    if (waterSource !== 'tap') return;
     const delayDebounceFn = setTimeout(async () => {
       if (query.length >= 2 && !selectedCommune) {
         setIsSearching(true);
@@ -245,7 +271,56 @@ const PhCalculatorScreen: React.FC = () => {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query, selectedCommune]);
+  }, [waterSource, query, selectedCommune]);
+
+  useEffect(() => {
+    if (waterSource !== 'bottle') return;
+    const t = setTimeout(async () => {
+      if (justSelectedBottleRef.current) {
+        justSelectedBottleRef.current = false;
+        return;
+      }
+      if (bottleQuery.trim().length < 2) {
+        setBottleResults([]);
+        setShowBottleAutocomplete(false);
+        return;
+      }
+      setIsBottleSearching(true);
+      const hits = await searchBottledWaters(bottleQuery.trim());
+      setBottleResults(hits);
+      setShowBottleAutocomplete(true);
+      setIsBottleSearching(false);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [waterSource, bottleQuery]);
+
+  useEffect(() => {
+    if (waterSource !== 'bottle' || !phBottleProductCode) return;
+    let cancelled = false;
+    (async () => {
+      setIsLoading(true);
+      setWaterError('');
+      const data = await getBottledWaterProfile(phBottleProductCode);
+      if (!cancelled && data?.parameters) {
+        setWaterProfile(parametersToWaterProfile(data.parameters));
+        if (data.productName) setPhBottleProductName(data.productName);
+      } else if (!cancelled) {
+        setWaterError('Impossible de récupérer les données de cette eau.');
+        setWaterProfile(null);
+      }
+      if (!cancelled) setIsLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [waterSource, phBottleProductCode]);
+
+  const handleSelectBottle = (hit: BottledWaterSearchHit) => {
+    justSelectedBottleRef.current = true;
+    setShowBottleAutocomplete(false);
+    setBottleResults([]);
+    setBottleQuery(hit.name);
+    setPhBottleProductCode(hit.code);
+    setPhBottleProductName(hit.name);
+  };
 
   const handleSelectCommune = async (commune: Commune, isGeolocation: boolean = false) => {
     setSelectedCommune(commune);
@@ -462,7 +537,7 @@ const PhCalculatorScreen: React.FC = () => {
       return null;
     }
     if (stage === CorrectionStage.MASH && !waterProfile) {
-      setFormError("Veuillez sélectionner une commune pour obtenir le profil d'eau.");
+      setFormError("Veuillez renseigner le profil d'eau (ville ou eau en bouteille).");
       return null;
     }
     setFormError('');
@@ -508,6 +583,8 @@ const PhCalculatorScreen: React.FC = () => {
     clearVolumeCache();
     clearWaterQueryCache();
     clearPhWaterCache();
+    setPhBottleProductCode(null);
+    setPhBottleProductName('');
 
     setResult(null);
     setFormError('');
@@ -521,6 +598,9 @@ const PhCalculatorScreen: React.FC = () => {
     setSelectedNetwork(null);
     setShowAutocomplete(false);
     setIsSearching(false);
+    setBottleQuery('');
+    setBottleResults([]);
+    setShowBottleAutocomplete(false);
     if (beerXmlInputRef.current) {
       beerXmlInputRef.current.value = '';
     }
@@ -547,6 +627,23 @@ const PhCalculatorScreen: React.FC = () => {
         {stage === CorrectionStage.MASH && (
           <div className="space-y-4 border-t border-b border-gray-200 dark:border-gray-700 py-4 my-4">
             <h3 className="font-semibold text-gray-700 dark:text-gray-300">Profil d'eau</h3>
+            <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+              <button
+                type="button"
+                onClick={() => setWaterSource('tap')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+              >
+                Eau du robinet
+              </button>
+              <button
+                type="button"
+                onClick={() => setWaterSource('bottle')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+              >
+                Eau en bouteille
+              </button>
+            </div>
+            {waterSource === 'tap' && (
             <div className="relative" ref={autocompleteRef}>
               <div className="flex gap-2 items-end">
                 <div className="relative flex-1">
@@ -635,8 +732,61 @@ const PhCalculatorScreen: React.FC = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
               )}
             </div>
+            )}
 
-            {networks.length > 1 && (
+            {waterSource === 'bottle' && (
+            <div className="relative" ref={autocompleteRef}>
+              <div className="relative">
+                <Input
+                  label="Rechercher une eau en bouteille"
+                  type="text"
+                  name="bottle"
+                  id="bottle"
+                  value={bottleQuery}
+                  onChange={(e) => {
+                    setBottleQuery(e.target.value);
+                    setPhBottleProductCode(null);
+                    setWaterProfile(null);
+                    setWaterError('');
+                  }}
+                  placeholder="Ex: Evian, Volvic, Contrex..."
+                  autoComplete="off"
+                  wrapperClassName="!mb-0"
+                />
+                {isBottleSearching && (
+                  <div className="absolute right-3 top-10">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+                  </div>
+                )}
+              </div>
+              {showBottleAutocomplete && bottleResults.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+                  {bottleResults.map((hit) => (
+                    <div
+                      key={hit.code}
+                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                      onClick={() => handleSelectBottle(hit)}
+                    >
+                      <div className="font-medium">{hit.name}</div>
+                      {hit.brand && hit.brand !== hit.name && <div className="text-xs text-gray-500">{hit.brand}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                    Aucune eau trouvée pour « {bottleQuery} »
+                  </p>
+                </div>
+              )}
+              {isLoading && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
+              )}
+            </div>
+            )}
+
+            {waterSource === 'tap' && networks.length > 1 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 animate-in fade-in">
                 <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
                   Plusieurs points de captation (réseaux) disponibles. Veuillez en sélectionner un :
@@ -661,7 +811,7 @@ const PhCalculatorScreen: React.FC = () => {
             {waterProfile && (
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-200 dark:border-green-800">
                 <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
-                  Profil d'eau chargé pour {selectedCommune?.nom} {selectedNetwork ? `(${selectedNetwork.name})` : ''}
+                  Profil d'eau chargé pour {waterSource === 'bottle' ? phBottleProductName || '—' : `${selectedCommune?.nom || ''} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`.trim()}
                 </p>
                 <p className="text-xs text-green-700 dark:text-green-300">
                   Ca: {waterProfile.ca.toFixed(1)}, Mg: {waterProfile.mg.toFixed(1)}, Na: {waterProfile.na?.toFixed(1) || '0.0'}, Cl: {waterProfile.cl?.toFixed(1) || '0.0'}, SO₄: {waterProfile.so4?.toFixed(1) || '0.0'}, HCO₃: {waterProfile.hco3.toFixed(1)} (mg/L)

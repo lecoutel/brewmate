@@ -49,6 +49,12 @@ export interface ProfileEvaluation {
   differences: string[];
 }
 
+export interface WaterCitation {
+  url: string;            // lien cliquable vers la source officielle
+  source: string;         // ex: "Site officiel Évian"
+  verifiedDate?: string;  // ex: "2026-03" pour traçabilité
+}
+
 export interface WaterQualityResult {
   lastAnalysisDate: string;
   parameters: {
@@ -61,7 +67,12 @@ export interface WaterQualityResult {
     bicarbonates: WaterParameter;
   };
   commune: string;
-  dataSource?: 'hubeau' | 'sise-eaux';
+  dataSource?: 'hubeau' | 'sise-eaux' | 'openfoodfacts' | 'local-db';
+  productName?: string;
+  productCode?: string;
+  mineralCompleteness?: number; // 0-6 : nombre d'ions (Ca, Mg, Na, HCO3, SO4, Cl) avec valeur > 0
+  sourceNote?: string; // note contextuelle (ex: variabilité de source pour Cristaline)
+  citation?: WaterCitation; // source officielle de la composition minérale
   error?: string;
 }
 

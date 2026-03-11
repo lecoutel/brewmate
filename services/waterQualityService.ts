@@ -1,6 +1,18 @@
 
-import { WaterQualityResult, Commune, ProfileEvaluation } from '../types';
+import { WaterQualityResult, Commune, ProfileEvaluation, WaterProfile } from '../types';
 import { WATER_PROFILES, BJCP_STYLE_NAMES } from '../constants';
+
+/** Build a WaterProfile from WaterQualityResult.parameters (Hub'Eau or Open Food Facts). */
+export function parametersToWaterProfile(parameters: WaterQualityResult['parameters']): WaterProfile {
+  return {
+    ca: parameters.calcium?.value ?? 0,
+    mg: parameters.magnesium?.value ?? 0,
+    hco3: parameters.bicarbonates?.value ?? 0,
+    na: parameters.sodium?.value ?? 0,
+    cl: parameters.chlorides?.value ?? 0,
+    so4: parameters.sulfates?.value ?? 0,
+  };
+}
 
 const HUBEAU_API_URL = 'https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable/resultats_dis';
 const GEO_API_URL = 'https://geo.api.gouv.fr/communes';
