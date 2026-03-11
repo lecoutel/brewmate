@@ -46,8 +46,8 @@ export function generateKombuchaRecipe(inputs: KombuchaRecipeInputs): KombuchaRe
     };
   }
 
-  // Calculations
-  const starterLiquidL = desiredVolumeL * 0.15;
+  // Calculations — starter 15 %, plancher 10 %
+  const starterLiquidL = Math.max(desiredVolumeL * 0.1, desiredVolumeL * 0.15);
   const teaGrams = desiredVolumeL * profile.tea_per_liter;
   const sugarGrams = desiredVolumeL * profile.sugar_per_liter;
   const totalWaterL = desiredVolumeL - starterLiquidL;
@@ -56,7 +56,7 @@ export function generateKombuchaRecipe(inputs: KombuchaRecipeInputs): KombuchaRe
   const inoculationTemp = "20-30°C";
 
   const ingredients: KombuchaIngredient[] = [
-    { name: 'Eau totale (pour infusion et dilution)', amount: parseFloat(totalWaterL.toFixed(2)), unit: 'L' },
+    { name: 'Eau totale (pour infusion et dilution) — sans chlore', amount: parseFloat(totalWaterL.toFixed(2)), unit: 'L' },
     { name: `Thé (${teaTypeKey.replace('_', ' ').toLowerCase()})`, amount: parseFloat(teaGrams.toFixed(1)), unit: 'g' },
     { name: 'Sucre blanc granulé', amount: parseFloat(sugarGrams.toFixed(1)), unit: 'g' },
     { name: 'Starter liquide (Kombucha non pasteurisé d\'un batch précédent)', amount: parseFloat(starterLiquidL.toFixed(2)), unit: 'L' },
@@ -64,12 +64,13 @@ export function generateKombuchaRecipe(inputs: KombuchaRecipeInputs): KombuchaRe
   ];
 
   const instructions: KombuchaInstructionStep[] = [
+    { step: 0, text: "Préparez l'eau : utilisez de l'eau filtrée ou de source, ou de l'eau du robinet bouillie ou laissée 24 h à l'air libre (sans chlore)." },
     { step: 1, text: `Chauffez ${hotWaterL.toFixed(2)} L d'eau à ébullition, puis retirez du feu.` },
     { step: 2, text: `Ajoutez les ${teaGrams.toFixed(1)} g de thé. Laissez infuser pendant ${infusionTimeMinutes} minutes. Retirez ensuite les feuilles de thé.` },
     { step: 3, text: `Pendant que l'infusion est chaude, dissolvez complètement les ${sugarGrams.toFixed(1)} g de sucre.` },
     { step: 4, text: `Versez l'infusion sucrée dans votre bocal de fermentation. Ajoutez les ${coldWaterL.toFixed(2)} L d'eau froide restante pour aider à refroidir le mélange.` },
     { step: 5, text: `Attendez que le moût de thé sucré atteigne une température comprise entre ${inoculationTemp}. Une fois à température, ajoutez les ${starterLiquidL.toFixed(2)} L de starter liquide et déposez délicatement le SCOBY à la surface.` },
-    { step: 6, text: `Couvrez le bocal avec un tissu respirant (étamine, filtre à café) maintenu par un élastique. Laissez fermenter dans un endroit sombre, à température ambiante, pendant 7 à 21 jours, en goûtant régulièrement à partir du 7ème jour jusqu'à atteindre le profil désiré.` },
+    { step: 6, text: "Couvrez le bocal avec un tissu respirant (étamine, filtre à café) maintenu par un élastique. Laissez fermenter dans un endroit sombre, entre 20 et 30 °C (idéalement 24–29 °C), pendant 7 à 15 jours (jusqu'à 21 jours si la pièce est plus froide). Dès le 5ᵉ jour vous pouvez goûter à la paille pour ajuster." },
   ];
   
   let profileName = '';

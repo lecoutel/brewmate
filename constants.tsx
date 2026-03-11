@@ -18,7 +18,7 @@ import {
   XCircleIcon,
   PlusCircleIcon,
 } from '@heroicons/react/24/outline';
-import { CalculatorRoute, CalculatorMeta } from './types';
+import { CalculatorRoute, CalculatorMeta, HomeSection } from './types';
 
 export const APP_TITLE = 'BrewMate';
 export const SPLASH_DURATION = 2000;
@@ -134,6 +134,39 @@ export const CALCULATORS: CalculatorMeta[] = [
   },
 ];
 
+export const HOME_SECTIONS: HomeSection[] = [
+  {
+    id: 'understand-water',
+    title: 'Comprendre mon eau',
+    description: 'Consulter les minéraux de votre eau et les styles BJCP compatibles. Utile pour remplir votre profil dans Brewfather.',
+    calculatorIds: ['water-quality'],
+  },
+  {
+    id: 'adjust-ph',
+    title: 'Ajuster le pH de la maische',
+    description: 'Atteindre le pH cible à l\'empâtage ou en pré-ébullition (acide ou bicarbonate).',
+    calculatorIds: ['ph-correction'],
+  },
+  {
+    id: 'target-density',
+    title: 'Atteindre ma densité cible',
+    description: 'Corriger la densité avant ou après l\'ébullition (dilution, évaporation, sucre).',
+    calculatorIds: ['pre-boil-density', 'post-boil-density'],
+  },
+  {
+    id: 'measure-result',
+    title: 'Mesurer le résultat (alcool)',
+    description: 'Obtenir la densité finale corrigée et l\'ABV, avec densimètre ou réfractomètre.',
+    calculatorIds: ['abv-calculator'],
+  },
+  {
+    id: 'other-drinks',
+    title: 'Autres boissons',
+    description: 'Recettes et paramètres pour le kombucha.',
+    calculatorIds: ['kombucha-generator'],
+  },
+];
+
 export const KOMBUCHA_AROMATIC_PROFILE_OPTIONS = [
   { value: 'LIGHT_GENTLE', label: 'Léger et Doux' },
   { value: 'CLASSIC_BALANCED', label: 'Classique et Équilibré' },
@@ -145,6 +178,27 @@ export const KOMBUCHA_TEA_TYPE_OPTIONS = [
   { value: 'GREEN_TEA', label: 'Thé Vert' },
   { value: 'MIXED_TEA', label: 'Mélange Noir/Vert' },
 ];
+
+export const KOMBUCHA_PROFILE_HELP = 'Pour commencer : Classique et Équilibré.';
+export const KOMBUCHA_TEA_HELP = 'Thé noir : le plus simple pour le SCOBY. Thé vert : fermentation un peu plus rapide.';
+
+export const KOMBUCHA_TASTE_SUMMARIES: Record<string, Record<string, string>> = {
+  LIGHT_GENTLE: {
+    BLACK_TEA: 'Délicat et accessible, notes maltées et fruitées subtiles, acidité douce.',
+    GREEN_TEA: 'Finesse et légèreté, notes florales et végétales, idéal avec menthe ou gingembre.',
+    MIXED_TEA: 'Équilibre doux, léger corps malté et touche florale, très polyvalent.',
+  },
+  CLASSIC_BALANCED: {
+    BLACK_TEA: 'Le classique : robuste, saveurs pomme et cidre, corsé et désaltérant.',
+    GREEN_TEA: 'Vif et herbacé, notes agrumes et pomme verte, finale sèche.',
+    MIXED_TEA: 'Complexité maximale, corps et acidité franche, saveurs évolutives.',
+  },
+  INTENSE_VINEGARY: {
+    BLACK_TEA: 'Puissant et audacieux, acidité acétique marquée, pour amateurs de sensations fortes.',
+    GREEN_TEA: 'Sec et percutant, très acide, idéal pour shrubs ou vinaigrettes.',
+    MIXED_TEA: 'Profil intense, punch vinaigré et large palette de saveurs.',
+  },
+};
 
 export const DEFAULT_LOOS_WATER_PROFILE = {
   ca: 50,

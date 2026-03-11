@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PageLayout, Input, Select, Button, COMMON_CLASSES, ResultDisplay, SectionHeading, InfoPanel } from '../components/Common';
+import { PageLayout, Input, Select, Button, COMMON_CLASSES, ResultDisplay, SectionHeading } from '../components/Common';
 import {
   KombuchaRecipeInputs,
   KombuchaRecipeResult,
 } from '../types';
 import { generateKombuchaRecipe } from '../services/kombuchaCalculatorService';
-import { KOMBUCHA_AROMATIC_PROFILE_OPTIONS, KOMBUCHA_TEA_TYPE_OPTIONS, Icons, THEME_COLORS } from '../constants'; // Added THEME_COLORS
+import { KOMBUCHA_PROFILES } from '../services/kombuchaData';
+import {
+  KOMBUCHA_AROMATIC_PROFILE_OPTIONS,
+  KOMBUCHA_TEA_TYPE_OPTIONS,
+  KOMBUCHA_PROFILE_HELP,
+  KOMBUCHA_TEA_HELP,
+  Icons,
+} from '../constants';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
 
@@ -55,9 +62,9 @@ const KombuchaGeneratorScreen: React.FC = () => {
     const { name, value } = e.target;
     setInputs(prev => ({
       ...prev,
-      [name]: name === 'desiredVolumeL' ? parseFloat(value) || 0 : value,
+      ...(name === 'desiredVolumeL' ? { desiredVolumeL: parseFloat(value) || 0 } : { [name]: value }),
     }));
-    setResult(null); // Clear previous results on input change
+    setResult(null);
     setFormError('');
   };
 
@@ -87,29 +94,42 @@ const KombuchaGeneratorScreen: React.FC = () => {
           type="number"
           name="desiredVolumeL"
           id="desiredVolumeL"
-          value={inputs.desiredVolumeL.toString()} // Input expects string
+          value={inputs.desiredVolumeL.toString()}
           onChange={handleInputChange}
           step="0.5"
           min="0.5"
           placeholder="ex: 4"
           required
         />
-        <Select
-          label="Profil Aromatique Souhaité"
-          name="aromaticProfileKey"
-          id="aromaticProfileKey"
-          value={inputs.aromaticProfileKey}
-          onChange={handleInputChange}
-          options={KOMBUCHA_AROMATIC_PROFILE_OPTIONS}
-        />
-        <Select
-          label="Type de Thé Utilisé"
-          name="teaTypeKey"
-          id="teaTypeKey"
-          value={inputs.teaTypeKey}
-          onChange={handleInputChange}
-          options={KOMBUCHA_TEA_TYPE_OPTIONS}
-        />
+        <div>
+          <Select
+            label="Profil Aromatique Souhaité"
+            name="aromaticProfileKey"
+            id="aromaticProfileKey"
+            value={inputs.aromaticProfileKey}
+            onChange={handleInputChange}
+            options={KOMBUCHA_AROMATIC_PROFILE_OPTIONS}
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{KOMBUCHA_PROFILE_HELP}</p>
+        </div>
+        <div>
+          <Select
+            label="Type de Thé Utilisé"
+            name="teaTypeKey"
+            id="teaTypeKey"
+            value={inputs.teaTypeKey}
+            onChange={handleInputChange}
+            options={KOMBUCHA_TEA_TYPE_OPTIONS}
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{KOMBUCHA_TEA_HELP}</p>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50 p-4">
+          <strong className="block mb-1 text-gray-900 dark:text-gray-100">Profil de goût attendu</strong>
+          <p className="text-gray-700 dark:text-gray-300 text-sm">
+            {KOMBUCHA_PROFILES[inputs.aromaticProfileKey]?.descriptions[inputs.teaTypeKey] ?? '—'}
+          </p>
+        </div>
 
         {formError && <p className={COMMON_CLASSES.errorText}>{formError}</p>}
 
@@ -129,10 +149,12 @@ const KombuchaGeneratorScreen: React.FC = () => {
         <div className="mt-8 space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{result.title}</h2>
 
-          <InfoPanel icon={Icons.SparklesIcon}>
-            <strong className="block mb-1">Profil de Goût Attendu</strong>
-            {result.expectedTasteProfile}
-          </InfoPanel>
+          <div>
+            <strong className="block mb-1 text-gray-900 dark:text-gray-100">Profil de goût attendu</strong>
+            <p className="text-gray-700 dark:text-gray-300">
+              {result.expectedTasteProfile}
+            </p>
+          </div>
 
           <div>
             <SectionHeading icon={Icons.BeakerIcon}>Ingrédients</SectionHeading>
@@ -157,6 +179,14 @@ const KombuchaGeneratorScreen: React.FC = () => {
                 </li>
               ))}
             </ol>
+            <div className="mt-3 space-y-3 text-sm text-amber-800 dark:text-amber-200 rounded-lg bg-amber-50 dark:bg-amber-900/20 p-4 border border-amber-200 dark:border-amber-800">
+              <p className="font-medium">Conseils de sécurité</p>
+              <p><strong>Eau</strong> — Utilisez de l'eau filtrée ou de source. Si vous n'avez que l'eau du robinet : faites-la bouillir ou laissez-la reposer 24 h à l'air libre avant de l'utiliser.</p>
+              <p><strong>À jeter (moisissure)</strong> — En surface du liquide ou du SCOBY : aspect sec, duveteux, velu ou poudreux ; couleurs blanc vif, vert, bleu, gris ou noir. → Jetez tout (liquide + SCOBY) et désinfectez le matériel.</p>
+              <p><strong>Normal (à garder)</strong> — Sédiments bruns dans le liquide ou sous le SCOBY ; nouvelle membrane translucide à la surface (bébé SCOBY). C'est bon signe.</p>
+              <p className="text-amber-900 dark:text-amber-100 font-medium">En cas de doute, ne pas consommer.</p>
+              <p><strong>Matériel</strong> — Privilégiez un récipient en verre ou en inox alimentaire (304/316). Évitez les récipients en métal non alimentaire ou en céramique émaillée non garantie sans plomb.</p>
+            </div>
           </div>
 
           <div className="mt-2 text-center">

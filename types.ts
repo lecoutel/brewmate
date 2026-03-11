@@ -27,6 +27,13 @@ export interface CalculatorMeta {
   icon: React.ElementType; // Heroicon component
 }
 
+export interface HomeSection {
+  id: string;
+  title: string;
+  description: string;
+  calculatorIds: string[];
+}
+
 // --- Water Quality Types ---
 export interface WaterParameter {
   value: number;

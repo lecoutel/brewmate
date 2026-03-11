@@ -3,8 +3,8 @@ import { KombuchaProfileData, InfusionTimesData } from '../types';
 
 export const KOMBUCHA_PROFILES: KombuchaProfileData = {
   LIGHT_GENTLE: {
-    tea_per_liter: 5,
-    sugar_per_liter: 60,
+    tea_per_liter: 7,
+    sugar_per_liter: 70,
     descriptions: {
       BLACK_TEA: "Attendez-vous à un kombucha délicat et accessible. Les notes de malt et de fruits secs du thé noir sont présentes mais subtiles, laissant place à une douceur miellée. L'acidité est douce et rafraîchissante, sans aucune agressivité. C'est la base parfaite pour laisser les fruits délicats (pêche, fraise) s'exprimer pleinement en seconde fermentation.",
       GREEN_TEA: "Un profil tout en finesse et en légèreté. Des notes florales et végétales dominent, avec une finale très nette et peu sucrée. L'acidité est vive mais discrète, rappelant une limonade maison. Idéal pour des ajouts comme le concombre, la menthe ou le gingembre frais.",

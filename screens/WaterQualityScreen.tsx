@@ -47,7 +47,7 @@ const WaterQualityScreen: React.FC = () => {
   const [isProfilesExpanded, setIsProfilesExpanded] = useState(false);
   const [geolocSuccess, setGeolocSuccess] = useState(false);
 
-  const [bottleQuery, setBottleQuery] = useState('');
+  const [bottleQuery, setBottleQuery, clearBottleQueryCache] = usePersistentState('brewmate:water:bottleQuery', '');
   const [bottleResults, setBottleResults] = useState<BottledWaterSearchHit[]>([]);
   const [isBottleSearching, setIsBottleSearching] = useState(false);
   const [showBottleAutocomplete, setShowBottleAutocomplete] = useState(false);
@@ -63,18 +63,37 @@ const WaterQualityScreen: React.FC = () => {
   const hydratedFromCacheRef = useRef(false);
   const [urlParams, setUrlParams] = useUrlParams();
   const hasHydratedFromUrlRef = useRef(false);
+  const hasAutoSelectedFromUrlRef = useRef(false);
 
+  // Hydrate from URL: bottle (water=bottle&code=...) or city (?city=...)
   useEffect(() => {
     if (hasHydratedFromUrlRef.current) return;
     hasHydratedFromUrlRef.current = true;
-    const { city } = urlParams;
+    const { city, water, code } = urlParams;
+    if (water === 'bottle' && code && code.trim() !== '') {
+      setWaterSource('bottle');
+      setBottleProductCode(code.trim());
+      return;
+    }
     if (city != null && city !== '') setQuery(city);
   }, [urlParams]);
 
   useEffect(() => {
     if (!hasHydratedFromUrlRef.current) return;
-    setUrlParams({ city: query || undefined });
-  }, [query]);
+    if (waterSource !== 'tap') return;
+    setUrlParams({ city: query || undefined, water: undefined, code: undefined });
+  }, [waterSource, query]);
+
+  // Auto-resolve city from URL and fetch water quality when landing with ?city=...
+  useEffect(() => {
+    if (waterSource !== 'tap' || hasAutoSelectedFromUrlRef.current) return;
+    const urlCity = urlParams?.city?.trim();
+    if (!urlCity || query.trim() !== urlCity) return;
+    if (communes.length === 0) return;
+    const match = communes.find((c) => c.nom === query.trim()) ?? communes[0];
+    hasAutoSelectedFromUrlRef.current = true;
+    handleSelectCommune(match, false);
+  }, [waterSource, urlParams?.city, query, communes]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -168,7 +187,10 @@ const WaterQualityScreen: React.FC = () => {
       const data = await getBottledWaterProfile(bottleProductCode);
       if (!cancelled && data) {
         setResult(data);
-        if (data.productName) setBottleProductName(data.productName);
+        if (data.productName) {
+          setBottleProductName(data.productName);
+          setBottleQuery((prev) => (prev.trim() === '' ? data.productName! : prev));
+        }
       } else if (!cancelled && data === null) {
         setError('Impossible de récupérer les données de cette eau.');
       }
@@ -184,6 +206,7 @@ const WaterQualityScreen: React.FC = () => {
     setBottleQuery(hit.name);
     setBottleProductCode(hit.code);
     setBottleProductName(hit.name);
+    setUrlParams({ water: 'bottle', code: hit.code, city: undefined });
   };
 
   const handleSelectCommune = async (commune: Commune, isGeolocation: boolean = false) => {
@@ -284,6 +307,7 @@ const WaterQualityScreen: React.FC = () => {
     clearQueryCache();
     clearBeerSearchCache();
     clearWaterCache();
+    clearBottleQueryCache();
     setBottleProductCode(null);
     setBottleProductName('');
     setBottleQuery('');
