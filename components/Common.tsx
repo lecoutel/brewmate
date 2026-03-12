@@ -76,7 +76,7 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
   return (
     <div className="mb-4">
       <label className={COMMON_CLASSES.label}>{label}</label>
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1">
           <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Densité spécifique</div>
           <input
@@ -324,8 +324,24 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
           </div>
         </div>
       </main>
-      <footer className="text-center py-4">
-        <p className={COMMON_CLASSES.textMuted}>BrewMate &copy; {new Date().getFullYear()}</p>
+      <footer className="text-center py-4 space-y-1">
+        <p className={COMMON_CLASSES.textMuted}>
+          <Link
+            to="/feedback"
+            className="text-[#2563FF] dark:text-[#6b99ff] hover:underline font-medium"
+          >
+            Donner mon avis
+          </Link>
+          {' · '}
+          <Link
+            to="/don"
+            className="text-[#2563FF] dark:text-[#6b99ff] hover:underline font-medium"
+          >
+            Offrir une bière
+          </Link>
+          {' · '}
+          <span>BrewMate &copy; {new Date().getFullYear()}</span>
+        </p>
       </footer>
     </div>
   );

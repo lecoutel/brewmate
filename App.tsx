@@ -12,7 +12,9 @@ import PreBoilDensityScreen from './screens/PreBoilDensityScreen';
 import PostBoilDensityScreen from './screens/PostBoilDensityScreen';
 import RefractometerScreen from './screens/RefractometerScreen';
 import KombuchaGeneratorScreen from './screens/KombuchaGeneratorScreen';
-import WaterQualityScreen from './screens/WaterQualityScreen'; // New Screen
+import WaterQualityScreen from './screens/WaterQualityScreen';
+import FeedbackScreen from './screens/FeedbackScreen';
+import DonationScreen from './screens/DonationScreen';
 
 const App: React.FC = () => {
   useTheme(); // Initialize and apply theme
@@ -28,7 +30,9 @@ const App: React.FC = () => {
         <Route path={CalculatorRoute.AbvCalculator} element={<RefractometerScreen />} />
         <Route path={CalculatorRoute.RefractometerLegacy} element={<Navigate to={CalculatorRoute.AbvCalculator} replace />} />
         <Route path={CalculatorRoute.KombuchaGenerator} element={<KombuchaGeneratorScreen />} />
-        <Route path={CalculatorRoute.WaterQuality} element={<WaterQualityScreen />} /> {/* New Route */}
+        <Route path={CalculatorRoute.WaterQuality} element={<WaterQualityScreen />} />
+        <Route path={CalculatorRoute.Feedback} element={<FeedbackScreen />} />
+        <Route path={CalculatorRoute.Don} element={<DonationScreen />} />
         <Route path="*" element={<Navigate to={CalculatorRoute.Splash} replace />} />
       </Routes>
     </HashRouter>

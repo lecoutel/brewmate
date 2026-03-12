@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { CALCULATORS, HOME_SECTIONS, APP_TITLE } from '../constants';
 import { Card, PageLayout } from '../components/Common';
-// Removed useTheme, Theme, SunIcon, MoonIcon, THEME_COLORS imports as they are no longer used here
+import { CalculatorRoute } from '../types';
 
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -36,6 +36,29 @@ const HomeScreen: React.FC = () => {
             </div>
           </section>
         ))}
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Contact</h2>
+          <div className="grid grid-cols-1 gap-3">
+            <Link
+              to={CalculatorRoute.Feedback}
+              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-[#2563FF] dark:hover:border-[#6b99ff] hover:shadow-md transition-all duration-200 text-left group"
+            >
+              <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff]">
+                Donnez votre avis !
+              </span>
+              <span className="text-[#2563FF] dark:text-[#6b99ff]">→</span>
+            </Link>
+            <Link
+              to={CalculatorRoute.Don}
+              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-[#2563FF] dark:hover:border-[#6b99ff] hover:shadow-md transition-all duration-200 text-left group"
+            >
+              <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff]">
+                Offrir une bière 🍻
+              </span>
+              <span className="text-[#2563FF] dark:text-[#6b99ff]">→</span>
+            </Link>
+          </div>
+        </section>
       </div>
     </PageLayout>
   );

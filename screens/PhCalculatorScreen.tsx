@@ -836,7 +836,7 @@ const PhCalculatorScreen: React.FC = () => {
             className={`w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-gray-700 file:text-gray-800 dark:file:text-gray-200 hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF]`}
             aria-describedby="beerXmlFile_help"
           />
-          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400">Fichier: {fileName}</p>}
+          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400 truncate">Fichier: {fileName}</p>}
           {(fileName || beerXmlContent) && (
             <button
               type="button"

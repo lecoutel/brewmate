@@ -591,7 +591,7 @@ const WaterQualityScreen: React.FC = () => {
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Nom de profil</p>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -679,7 +679,7 @@ const WaterQualityScreen: React.FC = () => {
                     <h4 className="font-bold text-green-700 dark:text-green-500">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
                     <span className="text-xs text-gray-500 dark:text-gray-400">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
                       <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.calcium.value.toFixed(2)}</p>
@@ -698,7 +698,7 @@ const WaterQualityScreen: React.FC = () => {
                 {/* Anions */}
                 <div className="mb-8">
                   <h4 className="font-bold text-green-700 dark:text-green-500 mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
-                  <div className="grid grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
                       <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.chlorides.value.toFixed(2)}</p>

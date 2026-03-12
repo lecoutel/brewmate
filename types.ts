@@ -16,7 +16,9 @@ export enum CalculatorRoute {
   AbvCalculator = '/abv-calculator',
   RefractometerLegacy = '/refractometer',
   KombuchaGenerator = '/kombucha-generator',
-  WaterQuality = '/water-quality', // New route
+  WaterQuality = '/water-quality',
+  Feedback = '/feedback',
+  Don = '/don',
 }
 
 export interface CalculatorMeta {
