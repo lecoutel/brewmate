@@ -280,8 +280,15 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
       <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="BrewMate" className="w-8 h-8 object-contain flex-shrink-0" />
-            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">BrewMate</span>
+            <img src="/logo.png" alt="WortLab" className="w-8 h-8 object-contain flex-shrink-0" />
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">WortLab</span>
+            <Link
+              to="/feedback"
+              className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800/50 transition-colors"
+              title="Contact / Donner mon avis"
+            >
+              beta
+            </Link>
           </div>
           <button
             onClick={() => setTheme(theme === Theme.Dark ? Theme.Light : Theme.Dark)}
@@ -340,7 +347,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
             Offrir une bière
           </Link>
           {' · '}
-          <span>BrewMate &copy; {new Date().getFullYear()}</span>
+          <span>WortLab &copy; {new Date().getFullYear()}</span>
         </p>
       </footer>
     </div>

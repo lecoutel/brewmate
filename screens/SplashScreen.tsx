@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrewMateCircularLogo, SPLASH_DURATION, APP_TITLE } from '../constants';
+import { WortLabCircularLogo, SPLASH_DURATION, APP_TITLE } from '../constants';
 import { CalculatorRoute } from '../types';
 
 const SplashScreen: React.FC = () => {
@@ -17,7 +17,7 @@ const SplashScreen: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#F5F7FA] dark:bg-gray-900 p-4">
-      <BrewMateCircularLogo className="w-40 h-auto sm:w-56" />
+      <WortLabCircularLogo className="w-40 h-auto sm:w-56" />
       <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 animate-pulse">Chargement des calculateurs...</p>
     </div>
   );

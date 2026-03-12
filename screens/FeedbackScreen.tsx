@@ -90,7 +90,7 @@ const FeedbackScreen: React.FC = () => {
             {"Votre retour compte vraiment. Que vous ayez repéré un bug, une idée d'amélioration ou juste envie de dire bonjour — tous les messages sont lus et pris en compte."}
           </p>
           <p>
-            {"BrewMate est un projet développé dans mon garage, en dehors des heures de brassage 😄 Il peut donc arriver qu'un petit bug se glisse quelque part. Si vous en croisez un, signalez-le : je m'en occupe dès que possible."}
+            {"WortLab est un projet développé dans mon garage, en dehors des heures de brassage 😄 Il peut donc arriver qu'un petit bug se glisse quelque part. Si vous en croisez un, signalez-le : je m'en occupe dès que possible."}
           </p>
           <p>
             {"Mon objectif est de faire évoluer l'app selon vos besoins réels. Vos suggestions sont donc les bienvenues !"}

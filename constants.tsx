@@ -20,7 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { CalculatorRoute, CalculatorMeta, HomeSection } from './types';
 
-export const APP_TITLE = 'BrewMate';
+export const APP_TITLE = 'WortLab';
 export const SPLASH_DURATION = 2000;
 
 export const THEME_COLORS = {
@@ -82,10 +82,10 @@ export const Icons = {
   PlusCircleIcon,
 };
 
-export const BrewMateCircularLogo: React.FC<{ className?: string }> = ({ className }) => (
+export const WortLabCircularLogo: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`flex flex-col items-center justify-center ${className}`}>
-    <img src="/logo.png" alt="BrewMate" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain" />
-    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">BrewMate</span>
+    <img src="/logo.png" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain" />
+    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">WortLab</span>
   </div>
 );
 

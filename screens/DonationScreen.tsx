@@ -57,7 +57,7 @@ const DonationScreen: React.FC = () => {
             {" et à sa communauté Facebook — des ressources précieuses que je consulte encore régulièrement."}
           </p>
           <p>
-            {"J’ai développé BrewMate pour m’accompagner pendant mes sessions de brassage : quelques calculs rapides, accessibles d’un coup d’œil sur le téléphone. Rien de plus, rien de moins. Ce n’est pas un Beersmith ou un Brewfather — juste un petit compagnon de poche, gratuit et sans fioritures."}
+            {"J’ai développé WortLab pour m’accompagner pendant mes sessions de brassage : quelques calculs rapides, accessibles d’un coup d’œil sur le téléphone. Rien de plus, rien de moins. Ce n’est pas un Beersmith ou un Brewfather — juste un petit compagnon de poche, gratuit et sans fioritures."}
           </p>
           <p>
             {"Si ça vous plaît et que vous souhaitez soutenir le projet, n’hésitez pas à me payer une bière — ça fait toujours plaisir et ça m’encourage à continuer ! 🍻"}
