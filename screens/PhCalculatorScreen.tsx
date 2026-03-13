@@ -625,7 +625,7 @@ const PhCalculatorScreen: React.FC = () => {
         )}
 
         {stage === CorrectionStage.MASH && (
-          <div className="space-y-4 border-t border-b border-gray-200 dark:border-gray-700 py-4 my-4">
+          <div className="space-y-4 border-t border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border py-4 my-4">
             <h3 className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">Profil d'eau</h3>
             <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg">
               <button
@@ -711,7 +711,7 @@ const PhCalculatorScreen: React.FC = () => {
                   {communes.map((c) => (
                     <div
                       key={c.code}
-                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
                       onClick={() => handleSelectCommune(c, false)}
                     >
                       <div className="font-medium">{c.nom}</div>
@@ -764,7 +764,7 @@ const PhCalculatorScreen: React.FC = () => {
                   {bottleResults.map((hit) => (
                     <div
                       key={hit.code}
-                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
                       onClick={() => handleSelectBottle(hit)}
                     >
                       <div className="font-medium">{hit.name}</div>
@@ -810,10 +810,10 @@ const PhCalculatorScreen: React.FC = () => {
             
             {waterProfile && (
               <div className="bg-green-50 dark:bg-green-900/20 calculator:bg-calc-bg-card p-3 rounded-md border border-green-200 dark:border-green-800 calculator:border-calc-border">
-                <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
+                <p className="text-sm text-green-800 dark:text-green-200 calculator:text-calc-text font-medium mb-1">
                   Profil d'eau chargé pour {waterSource === 'bottle' ? phBottleProductName || '—' : `${selectedCommune?.nom || ''} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`.trim()}
                 </p>
-                <p className="text-xs text-green-700 dark:text-green-300">
+                <p className="text-xs text-green-700 dark:text-green-300 calculator:text-calc-text-muted">
                   Ca: {waterProfile.ca.toFixed(1)}, Mg: {waterProfile.mg.toFixed(1)}, Na: {waterProfile.na?.toFixed(1) || '0.0'}, Cl: {waterProfile.cl?.toFixed(1) || '0.0'}, SO₄: {waterProfile.so4?.toFixed(1) || '0.0'}, HCO₃: {waterProfile.hco3.toFixed(1)} (mg/L)
                 </p>
               </div>
