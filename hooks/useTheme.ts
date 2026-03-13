@@ -5,19 +5,19 @@ export function useTheme(): [Theme, (theme: Theme) => void] {
   const getInitialTheme = useCallback((): Theme => {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('theme') as Theme | null;
-      if (storedTheme && (storedTheme === Theme.Light || storedTheme === Theme.Dark)) {
+      if (storedTheme && (storedTheme === Theme.Light || storedTheme === Theme.Dark || storedTheme === Theme.Calculator)) {
         return storedTheme;
       }
-      // Default to light mode regardless of system preference
     }
-    return Theme.Light; // Default fallback
+    return Theme.Light;
   }, []);
 
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   const applyTheme = useCallback((themeToApply: Theme) => {
     const root = window.document.documentElement;
-    let applySystemTheme = themeToApply === Theme.System;
+    const isCalculator = themeToApply === Theme.Calculator;
+    const applySystemTheme = themeToApply === Theme.System;
     let isDark: boolean;
 
     if (applySystemTheme) {
@@ -28,8 +28,12 @@ export function useTheme(): [Theme, (theme: Theme) => void] {
       localStorage.setItem('theme', themeToApply);
     }
 
-    root.classList.remove(isDark ? Theme.Light : Theme.Dark);
-    root.classList.add(isDark ? Theme.Dark : Theme.Light);
+    root.classList.remove(Theme.Light, Theme.Dark, Theme.Calculator);
+    if (isCalculator) {
+      root.classList.add(Theme.Calculator);
+    } else {
+      root.classList.add(isDark ? Theme.Dark : Theme.Light);
+    }
   }, []);
 
   useEffect(() => {

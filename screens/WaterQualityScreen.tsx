@@ -6,6 +6,7 @@ import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, N
 import { searchBottledWaters, getBottledWaterProfile, BottledWaterSearchHit } from '../services/openFoodFactsService';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
+import FormulaInfoSection from '../components/FormulaInfoSection';
 
 export type WaterSourceType = 'tap' | 'bottle';
 
@@ -370,18 +371,18 @@ const WaterQualityScreen: React.FC = () => {
   return (
     <PageLayout title="Qualité de l'eau (France)" showBackButton>
       <div className="space-y-6">
-        <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg">
           <button
             type="button"
             onClick={() => setWaterSource('tap')}
-            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
           >
             Eau du robinet
           </button>
           <button
             type="button"
             onClick={() => setWaterSource('bottle')}
-            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
           >
             Eau en bouteille
           </button>
@@ -424,7 +425,7 @@ const WaterQualityScreen: React.FC = () => {
               />
               {isSearching && (
                 <div className="absolute right-3 top-10">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
                 </div>
               )}
             </div>
@@ -456,26 +457,26 @@ const WaterQualityScreen: React.FC = () => {
           </div>
 
           {isLoading && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
           )}
 
           {showAutocomplete && communes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl max-h-60 overflow-auto">
               {communes.map((c) => (
                 <div
                   key={c.code}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
                   onClick={() => handleSelectCommune(c, false)}
                 >
-                  <div className="font-medium">{c.nom}</div>
-                  <div className="text-xs text-gray-500">{c.codesPostaux.join(', ')}</div>
+                  <div className="font-medium calculator:text-calc-text">{c.nom}</div>
+                  <div className="text-xs text-gray-500 calculator:text-calc-text-muted">{c.codesPostaux.join(', ')}</div>
                 </div>
               ))}
             </div>
           )}
           {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
                 Aucune commune trouvée pour « {query} »
               </p>
             </div>
@@ -504,12 +505,12 @@ const WaterQualityScreen: React.FC = () => {
             />
             {isBottleSearching && (
               <div className="absolute right-3 top-10">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
               </div>
             )}
           </div>
           {showBottleAutocomplete && bottleResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
               {bottleResults.map((hit) => (
                 <div
                   key={hit.code}
@@ -523,8 +524,8 @@ const WaterQualityScreen: React.FC = () => {
             </div>
           )}
           {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
                 Aucune eau trouvée pour « {bottleQuery} »
               </p>
             </div>
@@ -533,12 +534,12 @@ const WaterQualityScreen: React.FC = () => {
         )}
 
         {waterSource === 'tap' && networks.length > 1 && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 animate-in fade-in">
-            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+          <div className="bg-blue-50 dark:bg-blue-900/20 calculator:bg-calc-bg-surface p-4 rounded-lg calculator:rounded-none border border-blue-200 dark:border-blue-800 calculator:border-calc-border animate-in fade-in">
+            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 calculator:text-calc-text mb-2">
               Plusieurs points de captation (réseaux) disponibles pour cette commune. Veuillez en sélectionner un :
             </label>
             <select
-              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700"}
+              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700 calculator:bg-calc-bg-card"}
               value={selectedNetwork?.code || ''}
               onChange={(e) => handleSelectNetwork(e.target.value)}
             >
@@ -561,28 +562,28 @@ const WaterQualityScreen: React.FC = () => {
         {isLoading && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Skeleton qui préfigure la carte résultat */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div className="space-y-2">
-                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
-                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
-                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-600 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-600 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
-                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-600 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
               </div>
               <div className="flex justify-between items-center gap-4">
                 <div className="space-y-1">
-                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-600 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
                 <div className="text-right space-y-1">
-                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-700 rounded animate-pulse ml-auto" />
-                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-600 rounded animate-pulse ml-auto" />
+                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
+                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-600 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
                 </div>
               </div>
             </div>
             <div className="flex flex-col items-center justify-center py-6">
-              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#2563FF]/30 border-t-[#2563FF]" />
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#2563FF]/30 border-t-[#2563FF] calculator:border-calc-accent" />
             </div>
           </div>
         )}
@@ -590,17 +591,17 @@ const WaterQualityScreen: React.FC = () => {
         {result && !isLoading && stats && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Nom de profil</p>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Nom de profil</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
                       ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
                       : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
                   </h3>
                   {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 calculator:text-calc-text-muted mt-1">
                       {result.dataSource === 'openfoodfacts'
                         ? 'Source : Open Food Facts'
                         : result.dataSource === 'sise-eaux'
@@ -609,18 +610,18 @@ const WaterQualityScreen: React.FC = () => {
                     </p>
                   )}
                   {result.dataSource === 'local-db' && result.sourceNote && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 italic">{result.sourceNote}</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
                   )}
                   {result.dataSource === 'local-db' && (
-                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 calculator:border-calc-border space-y-1">
                       {result.citation && (
-                        <p className="text-gray-500 dark:text-gray-400">
+                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
                           Source :{' '}
                           <a
                             href={result.citation.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
+                            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 calculator:text-calc-text hover:underline"
                           >
                             {result.citation.source}
                             <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
@@ -628,7 +629,7 @@ const WaterQualityScreen: React.FC = () => {
                         </p>
                       )}
                       {result.citation?.verifiedDate && (
-                        <p className="text-gray-500 dark:text-gray-400">
+                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
                           Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
                         </p>
                       )}
@@ -636,7 +637,7 @@ const WaterQualityScreen: React.FC = () => {
                   )}
                 </div>
                 {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                  <div className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-blue-900/40 text-[#1A237E] dark:text-blue-200">
+                  <div className="px-2 py-1 rounded calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-blue-900/40 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-blue-200 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
                       : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
                       : "Hub'Eau"}
@@ -645,14 +646,14 @@ const WaterQualityScreen: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Type</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">pH</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">pH</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
                   </p>
                 </div>
@@ -660,7 +661,7 @@ const WaterQualityScreen: React.FC = () => {
             </div>
 
             {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl text-sm text-amber-800 dark:text-amber-300">
+              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 calculator:bg-calc-bg-card border border-amber-200 dark:border-amber-700 calculator:border-calc-border rounded-xl calculator:rounded-none text-sm text-amber-800 dark:text-amber-300 calculator:text-calc-text">
                 <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
               </div>
@@ -671,45 +672,45 @@ const WaterQualityScreen: React.FC = () => {
                   ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
                   : (result.mineralCompleteness ?? 0) >= 3)
             ) ? (
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                
+              <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+
                 {/* Cations */}
                 <div className="mb-8">
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-bold text-green-700 dark:text-green-500">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
+                    <h4 className="font-bold text-green-700 dark:text-green-500 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.calcium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.calcium.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.magnesium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.magnesium.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sodium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sodium.value.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Anions */}
                 <div className="mb-8">
-                  <h4 className="font-bold text-green-700 dark:text-green-500 mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <h4 className="font-bold text-green-700 dark:text-green-500 calculator:text-calc-text mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.chlorides.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.chlorides.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.sulfates.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sulfates.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{result.parameters.bicarbonates.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.parameters.bicarbonates.value.toFixed(2)}</p>
                     </div>
                   </div>
                   {result.parameters.bicarbonates.source === 'TAC' && (
@@ -721,30 +722,30 @@ const WaterQualityScreen: React.FC = () => {
 
                 {/* Statistiques */}
                 <div>
-                  <h4 className="font-bold text-gray-700 dark:text-gray-300 mb-2">Statistiques</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+                  <h4 className="font-bold text-gray-700 dark:text-gray-300 calculator:text-calc-text mb-2">Statistiques</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300">ratio</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.ratio.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">ratio</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{stats.ratio.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Dureté</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.durete.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Dureté</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{stats.durete.toFixed(0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alcalinité</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.alcalinite.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Alcalinité</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{stats.alcalinite.toFixed(0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Alcalinité résiduelle</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100">{stats.alcaliniteResiduelle.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Alcalinité résiduelle</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">{stats.alcaliniteResiduelle.toFixed(0)}</p>
                     </div>
                   </div>
                 </div>
 
               </div>
             ) : (
-              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-600 calculator:border-calc-border">
                 <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">
                   {result.dataSource === 'openfoodfacts'
@@ -756,17 +757,17 @@ const WaterQualityScreen: React.FC = () => {
 
             {/* Beer Style Recommendations */}
             {beerRecommendations && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac overflow-hidden">
                 <button 
                   onClick={() => setIsProfilesExpanded(!isProfilesExpanded)}
-                  className="w-full flex items-center justify-between p-6 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  className="w-full flex items-center justify-between p-6 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 calculator:hover:bg-calc-bg-surface transition-colors"
                 >
-                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <Icons.BeakerIcon className="w-5 h-5 text-[#2563FF]" />
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100 calculator:text-calc-text flex items-center gap-2">
+                    <Icons.BeakerIcon className="w-5 h-5 text-[#2563FF] calculator:text-calc-text" />
                     Profils d'eau & Styles (BJCP)
                   </h4>
                   <svg 
-                    className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isProfilesExpanded ? 'rotate-180' : ''}`} 
+                    className={`w-5 h-5 text-gray-500 calculator:text-calc-text-muted transition-transform duration-200 ${isProfilesExpanded ? 'rotate-180' : ''}`}
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -776,7 +777,7 @@ const WaterQualityScreen: React.FC = () => {
                 </button>
                 
                 {isProfilesExpanded && (
-                  <div className="p-6 pt-0 border-t border-gray-100 dark:border-gray-800">
+                  <div className="p-6 pt-0 border-t border-gray-100 dark:border-gray-800 calculator:border-calc-border">
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 mt-4">
                       <div className="relative w-full md:w-64 ml-auto">
                         <input
@@ -784,7 +785,7 @@ const WaterQualityScreen: React.FC = () => {
                           placeholder="Filtrer un style ou profil..."
                           value={beerSearchQuery}
                           onChange={(e) => setBeerSearchQuery(e.target.value)}
-                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all"
+                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 calculator:border-calc-border rounded-lg calculator:rounded-none bg-white dark:bg-gray-700 calculator:bg-calc-bg calculator:text-calc-text focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border focus:border-transparent outline-none transition-all"
                         />
                         {beerSearchQuery && (
                           <button 
@@ -803,13 +804,13 @@ const WaterQualityScreen: React.FC = () => {
                         const q = beerSearchQuery.toLowerCase();
                         return evaluation.name.toLowerCase().includes(q) || evaluation.bjcpStyles.some(s => s.toLowerCase().includes(q));
                       }).map(evaluation => (
-                        <div key={evaluation.id} className={`p-4 rounded-lg border ${evaluation.statusBorderColor} ${evaluation.statusBgColor}`}>
+                        <div key={evaluation.id} className={`p-4 rounded-lg calculator:rounded-none border calculator:bg-calc-bg calculator:border-calc-border ${evaluation.statusBorderColor} ${evaluation.statusBgColor}`}>
                           <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-2">
                             <div>
                               <h5 className="font-bold text-gray-900 dark:text-white">{evaluation.name}</h5>
                               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{evaluation.description}</p>
                             </div>
-                            <div className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap border ${evaluation.statusBorderColor} ${evaluation.statusColor} bg-white dark:bg-gray-800`}>
+                            <div className={`px-3 py-1 rounded-full calculator:rounded-none text-sm font-semibold whitespace-nowrap border ${evaluation.statusBorderColor} ${evaluation.statusColor} bg-white dark:bg-gray-800 calculator:bg-calc-bg-card calculator:border-calc-border calculator:text-calc-text`}>
                               {evaluation.statusLabel}
                             </div>
                           </div>
@@ -831,7 +832,7 @@ const WaterQualityScreen: React.FC = () => {
                           )}
                           <div className="mt-3 flex flex-wrap gap-1.5">
                             {evaluation.bjcpStyles.filter(s => !beerSearchQuery || s.toLowerCase().includes(beerSearchQuery.toLowerCase())).map(style => (
-                              <span key={style} className="px-2 py-0.5 bg-white/60 dark:bg-black/20 text-gray-700 dark:text-gray-300 rounded text-xs border border-gray-200 dark:border-gray-700">
+                              <span key={style} className="px-2 py-0.5 bg-white/60 dark:bg-black/20 calculator:bg-calc-bg-card text-gray-700 dark:text-gray-300 calculator:text-calc-text rounded calculator:rounded-none text-xs border border-gray-200 dark:border-gray-700 calculator:border-calc-border">
                                 {style}
                               </span>
                             ))}
@@ -854,13 +855,111 @@ const WaterQualityScreen: React.FC = () => {
               </div>
             )}
 
-            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-xs text-gray-500 leading-relaxed">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border">
+              <p className="text-xs text-gray-500 calculator:text-calc-text-muted leading-relaxed">
                 <strong>Note :</strong> Ces données proviennent {result.dataSource === 'openfoodfacts' ? 'd\'Open Food Facts (base collaborative)' : result.dataSource === 'sise-eaux' ? 'de la base nationale SISE-Eaux (data.gouv.fr) via moneaudebrassage.fr' : 'du portail national Hub\'Eau'}. Les valeurs peuvent varier selon le point de prélèvement et la période de l'année. Pour un brassage de précision, une analyse d'eau à domicile reste la référence.
               </p>
             </div>
           </div>
         )}
+      {result && !isLoading && stats && (() => {
+        const computedMEq = [
+          `Ca²⁺  = ${stats.ca.toFixed(1)} ppm → ${(stats.ca / 20.04).toFixed(2)} mEq/L`,
+          `Mg²⁺  = ${stats.mg.toFixed(1)} ppm → ${(stats.mg / 12.15).toFixed(2)} mEq/L`,
+          `Na⁺   = ${stats.na.toFixed(1)} ppm → ${(stats.na / 22.99).toFixed(2)} mEq/L`,
+          `Cl⁻   = ${stats.cl.toFixed(1)} ppm → ${(stats.cl / 35.45).toFixed(2)} mEq/L`,
+          `SO₄²⁻ = ${stats.so4.toFixed(1)} ppm → ${(stats.so4 / 48.03).toFixed(2)} mEq/L`,
+          `HCO₃⁻ = ${stats.hco3.toFixed(1)} ppm → ${(stats.hco3 / 61.02).toFixed(2)} mEq/L`,
+          '',
+          `Σcat = ${stats.totalCations.toFixed(2)} mEq/L,  Σan = ${stats.totalAnions.toFixed(2)} mEq/L`,
+          `balance ionique = ${stats.ionBalance.toFixed(1)} %`,
+        ];
+        const computedDurete = [
+          `dureté = Ca × 2.497 + Mg × 4.118 = ${stats.ca.toFixed(1)} × 2.497 + ${stats.mg.toFixed(1)} × 4.118 = ${stats.durete.toFixed(0)} ppm CaCO₃`,
+        ];
+        const computedAR = [
+          `alcalinité = HCO₃⁻ × (50.04/61.02) = ${stats.hco3.toFixed(1)} × 0.820 ≈ ${stats.alcalinite.toFixed(0)} ppm CaCO₃`,
+          '',
+          `AR = alcalinité − (Ca/1.4) − (Mg/1.7) = ${stats.alcaliniteResiduelle.toFixed(0)}`,
+        ];
+        return (
+      <FormulaInfoSection
+        entries={[
+          {
+            name: 'Conversions ioniques en milliéquivalents (mEq/L)',
+            description:
+              "Pour comparer les charges entre cations et anions, chaque ion est converti en mEq/L en divisant sa concentration (mg/L) par sa masse équivalente (masse molaire / valence).",
+            formulas: [
+              'Ca²⁺  : mEq/L = ppm / 20.04   (masse éq. = 40.08 / 2)',
+              'Mg²⁺  : mEq/L = ppm / 12.15   (masse éq. = 24.31 / 2)',
+              'Na⁺   : mEq/L = ppm / 22.99   (masse éq. = 22.99 / 1)',
+              'Cl⁻   : mEq/L = ppm / 35.45   (masse éq. = 35.45 / 1)',
+              'SO₄²⁻ : mEq/L = ppm / 48.03   (masse éq. = 96.06 / 2)',
+              'HCO₃⁻ : mEq/L = ppm / 61.02   (masse éq. = 61.02 / 1)',
+              '',
+              'balance ionique (%) = |Σcat − Σan| / (Σcat + Σan) × 100',
+              '< 10 % → profil cohérent  |  > 10 % → probable erreur de mesure',
+            ],
+            computed: computedMEq,
+            sources: [
+              {
+                label: "WHO — Guidelines for Drinking-water Quality (4th ed.)",
+                url: 'https://www.who.int/publications/i/item/9789240045064',
+              },
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+            ],
+          },
+          {
+            name: 'Dureté totale de l\'eau (titre hydrotimétrique, CaCO₃)',
+            description:
+              "La dureté mesure la concentration totale en ions divalents (Ca²⁺ et Mg²⁺), exprimée en équivalent CaCO₃.",
+            formulas: [
+              'dureté (ppm CaCO₃) = Ca × 2.497 + Mg × 4.118',
+              '',
+              'Facteurs : rapport masse molaire CaCO₃ / masse éq. de chaque ion',
+              '  Ca : 100.09 / 20.04 ≈ 2.497',
+              '  Mg : 100.09 / 12.15 ≈ 4.118',
+            ],
+            computed: computedDurete,
+            sources: [
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+            ],
+          },
+          {
+            name: 'Alcalinité Résiduelle — Kolbach (1953)',
+            description:
+              "L'alcalinité résiduelle prédit l'effet de l'eau sur le pH de la maische : Ca²⁺ et Mg²⁺ neutralisent une partie de l'alcalinité des bicarbonates.",
+            formulas: [
+              'alcalinité (ppm CaCO₃) = HCO₃⁻ × (50.04 / 61.02)',
+              '',
+              'AR = alcalinité − (Ca / 1.4) − (Mg / 1.7)',
+              '',
+              'AR > 0  →  eau alcaline (tend à hausser le pH de maische)',
+              'AR < 0  →  eau douce (tend à abaisser le pH de maische)',
+              'AR ≈ 0  →  eau neutre pour la maische',
+            ],
+            computed: computedAR,
+            sources: [
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+              {
+                label: "Brewer's Friend — Water Chemistry Calculator",
+                url: 'https://www.brewersfriend.com/water-chemistry/',
+              },
+            ],
+          },
+        ]}
+      />
+        );
+      })()}
       </div>
     </PageLayout>
   );

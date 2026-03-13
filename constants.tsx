@@ -17,6 +17,7 @@ import {
   Cog6ToothIcon as CogIcon,
   XCircleIcon,
   PlusCircleIcon,
+  CalculatorIcon,
 } from '@heroicons/react/24/outline';
 import { CalculatorRoute, CalculatorMeta, HomeSection } from './types';
 
@@ -50,17 +51,30 @@ export const THEME_COLORS = {
     errorContainer: '#7f1d1d',
     onErrorContainer: '#FFE6E1',
   },
+  calculator: {
+    primary: '#9A7E00',
+    onPrimary: '#3A2F00',
+    primaryContainer: '#C9A800',
+    onPrimaryContainer: '#3A2F00',
+    surface: '#C9A800',
+    onSurface: '#3A2F00',
+    background: '#B99600',
+    onBackground: '#3A2F00',
+    error: '#8b2914',
+    errorContainer: '#5c1a0a',
+    onErrorContainer: '#3A2F00',
+  },
 };
 
 export const COMMON_CLASSES = {
-  label: 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1',
-  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#2563FF] focus:border-transparent outline-none transition-all',
-  buttonPrimary: 'w-full py-3 px-4 bg-[#2563FF] hover:bg-[#1d4ed8] text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed',
-  buttonSecondary: 'w-full py-3 px-4 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold rounded-lg transition-all duration-200',
-  card: 'bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200',
-  textMuted: 'text-sm text-gray-500 dark:text-gray-300',
-  errorText: 'text-sm text-red-600 dark:text-red-400',
-  infoText: 'bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200', // Added for Kombucha screen
+  label: 'block text-sm font-medium text-gray-700 dark:text-gray-300 calculator:text-calc-text calculator:font-mac mb-1',
+  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 calculator:border-calc-border calculator:border-2 bg-white dark:bg-gray-700 calculator:bg-calc-bg text-gray-900 dark:text-gray-100 calculator:text-calc-text focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border focus:border-transparent outline-none transition-all calculator:rounded-none calculator:shadow-mac-inset calculator:font-mac',
+  buttonPrimary: 'w-full py-3 px-4 bg-[#2563FF] hover:bg-[#1d4ed8] calculator:bg-calc-accent calculator:hover:bg-calc-highlight text-white calculator:text-calc-text font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed calculator:rounded-none calculator:shadow-mac calculator:hover:shadow-mac calculator:hover:translate-y-0 calculator:font-mac',
+  buttonSecondary: 'w-full py-3 px-4 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-card hover:bg-gray-300 dark:hover:bg-gray-600 calculator:hover:bg-calc-highlight text-gray-800 dark:text-gray-200 calculator:text-calc-text font-bold rounded-lg transition-all duration-200 calculator:rounded-none calculator:shadow-mac calculator:border-2 calculator:border-calc-border calculator:font-mac',
+  card: 'bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl border border-gray-200 dark:border-gray-600 calculator:border-calc-border calculator:border-2 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 calculator:rounded-none calculator:shadow-mac calculator:hover:shadow-mac-lg',
+  textMuted: 'text-sm text-gray-500 dark:text-gray-300 calculator:text-calc-text-muted calculator:font-mac',
+  errorText: 'text-sm text-red-600 dark:text-red-400 calculator:text-calc-error calculator:font-mac',
+  infoText: 'bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 calculator:bg-calc-bg-surface calculator:text-calc-text calculator:border calculator:border-calc-border calculator:rounded-none',
 };
 
 export const Icons = {
@@ -80,12 +94,15 @@ export const Icons = {
   CogIcon,
   XCircleIcon,
   PlusCircleIcon,
+  CalculatorIcon,
 };
 
 export const WortLabCircularLogo: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`flex flex-col items-center justify-center ${className}`}>
-    <img src="/logo.png" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain" />
-    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">WortLab</span>
+    <img src="/wortlab-logo-splashscreen.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain dark:hidden calculator:hidden" />
+    <img src="/wortlab-logo-splashscreen-dark-mode.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain hidden dark:block calculator:hidden" />
+    <img src="/wortlab-logo-splashscreen-calculator.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain hidden calculator:block" />
+    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">WortLab</span>
   </div>
 );
 
@@ -212,11 +229,11 @@ export const CORRECTION_STAGE_OPTIONS = [
 ];
 
 export const BREWING_CHEMISTRY_FACTORS = {
-  ACID_MALT_MEQ_PER_100G: 10,
-  LACTIC_ACID_80_MEQ_PER_ML: 10.6,
-  PHOSPHORIC_ACID_75_MEQ_PER_ML: 11.5,
-  SODIUM_BICARBONATE_MEQ_PER_GRAM: 11.9,
-  PRE_BOIL_WORT_BUFFERING_ESTIMATE_MEQ_PER_L_PH: 40,
+  ACID_MALT_MEQ_PER_100G: 11,                              // Weyermann Sauermalz : min 1% acide lactique → 1000/90.08 = 11.1 mEq/100g
+  LACTIC_ACID_80_MEQ_PER_ML: 10.6,                        // ρ=1.19 g/mL × 0.80 / 90.08 g/mol × 1000 = 10.57 mEq/mL
+  PHOSPHORIC_ACID_75_MEQ_PER_ML: 11.5,                    // ρ=1.507 g/mL × 0.75 / 97.99 × 1000 = 11.53 mEq/mL (1 proton effectif à pH 5.2)
+  SODIUM_BICARBONATE_MEQ_PER_GRAM: 11.9,                  // 1000 / 84.01 = 11.90 mEq/g
+  PRE_BOIL_WORT_BUFFERING_ESTIMATE_MEQ_PER_L_PH: 12,      // Littérature (Briggs) : 10-20 mEq/L/pH pour wort OG typique
 };
 
 export interface WaterProfileTarget {

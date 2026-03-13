@@ -11,15 +11,15 @@ const HomeScreen: React.FC = () => {
 
   return (
     <PageLayout title={APP_TITLE}>
-      <div className="-mx-6 -mt-6 mb-6 px-6 pt-6 pb-5 bg-gradient-to-br from-[#2563FF]/10 to-[#E6EEFF]/60 dark:from-[#2563FF]/20 dark:to-blue-900/30 border-b border-blue-100 dark:border-blue-900 rounded-t-xl">
-        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100 mb-1">Bonjour, brasseur 🍺</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Choisissez un outil selon ce que vous voulez faire.</p>
+      <div className="-mx-6 -mt-6 mb-6 px-6 pt-6 pb-5 bg-gradient-to-br from-[#2563FF]/10 to-[#E6EEFF]/60 dark:from-[#2563FF]/20 dark:to-blue-900/30 calculator:from-calc-bg-surface calculator:to-calc-bg-card border-b border-blue-100 dark:border-blue-900 calculator:border-calc-border rounded-t-xl calculator:rounded-none">
+        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100 calculator:text-calc-text mb-1">Bonjour, brasseur <span className="calculator:hidden">🍺</span></h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Choisissez un outil selon ce que vous voulez faire.</p>
       </div>
       <div className="grid grid-cols-1 gap-6">
         {HOME_SECTIONS.map((section) => (
           <section key={section.id} className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{section.title}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{section.description}</p>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{section.title}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">{section.description}</p>
             <div className="grid grid-cols-1 gap-4">
               {section.calculatorIds
                 .map((id) => CALCULATORS.find((c) => c.id === id))
@@ -37,25 +37,25 @@ const HomeScreen: React.FC = () => {
           </section>
         ))}
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Contact</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">Contact</h2>
           <div className="grid grid-cols-1 gap-3">
             <Link
               to={CalculatorRoute.Feedback}
-              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-[#2563FF] dark:hover:border-[#6b99ff] hover:shadow-md transition-all duration-200 text-left group"
+              className="flex items-center justify-between p-4 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-600 calculator:border-calc-border bg-white dark:bg-gray-800 calculator:bg-calc-bg-card hover:border-[#2563FF] dark:hover:border-[#6b99ff] calculator:hover:border-calc-accent hover:shadow-md calculator:hover:shadow-mac transition-all duration-200 text-left group"
             >
-              <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff]">
+              <span className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff] calculator:group-hover:text-calc-text">
                 Donnez votre avis !
               </span>
-              <span className="text-[#2563FF] dark:text-[#6b99ff]">→</span>
+              <span className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text">→</span>
             </Link>
             <Link
               to={CalculatorRoute.Don}
-              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-[#2563FF] dark:hover:border-[#6b99ff] hover:shadow-md transition-all duration-200 text-left group"
+              className="flex items-center justify-between p-4 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-600 calculator:border-calc-border bg-white dark:bg-gray-800 calculator:bg-calc-bg-card hover:border-[#2563FF] dark:hover:border-[#6b99ff] calculator:hover:border-calc-accent hover:shadow-md calculator:hover:shadow-mac transition-all duration-200 text-left group"
             >
-              <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff]">
-                Offrir une bière 🍻
+              <span className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff] calculator:group-hover:text-calc-text">
+                Offrir une bière <span className="calculator:hidden">🍻</span>
               </span>
-              <span className="text-[#2563FF] dark:text-[#6b99ff]">→</span>
+              <span className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text">→</span>
             </Link>
           </div>
         </section>

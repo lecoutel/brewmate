@@ -4,6 +4,7 @@ import React from 'react';
 export enum Theme {
   Light = 'light',
   Dark = 'dark',
+  Calculator = 'calculator',
   System = 'system',
 }
 

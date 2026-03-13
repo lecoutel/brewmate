@@ -178,7 +178,17 @@ export function sgToPlato(sg: number): number {
 
 export function platoToSG(plato: number): number {
   if (plato <= 0) return 1.000;
-  return 1 + (plato / (258.6 - ((plato / 258.2) * 227.1))); // Approximation similar to Brix
+  // Newton-Raphson inversion of the ASBC sgToPlato cubic polynomial:
+  // Plato = -616.868 + 1111.14*SG - 630.272*SG² + 135.997*SG³
+  let sg = 1 + plato / 250; // initial estimate
+  for (let i = 0; i < 20; i++) {
+    const f = -616.868 + 1111.14 * sg - 630.272 * sg * sg + 135.997 * sg * sg * sg - plato;
+    const fp = 1111.14 - 2 * 630.272 * sg + 3 * 135.997 * sg * sg;
+    const delta = f / fp;
+    sg -= delta;
+    if (Math.abs(delta) < 1e-10) break;
+  }
+  return sg;
 }
 
 
@@ -227,7 +237,9 @@ export function calculateRefractometer(inputs: RefractometerInputs): Refractomet
                         (0.0000072800 * Math.pow(ogBrix, 3)) + 
                         (0.0000063293 * Math.pow(fgMeasuredBrix, 3));
 
-  const abv = (ogSG - fgCorrectedSG) * 131.25;
+  // Tabarie formula: more accurate than the linear (OG - FG) * 131.25 approximation,
+  // especially for high-gravity fermentations (ABV > 8%).
+  const abv = (76.08 * (ogSG - fgCorrectedSG) / (1.775 - ogSG)) * (fgCorrectedSG / 0.794);
 
   const correctedBrix = Math.max(0, sgToBrix(fgCorrectedSG));
   const correctedPlato = Math.max(0, sgToPlato(fgCorrectedSG));

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="493px" height="95px" viewBox="0 0 493 95" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>wortlab-logo-header-dark-mode</title>
+    <g id="wortlab-logo-header-dark-mode" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" fill="#FFFFFF" x="11" y="9" width="71" height="75"></rect>
+        <rect id="Rectangle" fill="#FFFFFF" x="301" y="9" width="71" height="75"></rect>
+        <text id="WortLab" font-family="PixelTwist, Pixel Twist" font-size="118" font-weight="normal">
+            <tspan x="-4" y="95" fill="#FF2D2D">W</tspan>
+            <tspan x="99.958" y="95" fill="#FFFFFF">ort</tspan>
+            <tspan x="272.946" y="95" fill="#1A3AFF">L</tspan>
+            <tspan x="376.904" y="95" fill="#FFFFFF">ab</tspan>
+        </text>
+    </g>
+</svg>

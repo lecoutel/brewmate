@@ -5,6 +5,7 @@ import { calculatePostBoilDensity, sgToBrix, sgToPlato } from '../utils/brewingC
 import { COMMON_CLASSES, Icons } from '../constants';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
+import FormulaInfoSection from '../components/FormulaInfoSection';
 
 interface PostBoilDensityStringInputs {
   volumePostBoil: string;
@@ -182,7 +183,7 @@ const PostBoilDensityScreen: React.FC = () => {
         <button
           type="button"
           onClick={handleClearInputs}
-          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-lg transition-colors"
+          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface hover:bg-gray-200 dark:hover:bg-gray-600 calculator:hover:bg-calc-border text-gray-700 dark:text-gray-200 calculator:text-calc-text text-sm font-semibold rounded-lg transition-colors"
         >
           Vider les champs
         </button>
@@ -224,6 +225,86 @@ const PostBoilDensityScreen: React.FC = () => {
           )}
         </div>
       )}
+      {result && !result.error && (() => {
+        const _volNum = parseFloat(inputs.volumePostBoil);
+        const _msNum = parseFloat(inputs.measuredSg);
+        const _tsNum = parseFloat(inputs.targetSg);
+        const _ok = !isNaN(_volNum) && !isNaN(_msNum) && !isNaN(_tsNum) && _volNum > 0 && _msNum >= 1 && _tsNum >= 1;
+        const _pdActuel = _ok ? (_msNum - 1) * 1000 : 0;
+        const _pdCible = _ok ? (_tsNum - 1) * 1000 : 0;
+        const _vCible = _ok && _pdCible > 0 ? (_volNum * _pdActuel) / _pdCible : 0;
+        const _isDiluting = _ok && _pdActuel > _pdCible;
+        const _isConcentrating = _ok && _pdCible > _pdActuel;
+        const _sugarDeficit = _isConcentrating ? (_pdCible - _pdActuel) * _volNum : 0;
+        const optDilute = result.options.find(o => o.type === 'dilute');
+        const optEvaporate = result.options.find(o => o.type === 'evaporate');
+        const optSugar = result.options.find(o => o.type === 'addSugarCandy' || o.type === 'addSugarPowder');
+        const computedConservation = _ok ? [
+          `PD_actuel = (${_msNum.toFixed(3)} − 1) × 1000 = ${_pdActuel.toFixed(1)}`,
+          `PD_cible = (${_tsNum.toFixed(3)} − 1) × 1000 = ${_pdCible.toFixed(1)}`,
+          '',
+          `V_cible = (V_actuel × PD_actuel) / PD_cible = (${_volNum.toFixed(2)} × ${_pdActuel.toFixed(1)}) / ${_pdCible.toFixed(1)} = ${_vCible.toFixed(2)} L`,
+          '',
+          ...(_isDiluting && optDilute?.amount != null
+            ? [`V_eau à ajouter = (V_actuel × PD_actuel / PD_cible) − V_actuel = ${optDilute.amount.toFixed(2)} L`]
+            : _isConcentrating && optEvaporate?.amount != null
+              ? [`V_eau à évaporer = V_actuel − V_cible = ${optEvaporate.amount.toFixed(2)} L`]
+              : []),
+        ] : undefined;
+        const computedSugar = _ok && optSugar?.amount != null
+          ? [
+            `Déficit (PD·L) = (PD_cible − PD_actuel) × V = (${_pdCible.toFixed(1)} − ${_pdActuel.toFixed(1)}) × ${_volNum.toFixed(2)} = ${_sugarDeficit.toFixed(1)}`,
+            `sucre (g) = Déficit / 0.4 = ${_sugarDeficit.toFixed(1)} / 0.4 = ${optSugar.amount.toFixed(2)} g`,
+          ]
+          : undefined;
+        return (
+      <FormulaInfoSection
+        entries={[
+          {
+            name: 'Conservation des points de gravité (dilution / concentration)',
+            description:
+              "Après ébullition, si la densité est trop haute ou trop basse par rapport à la cible, on utilise la conservation des points de densité pour calculer l'ajustement nécessaire.",
+            formulas: [
+              'PD = (SG − 1) × 1000',
+              '',
+              'V₁ × PD₁ = V₂ × PD₂',
+              'V_eau_à_ajouter   = (V_actuel × PD_actuel / PD_cible) − V_actuel',
+              'V_eau_à_évaporer  = V_actuel − (V_actuel × PD_actuel / PD_cible)',
+            ],
+            computed: computedConservation,
+            sources: [
+              {
+                label: 'John Palmer — How to Brew (Section 15)',
+                url: 'https://www.howtobrew.com/book/section-3/how-to-brew-on-your-first-batch/chapter-15',
+              },
+            ],
+          },
+          {
+            name: 'Addition de sucre candy / saccharose',
+            description:
+              "1 gramme de saccharose (ou de sucre candy blanc) dissous dans 1 litre apporte environ 0.4 points de densité.",
+            formulas: [
+              'Déficit (PD·L) = (PD_cible − PD_actuel) × V (L)',
+              'sucre (g) = Déficit / 0.4',
+              '',
+              'Facteur 0.4 : contribution en PD par g/L de saccharose',
+            ],
+            computed: computedSugar,
+            sources: [
+              {
+                label: 'Greg Noonan — New Brewing Lager Beer (1996)',
+                url: 'https://www.brewerspublications.com/products/new-brewing-lager-beer',
+              },
+              {
+                label: "Brewer's Friend — Gravity & Sugar Calculator",
+                url: 'https://www.brewersfriend.com/gravity-and-sugar-conversion-tools/',
+              },
+            ],
+          },
+        ]}
+      />
+        );
+      })()}
     </PageLayout>
   );
 };

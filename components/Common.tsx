@@ -78,7 +78,7 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
       <label className={COMMON_CLASSES.label}>{label}</label>
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Densité spécifique</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mb-1">Densité spécifique</div>
           <input
             type="number"
             value={sgValue}
@@ -86,11 +86,11 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
             step="0.001"
             min="1"
             placeholder="ex: 1.050"
-            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
+            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] calculator:border-calc-error' : ''}`}
           />
         </div>
         <div className="flex-1">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">°Plato</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mb-1">°Plato</div>
           <input
             type="number"
             value={platoValue}
@@ -98,11 +98,11 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
             step="0.1"
             min="0"
             placeholder="ex: 12.4"
-            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
+            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] calculator:border-calc-error' : ''}`}
           />
         </div>
         <div className="flex-1">
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">°Brix</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mb-1">°Brix</div>
           <input
             type="number"
             value={brixValue}
@@ -110,7 +110,7 @@ export const DensityInputGroup: React.FC<DensityInputGroupProps> = ({
             step="0.1"
             min="0"
             placeholder="ex: 12.4"
-            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}
+            className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] calculator:border-calc-error' : ''}`}
           />
         </div>
       </div>
@@ -139,7 +139,7 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const hasValue = value != null && String(value).trim() !== '';
-  const inputClasses = `${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] focus:ring-[#FF4B2B]' : ''} ${clearable && hasValue ? 'pr-10' : ''} ${className ?? ''}`.trim();
+  const inputClasses = `${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] calculator:border-calc-error focus:ring-[#FF4B2B] calculator:focus:ring-calc-error' : ''} ${clearable && hasValue ? 'pr-10' : ''} ${className ?? ''}`.trim();
 
   return (
     <div className={`mb-4 ${wrapperClassName}`}>
@@ -157,7 +157,7 @@ export const Input: React.FC<InputProps> = ({
           <button
             type="button"
             onClick={onClear}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 dark:text-gray-500 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563FF] focus:ring-offset-0"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full calculator:rounded-none text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 calculator:text-calc-text-muted calculator:hover:text-calc-text dark:text-gray-500 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border focus:ring-offset-0"
             title="Vider le champ"
             aria-label="Vider le champ"
           >
@@ -182,7 +182,7 @@ export const Select: React.FC<SelectProps> = ({ label, id, options, error, wrapp
     <label htmlFor={id} className={COMMON_CLASSES.label}>
       {label}
     </label>
-    <select id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75]' : ''}`}>
+    <select id={id} {...props} className={`${COMMON_CLASSES.input} ${error ? 'border-[#FF4B2B] dark:border-[#ff8c75] calculator:border-calc-error' : ''}`}>
       {options.map(option => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -216,18 +216,18 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ title, description, icon: Icon, onClick, className }) => (
   <div onClick={onClick} className={`${COMMON_CLASSES.card} ${className ?? ''} group relative overflow-hidden`}>
-    <div className="absolute left-0 inset-y-0 w-1 bg-[#2563FF] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-l-xl" />
+    <div className="absolute left-0 inset-y-0 w-1 bg-[#2563FF] calculator:bg-calc-accent opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-l-xl" />
     <div className="flex items-center justify-between pl-1">
       <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-[#FF4B2B]/10 dark:bg-[#FF4B2B]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#FF4B2B]/20 dark:group-hover:bg-[#FF4B2B]/30 transition-colors duration-200">
-          <Icon className="w-6 h-6 text-[#FF4B2B] dark:text-[#ff8c75]" />
+        <div className="w-11 h-11 rounded-xl bg-[#FF4B2B]/10 dark:bg-[#FF4B2B]/20 calculator:bg-calc-bg-surface flex items-center justify-center flex-shrink-0 group-hover:bg-[#FF4B2B]/20 dark:group-hover:bg-[#FF4B2B]/30 calculator:group-hover:bg-calc-border transition-colors duration-200">
+          <Icon className="w-6 h-6 text-[#FF4B2B] dark:text-[#ff8c75] calculator:text-calc-text" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-[#2563FF] dark:text-[#6b99ff]">{title}</h3>
+          <h3 className="text-base font-semibold text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text">{title}</h3>
           <p className={`${COMMON_CLASSES.textMuted} mt-0.5 text-sm`}>{description}</p>
         </div>
       </div>
-      <IconsConst.ChevronRightIcon className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:translate-x-1 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff] transition-all duration-200 flex-shrink-0" />
+      <IconsConst.ChevronRightIcon className="w-5 h-5 text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted group-hover:translate-x-1 group-hover:text-[#2563FF] dark:group-hover:text-[#6b99ff] calculator:group-hover:text-calc-text transition-all duration-200 flex-shrink-0" />
     </div>
   </div>
 );
@@ -252,13 +252,13 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ infoText, children, cl
         className="ml-2 focus:outline-none"
         aria-label="More info"
       >
-        <IconsConst.InformationCircleIcon className={`${iconClassName ?? 'w-5 h-5'} text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors`} />
+        <IconsConst.InformationCircleIcon className={`${iconClassName ?? 'w-5 h-5'} text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 calculator:text-calc-text-muted calculator:hover:text-calc-text transition-colors`} />
       </button>
       {isOpen && (
         <div className="absolute z-10 bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 p-3
-                        bg-gray-100 dark:bg-gray-800 
-                        text-gray-800 dark:text-gray-100
-                        rounded-lg shadow-xl border border-gray-300 dark:border-gray-600 text-sm">
+                        bg-gray-100 dark:bg-gray-800 calculator:bg-calc-bg-card
+                        text-gray-800 dark:text-gray-100 calculator:text-calc-text
+                        rounded-lg shadow-xl border border-gray-300 dark:border-gray-600 calculator:border-calc-border text-sm">
           {infoText}
         </div>
       )}
@@ -275,37 +275,51 @@ interface PageLayoutProps {
 
 export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, children }) => {
   const [theme, setTheme] = useTheme();
+  const isCalculator = theme === Theme.Calculator;
+  const toggleLightDark = () => setTheme(theme === Theme.Dark ? Theme.Light : theme === Theme.Calculator ? Theme.Light : Theme.Dark);
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F7FA] dark:bg-gray-900">
-      <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div className="min-h-screen flex flex-col bg-[#F5F7FA] dark:bg-gray-900 calculator:bg-calc-bg">
+      <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="WortLab" className="w-8 h-8 object-contain flex-shrink-0" />
-            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">WortLab</span>
+            <img src="/wortlab-logo-header.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 dark:hidden calculator:hidden" />
+            <img src="/wortlab-logo-header-dark-mode.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden dark:block calculator:hidden" />
+            <img src="/wortlab-logo-header-calculator.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden calculator:block" />
             <Link
               to="/feedback"
-              className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800/50 transition-colors"
+              className="text-xs font-medium px-2 py-0.5 rounded-full calculator:rounded-none bg-amber-100 dark:bg-amber-900/40 calculator:bg-calc-bg-surface calculator:text-calc-text border border-amber-300 dark:border-amber-700 calculator:border calculator:border-calc-border transition-colors"
               title="Contact / Donner mon avis"
             >
               beta
             </Link>
           </div>
-          <button
-            onClick={() => setTheme(theme === Theme.Dark ? Theme.Light : Theme.Dark)}
-            className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Basculer le thème"
-            type="button"
-          >
-            {theme === Theme.Dark ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-              </svg>
-            )}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setTheme(Theme.Calculator)}
+              className={`p-2 rounded-lg transition-colors ${isCalculator ? 'bg-calc-accent text-calc-text' : 'text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted hover:bg-gray-100 dark:hover:bg-gray-800 calculator:hover:bg-calc-bg-surface'}`}
+              aria-label="Mode calculatrice"
+              type="button"
+              title="Mode calculatrice"
+            >
+              <IconsConst.CalculatorIcon className="w-5 h-5" />
+            </button>
+            <button
+              onClick={toggleLightDark}
+              className="p-2 rounded-lg text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted hover:bg-gray-100 dark:hover:bg-gray-800 calculator:hover:bg-calc-bg-surface transition-colors"
+              aria-label="Basculer clair / sombre"
+              type="button"
+            >
+              {theme === Theme.Dark ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </header>
       <main className="flex-grow p-4 sm:p-6 md:p-8">
@@ -314,17 +328,17 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
             <div>
               <Link
                 to="/"
-                className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-[#2563FF] dark:hover:text-[#6b99ff] font-medium transition-colors group"
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted hover:text-[#2563FF] dark:hover:text-[#6b99ff] calculator:hover:text-calc-text font-medium transition-colors group"
               >
                 <IconsConst.ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-150" />
                 Retour à l'accueil
               </Link>
             </div>
           )}
-          <div className="p-6 rounded-xl shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
+          <div className="p-6 rounded-xl calculator:rounded-none shadow-lg calculator:shadow-mac-lg bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-600 calculator:border-calc-border">
             {showBackButton && (
-              <div className="mb-6 pb-4 border-b border-gray-100 dark:border-gray-700">
-                <h1 className="text-2xl font-bold text-[#2563FF] dark:text-[#6b99ff]">{title}</h1>
+              <div className="mb-6 pb-4 border-b border-gray-100 dark:border-gray-700 calculator:border-calc-border">
+                <h1 className="text-2xl font-bold text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text">{isCalculator ? title.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, '').trim() : title}</h1>
               </div>
             )}
             {children}
@@ -335,14 +349,14 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
         <p className={COMMON_CLASSES.textMuted}>
           <Link
             to="/feedback"
-            className="text-[#2563FF] dark:text-[#6b99ff] hover:underline font-medium"
+            className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text hover:underline font-medium"
           >
             Donner mon avis
           </Link>
           {' · '}
           <Link
             to="/don"
-            className="text-[#2563FF] dark:text-[#6b99ff] hover:underline font-medium"
+            className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text hover:underline font-medium"
           >
             Offrir une bière
           </Link>
@@ -357,25 +371,25 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
 export const ResultDisplay: React.FC<{ results: string[] | string, error?: string, type?: 'success' | 'error' | 'info' }> = ({ results, error, type = 'success' }) => {
   if (error) {
     return (
-      <div className={`mt-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 flex items-start`}>
-        <IconsConst.ExclamationTriangleIcon className="w-6 h-6 text-red-600 dark:text-red-400 mr-3 flex-shrink-0 mt-0.5" />
-        <p className={`text-red-700 dark:text-red-300 font-semibold`}>{error}</p>
+      <div className="mt-6 p-4 rounded-xl calculator:rounded-none bg-red-50 dark:bg-red-900/30 calculator:bg-calc-bg-surface border border-red-200 dark:border-red-800 calculator:border-calc-error flex items-start">
+        <IconsConst.ExclamationTriangleIcon className="w-6 h-6 text-red-600 dark:text-red-400 calculator:text-calc-error mr-3 flex-shrink-0 mt-0.5" />
+        <p className="text-red-700 dark:text-red-300 calculator:text-calc-text font-semibold">{error}</p>
       </div>
     );
   }
   
-  const baseClass = 'mt-6 p-5 rounded-xl border shadow-sm flex items-start transition-all duration-300';
+  const baseClass = 'mt-6 p-5 rounded-xl calculator:rounded-none border shadow-sm calculator:shadow-mac flex items-start transition-all duration-300';
   let specificClass = '';
   let textClass = '';
   let Icon = IconsConst.CheckCircleIcon;
 
   if (type === 'success') {
-    specificClass = `bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800`;
-    textClass = `text-green-800 dark:text-green-200`;
+    specificClass = 'bg-green-50 dark:bg-green-900/30 calculator:bg-calc-bg-card border-green-200 dark:border-green-800 calculator:border-calc-border';
+    textClass = 'text-green-800 dark:text-green-200 calculator:text-calc-text';
     Icon = IconsConst.CheckCircleIcon;
   } else if (type === 'info') {
-     specificClass = `bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800`;
-     textClass = `text-blue-800 dark:text-blue-200`;
+     specificClass = 'bg-blue-50 dark:bg-blue-900/30 calculator:bg-calc-bg-card border-blue-200 dark:border-blue-800 calculator:border-calc-border';
+     textClass = 'text-blue-800 dark:text-blue-200 calculator:text-calc-text';
      Icon = IconsConst.InformationCircleIcon;
   }
 
@@ -393,7 +407,7 @@ export const ResultDisplay: React.FC<{ results: string[] | string, error?: strin
 
   return (
     <div className={`${baseClass} ${specificClass}`}>
-      <Icon className={`w-6 h-6 mr-3 flex-shrink-0 mt-0.5 ${type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`} />
+      <Icon className={`w-6 h-6 mr-3 flex-shrink-0 mt-0.5 ${type === 'success' ? 'text-green-600 dark:text-green-400 calculator:text-calc-text' : 'text-blue-600 dark:text-blue-400 calculator:text-calc-text'}`} />
       <div className="flex-1">{content}</div>
     </div>
   );
@@ -407,30 +421,30 @@ interface ResultActionCardProps {
 }
 
 export const ResultActionCard: React.FC<ResultActionCardProps> = ({ description, warning, type = 'primary', badge }) => {
-  let borderClass = 'border-gray-200 dark:border-gray-700';
-  let bgClass = 'bg-white dark:bg-gray-800';
-  let accentClass = 'bg-[#2563FF]';
+  let borderClass = 'border-gray-200 dark:border-gray-700 calculator:border-calc-border';
+  let bgClass = 'bg-white dark:bg-gray-800 calculator:bg-calc-bg-card';
+  let accentClass = 'bg-[#2563FF] calculator:bg-calc-accent';
 
   if (type === 'warning') {
-    borderClass = 'border-[#E6EEFF] dark:border-blue-800';
-    bgClass = 'bg-[#E6EEFF] dark:bg-blue-900/20';
-    accentClass = 'bg-[#2563FF]';
+    borderClass = 'border-[#E6EEFF] dark:border-blue-800 calculator:border-calc-border';
+    bgClass = 'bg-[#E6EEFF] dark:bg-blue-900/20 calculator:bg-calc-bg-surface';
+    accentClass = 'bg-[#2563FF] calculator:bg-calc-accent';
   }
 
   return (
-    <div className={`relative overflow-hidden p-4 rounded-xl border shadow-sm ${bgClass} ${borderClass} transition-all hover:shadow-md`}>
+    <div className={`relative overflow-hidden p-4 rounded-xl calculator:rounded-none border shadow-sm calculator:shadow-mac ${bgClass} ${borderClass} transition-all hover:shadow-md`}>
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accentClass}`} />
       {badge && (
-        <span className="absolute top-3 right-3 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#2563FF]/10 text-[#2563FF] dark:bg-blue-900/30 dark:text-blue-300">
+        <span className="absolute top-3 right-3 text-xs font-semibold px-2 py-0.5 rounded-full calculator:rounded-none bg-[#2563FF]/10 text-[#2563FF] dark:bg-blue-900/30 dark:text-blue-300 calculator:bg-calc-bg-surface calculator:text-calc-text">
           {badge}
         </span>
       )}
       <div className="pl-2">
-        <p className="text-gray-900 dark:text-gray-100 font-semibold text-lg leading-snug">
+        <p className="text-gray-900 dark:text-gray-100 calculator:text-calc-text font-semibold text-lg leading-snug">
           {description}
         </p>
         {warning && (
-          <div className="mt-2 flex items-start text-sm text-[#1A237E] dark:text-blue-400 bg-[#E6EEFF]/50 dark:bg-blue-900/40 p-2 rounded-lg">
+          <div className="mt-2 flex items-start text-sm text-[#1A237E] dark:text-blue-400 calculator:text-calc-text bg-[#E6EEFF]/50 dark:bg-blue-900/40 calculator:bg-calc-bg-surface p-2 rounded-lg">
             <IconsConst.InformationCircleIcon className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
             <span>{warning}</span>
           </div>
@@ -448,8 +462,8 @@ interface SectionHeadingProps {
 }
 
 export const SectionHeading: React.FC<SectionHeadingProps> = ({ icon: Icon, children, className }) => (
-  <h3 className={`text-base font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2 ${className ?? ''}`}>
-    <span className="bg-[#E6EEFF] dark:bg-blue-900/40 text-[#1A237E] dark:text-blue-400 p-1.5 rounded-md flex-shrink-0">
+  <h3 className={`text-base font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text mb-3 flex items-center gap-2 ${className ?? ''}`}>
+    <span className="bg-[#E6EEFF] dark:bg-blue-900/40 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-blue-400 calculator:text-calc-text p-1.5 rounded-md flex-shrink-0">
       <Icon className="w-4 h-4" />
     </span>
     {children}
@@ -464,9 +478,9 @@ interface InfoPanelProps {
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({ children, icon: Icon, className }) => (
-  <div className={`p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 flex gap-2 items-start ${className ?? ''}`}>
-    {Icon && <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />}
-    <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">{children}</p>
+  <div className={`p-3 bg-blue-50 dark:bg-blue-900/20 calculator:bg-calc-bg-surface rounded-lg border border-blue-200 dark:border-blue-700 calculator:border-calc-border flex gap-2 items-start ${className ?? ''}`}>
+    {Icon && <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400 calculator:text-calc-text flex-shrink-0 mt-0.5" />}
+    <p className="text-sm text-blue-700 dark:text-blue-300 calculator:text-calc-text leading-relaxed">{children}</p>
   </div>
 );
 
@@ -480,16 +494,16 @@ interface ResultHeroProps {
 
 export const ResultHero: React.FC<ResultHeroProps> = ({ value, label, sublabel, status = 'neutral' }) => {
   const colorMap = {
-    success: 'text-green-600 dark:text-green-400',
-    warning: 'text-yellow-600 dark:text-yellow-400',
-    error: 'text-red-600 dark:text-red-400',
-    neutral: 'text-[#2563FF] dark:text-[#6b99ff]',
+    success: 'text-green-600 dark:text-green-400 calculator:text-calc-text',
+    warning: 'text-yellow-600 dark:text-yellow-400 calculator:text-calc-text',
+    error: 'text-red-600 dark:text-red-400 calculator:text-calc-error',
+    neutral: 'text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text',
   };
   return (
-    <div className="text-center py-4 mb-2 border-b border-gray-100 dark:border-gray-700">
+    <div className="text-center py-4 mb-2 border-b border-gray-100 dark:border-gray-700 calculator:border-calc-border">
       <div className={`text-5xl font-black ${colorMap[status]}`}>{value}</div>
-      <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wide">{label}</div>
-      {sublabel && <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sublabel}</div>}
+      <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1 uppercase tracking-wide">{label}</div>
+      {sublabel && <div className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted mt-0.5">{sublabel}</div>}
     </div>
   );
 };

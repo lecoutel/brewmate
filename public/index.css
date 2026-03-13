@@ -1,0 +1,98 @@
+/* ChicagoFLF — free recreation of the classic Mac font (place ChicagoFLF.woff2 or .ttf in /fonts/) */
+@font-face {
+  font-family: 'ChicagoFLF';
+  src: local('ChicagoFLF'), local('Chicago'),
+       url('/fonts/ChicagoFLF.woff2') format('woff2'),
+       url('/fonts/ChicagoFLF.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Calculator theme CSS variables — Macintosh retro yellow */
+:root {
+  --calc-bg: #B99600;
+  --calc-bg-card: #C9A800;
+  --calc-text: #3A2F00;
+  --calc-text-muted: #5A4A00;
+  --calc-border: #8C7200;
+  --calc-accent: #9A7E00;
+  --calc-error: #8b2914;
+  --calc-surface: #A68900;
+  --calc-highlight: #E6C200;
+}
+
+/* Placeholder color in calculator mode */
+html.calculator ::placeholder {
+  color: var(--calc-text-muted);
+  opacity: 1;
+}
+
+/* File input button in calculator mode */
+html.calculator input[type="file"]::file-selector-button {
+  background: var(--calc-border);
+  color: var(--calc-highlight);
+  border-radius: 0;
+  border: 0;
+  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 8px 16px;
+  margin-right: 16px;
+  cursor: pointer;
+}
+
+/* Apply calculator theme when html has class "calculator" */
+html.calculator body {
+  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  background: var(--calc-bg);
+  color: var(--calc-text);
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* Mac component classes (used inside .calculator context) */
+html.calculator .mac-window {
+  background: var(--calc-bg-card);
+  border: 3px solid var(--calc-border);
+  box-shadow: 6px 6px 0 var(--calc-border);
+  padding: 24px;
+}
+
+html.calculator .mac-button {
+  background: var(--calc-bg-card);
+  border: 2px solid var(--calc-border);
+  padding: 8px 16px;
+  box-shadow: 4px 4px 0 var(--calc-border);
+  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  font-size: 0.875rem;
+  transition: background 0.1s;
+}
+
+html.calculator .mac-button:hover {
+  background: var(--calc-highlight);
+}
+
+html.calculator .mac-input {
+  background: var(--calc-bg);
+  border: 2px solid var(--calc-border);
+  padding: 8px;
+  box-shadow: inset 2px 2px 0 var(--calc-border);
+}
+
+/* Dithering background utility */
+.bg-dither {
+  background-image:
+    linear-gradient(45deg, #9A7E00 25%, transparent 25%),
+    linear-gradient(-45deg, #9A7E00 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #9A7E00 75%),
+    linear-gradient(-45deg, transparent 75%, #9A7E00 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+/* Mac wallpaper gradient */
+.mac-wallpaper {
+  background: radial-gradient(circle at center, #B99600, #A68900);
+}

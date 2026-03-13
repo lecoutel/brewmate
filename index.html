@@ -5,18 +5,76 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BrewMate - Brewing Calculators</title>
-  <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="icon" type="image/svg+xml" href="/wortlab-logo-splashscreen.svg" />
+  <link rel="apple-touch-icon" href="/wortlab-logo-splashscreen.svg" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            calc: {
+              bg: 'var(--calc-bg)',
+              'bg-card': 'var(--calc-bg-card)',
+              'bg-surface': 'var(--calc-surface)',
+              text: 'var(--calc-text)',
+              'text-muted': 'var(--calc-text-muted)',
+              border: 'var(--calc-border)',
+              accent: 'var(--calc-accent)',
+              error: 'var(--calc-error)',
+              highlight: 'var(--calc-highlight)'
+            },
+            mac: {
+              bg: '#B99600',
+              bgDark: '#A68900',
+              pixel: '#9A7E00',
+              pixelDark: '#8C7200',
+              panel: '#C9A800',
+              panelDark: '#8F7400',
+              text: '#3A2F00',
+              highlight: '#E6C200'
+            }
+          },
+          fontFamily: {
+            mac: ['ChicagoFLF', 'Chicago', 'monospace']
+          },
+          boxShadow: {
+            mac: '4px 4px 0 #8C7200',
+            'mac-lg': '6px 6px 0 #8C7200',
+            'mac-inset': 'inset 2px 2px 0 #8C7200'
+          },
+          borderWidth: {
+            3: '3px'
+          },
+          spacing: {
+            pixel: '8px',
+            'pixel-2': '16px',
+            'pixel-3': '24px',
+            'pixel-4': '32px'
+          },
+          letterSpacing: {
+            pixel: '0.25em'
+          }
+        }
+      },
+      plugins: [
+        function({ addVariant }) {
+          addVariant('calculator', '.calculator &')
+        }
+      ]
+    }
   </script>
   <script>
     // Initial theme setup: default light, respect explicit localStorage preference
-    if (localStorage.theme === 'dark') {
+    var theme = localStorage.theme;
+    document.documentElement.classList.remove('light', 'dark', 'calculator');
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+    } else if (theme === 'calculator') {
+      document.documentElement.classList.add('calculator');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
   </script>
 <script type="importmap">
@@ -32,7 +90,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-[#F5F7FA] dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<body class="bg-[#F5F7FA] dark:bg-gray-900 calculator:bg-calc-bg text-gray-900 dark:text-gray-100 calculator:text-calc-text">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>

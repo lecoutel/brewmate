@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="190px" height="190px" viewBox="0 0 190 190" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Artboard Copy 4</title>
+    <g id="Artboard-Copy-4" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" fill="#FFFFFF" x="10" y="7" width="71" height="75"></rect>
+        <rect id="Rectangle" fill="#FFFFFF" x="110" y="107" width="71" height="75"></rect>
+        <text id="W" font-family="PixelTwist, Pixel Twist" font-size="118" font-weight="normal" fill="#FF2D2D">
+            <tspan x="-4" y="95">W</tspan>
+        </text>
+        <text id="L" font-family="PixelTwist, Pixel Twist" font-size="118" font-weight="normal" fill="#1A3AFF">
+            <tspan x="90.4" y="189.4">L</tspan>
+        </text>
+    </g>
+</svg>

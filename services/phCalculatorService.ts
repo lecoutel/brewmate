@@ -150,8 +150,8 @@ export function calculatePhCorrection(inputs: PhCalculationInputs): PhCalculatio
     const alkalinityCaCO3 = hco3 * (50 / 61.0168);
     const residualAlkalinity = alkalinityCaCO3 - ((ca / 1.4) + (mg / 1.7));
 
-    // Malt buffering capacity (mEq/pH)
-    const BF_BASE = 33.0, BF_CRYSTAL = 50.0, BF_ROASTED = 70.0;
+    // Malt buffering capacity (mEq/pH/kg) — sources: Braukaiser/Troester, Palmer & Kaminski "Water"
+    const BF_BASE = 30.0, BF_CRYSTAL = 50.0, BF_ROASTED = 70.0;
     const maltBuffering =
         (maltComposition[MALT_TYPE.BASE] * BF_BASE) +
         (maltComposition[MALT_TYPE.CRYSTAL] * BF_CRYSTAL) +

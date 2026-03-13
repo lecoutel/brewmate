@@ -6,6 +6,7 @@ import { calculatePhCorrection } from '../services/phCalculatorService';
 import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, parametersToWaterProfile } from '../services/waterQualityService';
 import { searchBottledWaters, getBottledWaterProfile, BottledWaterSearchHit } from '../services/openFoodFactsService';
 import { DEFAULT_LOOS_WATER_PROFILE, Icons, CORRECTION_STAGE_OPTIONS } from '../constants';
+import FormulaInfoSection from '../components/FormulaInfoSection';
 
 type WaterSourceType = 'tap' | 'bottle';
 import { usePersistentState } from '../hooks/usePersistentState';
@@ -32,7 +33,6 @@ const PhCalculatorScreen: React.FC = () => {
   const [result, setResult] = useState<PhCalculationResult | null>(null);
   const [formError, setFormError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showDetails, setShowDetails] = useState<boolean>(false);
   const [autoDetectedVolume, setAutoDetectedVolume] = useState<number | null>(null);
 
   // Water Quality State
@@ -626,19 +626,19 @@ const PhCalculatorScreen: React.FC = () => {
 
         {stage === CorrectionStage.MASH && (
           <div className="space-y-4 border-t border-b border-gray-200 dark:border-gray-700 py-4 my-4">
-            <h3 className="font-semibold text-gray-700 dark:text-gray-300">Profil d'eau</h3>
-            <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+            <h3 className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">Profil d'eau</h3>
+            <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg">
               <button
                 type="button"
                 onClick={() => setWaterSource('tap')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+                className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
               >
                 Eau du robinet
               </button>
               <button
                 type="button"
                 onClick={() => setWaterSource('bottle')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
+                className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
               >
                 Eau en bouteille
               </button>
@@ -678,7 +678,7 @@ const PhCalculatorScreen: React.FC = () => {
                   />
                   {isSearching && (
                     <div className="absolute right-3 top-10">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
                     </div>
                   )}
                 </div>
@@ -707,7 +707,7 @@ const PhCalculatorScreen: React.FC = () => {
               </div>
 
               {showAutocomplete && communes.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
                   {communes.map((c) => (
                     <div
                       key={c.code}
@@ -721,15 +721,15 @@ const PhCalculatorScreen: React.FC = () => {
                 </div>
               )}
               {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
-                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
                     Aucune commune trouvée pour « {query} »
                   </p>
                 </div>
               )}
 
               {isLoading && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
               )}
             </div>
             )}
@@ -755,12 +755,12 @@ const PhCalculatorScreen: React.FC = () => {
                 />
                 {isBottleSearching && (
                   <div className="absolute right-3 top-10">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF]"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
                   </div>
                 )}
               </div>
               {showBottleAutocomplete && bottleResults.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
                   {bottleResults.map((hit) => (
                     <div
                       key={hit.code}
@@ -774,25 +774,25 @@ const PhCalculatorScreen: React.FC = () => {
                 </div>
               )}
               {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl">
-                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 italic">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
                     Aucune eau trouvée pour « {bottleQuery} »
                   </p>
                 </div>
               )}
               {isLoading && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Chargement</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
               )}
             </div>
             )}
 
             {waterSource === 'tap' && networks.length > 1 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 animate-in fade-in">
-                <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              <div className="bg-blue-50 dark:bg-blue-900/20 calculator:bg-calc-bg-surface p-4 rounded-lg border border-blue-200 dark:border-blue-800 calculator:border-calc-border animate-in fade-in">
+                <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 calculator:text-calc-text mb-2">
                   Plusieurs points de captation (réseaux) disponibles. Veuillez en sélectionner un :
                 </label>
                 <select
-                  className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700"}
+                  className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700 calculator:bg-calc-bg-card"}
                   value={selectedNetwork?.code || ''}
                   onChange={(e) => handleSelectNetwork(e.target.value)}
                 >
@@ -809,7 +809,7 @@ const PhCalculatorScreen: React.FC = () => {
             {waterError && <p className={COMMON_CLASSES.errorText}>{waterError}</p>}
             
             {waterProfile && (
-              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-200 dark:border-green-800">
+              <div className="bg-green-50 dark:bg-green-900/20 calculator:bg-calc-bg-card p-3 rounded-md border border-green-200 dark:border-green-800 calculator:border-calc-border">
                 <p className="text-sm text-green-800 dark:text-green-200 font-medium mb-1">
                   Profil d'eau chargé pour {waterSource === 'bottle' ? phBottleProductName || '—' : `${selectedCommune?.nom || ''} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`.trim()}
                 </p>
@@ -833,21 +833,21 @@ const PhCalculatorScreen: React.FC = () => {
             type="file" id="beerXmlFile" name="beerXmlFile" accept=".xml,text/xml"
             ref={beerXmlInputRef}
             onChange={handleFileChange}
-            className={`w-full text-sm p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-gray-700 file:text-gray-800 dark:file:text-gray-200 hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF]`}
+            className={`w-full text-sm p-2 border border-gray-300 dark:border-gray-600 calculator:border-calc-border rounded-lg calculator:rounded-none bg-white dark:bg-gray-800 calculator:bg-calc-bg-card text-gray-900 dark:text-gray-100 calculator:text-calc-text outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md calculator:file:rounded-none file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-gray-700 calculator:file:bg-calc-border file:text-gray-800 dark:file:text-gray-200 calculator:file:text-calc-highlight hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border`}
             aria-describedby="beerXmlFile_help"
           />
-          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400 truncate">Fichier: {fileName}</p>}
+          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted truncate">Fichier: {fileName}</p>}
           {(fileName || beerXmlContent) && (
             <button
               type="button"
               onClick={handleRemoveBeerXml}
-              className="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
+              className="mt-2 text-sm text-red-600 dark:text-red-400 calculator:text-calc-error hover:underline"
             >
               Supprimer le fichier BeerXML
             </button>
           )}
           {stage === CorrectionStage.MASH && (
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
               Pour l'empâtage, un fichier BeerXML est nécessaire pour analyser les malts et obtenir la meilleure précision. Le profil d'eau de votre commune est également requis.
             </p>
           )}
@@ -936,52 +936,124 @@ const PhCalculatorScreen: React.FC = () => {
             <InfoPanel>{result.message}</InfoPanel>
           )}
 
-          {/* Détails MASH */}
-          {!result.error && result.details && stage === CorrectionStage.MASH && (
-            <div>
-              <button
-                onClick={() => setShowDetails(!showDetails)}
-                className="w-full flex items-center justify-between px-4 py-3 mt-1 bg-gray-50 dark:bg-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
-              >
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Détails du calcul</span>
-                <Icons.ChevronRightIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showDetails ? 'rotate-90' : ''}`} />
-              </button>
-              {showDetails && (
-                <div className="mt-2 p-4 border rounded-lg bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-sm space-y-1">
-                  {currentPhStr && <p className={COMMON_CLASSES.textMuted}><strong>pH actuel :</strong> {currentPhStr}</p>}
-                  {targetPhStr && <p className={COMMON_CLASSES.textMuted}><strong>pH cible :</strong> {targetPhStr}</p>}
-                  {volumeStr && <p className={COMMON_CLASSES.textMuted}><strong>Volume :</strong> {volumeStr} L</p>}
-                  {typeof result.details.autoDetectedMashVolumeL === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Volume Maische Auto-Détecté :</strong> {result.details.autoDetectedMashVolumeL.toFixed(2)} L</p>}
-                  {typeof result.details.residualAlkalinity === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Alcalinité Résiduelle (AR) :</strong> {result.details.residualAlkalinity.toFixed(2)} ppm as CaCO₃</p>}
-                  {typeof result.details.totalMashBuffering === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>Pouvoir Tampon Total :</strong> {result.details.totalMashBuffering.toFixed(2)}</p>}
-                  {typeof result.details.initialMEqNeeded === 'number' && <p className={COMMON_CLASSES.textMuted}><strong>mEq Initiaux (avant malt acide) :</strong> {result.details.initialMEqNeeded.toFixed(2)}</p>}
-                  {typeof result.details.mEqFromAcidMalt === 'number' && result.details.mEqFromAcidMalt > 0 && <p className={COMMON_CLASSES.textMuted}><strong>mEq apportés par Malt Acide :</strong> {result.details.mEqFromAcidMalt.toFixed(2)}</p>}
-                  {typeof result.details.netMEqNeededForAcidification === 'number' && result.correctionType === 'ACIDIFY' && <p className={COMMON_CLASSES.textMuted}><strong>mEq Nets (Acidification) :</strong> {result.details.netMEqNeededForAcidification.toFixed(2)}</p>}
-                  {typeof result.details.mEqToAlkalinize === 'number' && result.correctionType === 'ALCALINIZE' && <p className={COMMON_CLASSES.textMuted}><strong>mEq (Alcalinisation) :</strong> {result.details.mEqToAlkalinize.toFixed(2)}</p>}
-                  {result.details.maltComposition && (
-                    <>
-                      <p className={COMMON_CLASSES.textMuted}><strong>Composition Malts (kg) :</strong></p>
-                      <ul className="list-disc list-inside pl-4 space-y-0.5">
-                        <li className={COMMON_CLASSES.textMuted}>Base : {result.details.maltComposition.BASE.toFixed(3)} kg</li>
-                        <li className={COMMON_CLASSES.textMuted}>Crystal : {result.details.maltComposition.CRYSTAL.toFixed(3)} kg</li>
-                        <li className={COMMON_CLASSES.textMuted}>Roasted : {result.details.maltComposition.ROASTED.toFixed(3)} kg</li>
-                        {result.details.maltComposition.SPECIALTY_ACIDIC ? <li className={COMMON_CLASSES.textMuted}>Acide : {result.details.maltComposition.SPECIALTY_ACIDIC.toFixed(3)} kg</li> : null}
-                        {result.details.maltComposition.SPECIALTY_OTHER ? <li className={COMMON_CLASSES.textMuted}>Autre Spéc. : {result.details.maltComposition.SPECIALTY_OTHER.toFixed(3)} kg</li> : null}
-                        {result.details.maltComposition.UNKNOWN ? <li className={COMMON_CLASSES.textMuted}>Inconnu : {result.details.maltComposition.UNKNOWN.toFixed(3)} kg</li> : null}
-                      </ul>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Volume auto-détecté PRE_BOIL */}
           {!result.error && result.details && typeof result.details.autoDetectedPreBoilVolumeL === 'number' && stage === CorrectionStage.PRE_BOIL && (
             <p className={`${COMMON_CLASSES.textMuted} text-xs`}>Volume pré-ébullition auto-détecté du BeerXML : {result.details.autoDetectedPreBoilVolumeL.toFixed(2)} L.</p>
           )}
         </div>
       )}
+
+      {result && !result.error && (() => {
+        const d = result.details;
+        const wp = waterProfile;
+        const alkalinityCaCO3 = wp ? wp.hco3 * (50 / 61.02) : 0;
+        const computedAR = stage === CorrectionStage.MASH && wp && typeof d?.residualAlkalinity === 'number'
+          ? [
+              `alcalinité = HCO₃⁻ × (50/61.02) = ${wp.hco3.toFixed(1)} × 0.819 ≈ ${alkalinityCaCO3.toFixed(1)} ppm CaCO₃`,
+              '',
+              `AR = alcalinité − (Ca/1.4) − (Mg/1.7) = ${alkalinityCaCO3.toFixed(1)} − (${wp.ca}/1.4) − (${wp.mg}/1.7) = ${d!.residualAlkalinity!.toFixed(2)}`,
+            ]
+          : undefined;
+        const mc = d?.maltComposition;
+        const computedBuffer = stage === CorrectionStage.MASH && typeof d?.totalMashBuffering === 'number'
+          ? [
+            ...(mc ? [
+              `tampon_malt = base×30 + crystal×50 + roasted×70 = ${(mc[MALT_TYPE.BASE] * 30).toFixed(1)} + ${(mc[MALT_TYPE.CRYSTAL] * 50).toFixed(1)} + ${(mc[MALT_TYPE.ROASTED] * 70).toFixed(1)} mEq/pH`,
+              '',
+            ] : []),
+            `tampon_total = ${d!.totalMashBuffering!.toFixed(2)} mEq/pH`,
+          ]
+          : undefined;
+        const computedAcid = result.correctionType === 'ACIDIFY'
+          ? [
+            ...(typeof d?.netMEqNeededForAcidification === 'number' ? [`mEq_net = ${d.netMEqNeededForAcidification.toFixed(2)}`, ''] : []),
+            `Acide lactique (80%) = ${result.lacticAcidMl.toFixed(2)} mL`,
+            `Acide phosphorique (75%) = ${result.phosphoricAcidMl.toFixed(2)} mL`,
+          ]
+          : result.correctionType === 'ALCALINIZE'
+            ? [
+              ...(typeof d?.mEqToAlkalinize === 'number' ? [`mEq à alcaliniser = ${d.mEqToAlkalinize.toFixed(2)}`, ''] : []),
+              `Bicarbonate de sodium = ${result.bicarbonateGrams.toFixed(2)} g`,
+            ]
+            : undefined;
+        return (
+      <FormulaInfoSection
+        entries={[
+          {
+            name: 'Alcalinité Résiduelle — Kolbach (1953)',
+            description:
+              "L'alcalinité résiduelle (AR) mesure l'effet net de l'eau sur le pH de la maische, après neutralisation partielle par le calcium et le magnésium.",
+            formulas: [
+              'alcalinité (ppm CaCO₃) = HCO₃⁻ (ppm) × (50 / 61.02)',
+              '',
+              'AR = alcalinité − (Ca / 1.4) − (Mg / 1.7)',
+              '',
+              'Ca, Mg, HCO₃⁻ exprimés en mg/L (ppm)',
+              'AR positive → eau alcaline → tend à hausser le pH de maische',
+              'AR négative → eau douce/acide → tend à abaisser le pH de maische',
+            ],
+            computed: computedAR,
+            sources: [
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+              {
+                label: "Brewer's Friend — Water Chemistry Calculator",
+                url: 'https://www.brewersfriend.com/water-chemistry/',
+              },
+            ],
+          },
+          {
+            name: 'Pouvoir tampon des malts',
+            description:
+              "Chaque catégorie de malt résiste différemment aux variations de pH, selon sa composition en protéines et en acides. Les facteurs utilisés sont issus de travaux empiriques sur la chimie de la maische.",
+            formulas: [
+              'tampon_malt = Σ (poids_kg × facteur)',
+              '',
+              'Malt base      → facteur : 30 mEq/pH/kg',
+              'Malt crystal   → facteur : 50 mEq/pH/kg',
+              'Malt roasted   → facteur : 70 mEq/pH/kg',
+              '',
+              'tampon_eau = V_maische (L) × alcalinité (mEq/L) × 0.15',
+              'tampon_total = tampon_malt + tampon_eau',
+            ],
+            computed: computedBuffer,
+            sources: [
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+            ],
+          },
+          {
+            name: 'Acidification — Acide lactique & Acide phosphorique',
+            description:
+              "Conversion du besoin en milliéquivalents d'acide en volume de solution commerciale.",
+            formulas: [
+              'mEq_net = tampon_total × ΔpH − mEq_apportés_par_malt_acide',
+              '',
+              'Acide lactique (80%)    : mL = mEq_net / 0.66',
+              'Acide phosphorique (10%): mL = mEq_net / 0.65',
+              '',
+              'Malt acide (3% d\'acide lactique) : mEq = (poids_g / 100) × 0.3',
+            ],
+            computed: computedAcid,
+            sources: [
+              {
+                label: "Palmer & Kaminski — Water: A Comprehensive Guide for Brewers (2013)",
+                url: 'https://www.brewerspublications.com/products/water-a-comprehensive-guide-for-brewers',
+              },
+              {
+                label: "Greg Noonan — New Brewing Lager Beer (1996)",
+                url: 'https://www.brewerspublications.com/products/new-brewing-lager-beer',
+              },
+            ],
+          },
+        ]}
+      />
+        );
+      })()}
     </PageLayout>
   );
 };
