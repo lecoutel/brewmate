@@ -10,10 +10,11 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19.1.0",
     "@heroicons/react": "^2.2.0",
-    "react-router-dom": "^7.6.2",
-    "react-dom": "^19.1.0"
+    "pixelarticons": "^2.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

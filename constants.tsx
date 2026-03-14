@@ -1,24 +1,26 @@
-
 import React from 'react';
 import {
-  BeakerIcon,
-  ScaleIcon,
-  EyeIcon,
-  SparklesIcon,
-  GlobeAltIcon,
-  ChevronRightIcon,
-  InformationCircleIcon,
-  ArrowLeftIcon,
-  ArrowTopRightOnSquareIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  MapPinIcon as TargetIcon,
-  ArrowPathIcon as RefreshIcon,
-  Cog6ToothIcon as CogIcon,
-  XCircleIcon,
-  PlusCircleIcon,
-  CalculatorIcon,
-} from '@heroicons/react/24/outline';
+  Calculator as CalculatorIcon,
+  Scale as ScaleIcon,
+  Eye as EyeIcon,
+  Sparkles as SparklesIcon,
+  Globe as GlobeAltIcon,
+  Target as TargetIcon,
+  Reload as RefreshIcon,
+  ExternalLink as ArrowTopRightOnSquareIcon,
+  InfoBox as InformationCircleIcon,
+  ArrowLeft as ArrowLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Check as CheckCircleIcon,
+  SquareAlert as ExclamationTriangleIcon,
+  Settings2 as CogIcon,
+  Cancel as XCircleIcon,
+  PlusBox as PlusCircleIcon,
+  TestTube as BeakerIcon,
+  Gps as GeolocIcon,
+  CloudSun as SunIcon,
+  Moon as MoonIcon,
+} from 'pixelarticons/react';
 import { CalculatorRoute, CalculatorMeta, HomeSection } from './types';
 
 export const APP_TITLE = 'WortLab';
@@ -43,10 +45,10 @@ export const THEME_COLORS = {
     onPrimary: '#000000',
     primaryContainer: '#1e3a8a',
     onPrimaryContainer: '#E6EEFF',
-    surface: '#1f2937',
-    onSurface: '#f9fafb',
-    background: '#111827',
-    onBackground: '#f3f4f6',
+    surface: '#323232',
+    onSurface: '#f2f2f2',
+    background: '#262626',
+    onBackground: '#f2f2f2',
     error: '#ff8c75',
     errorContainer: '#7f1d1d',
     onErrorContainer: '#FFE6E1',
@@ -67,14 +69,14 @@ export const THEME_COLORS = {
 };
 
 export const COMMON_CLASSES = {
-  label: 'block text-sm font-medium text-gray-700 dark:text-gray-300 calculator:text-calc-text calculator:font-mac mb-1',
-  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 calculator:border-calc-border calculator:border-2 bg-white dark:bg-gray-700 calculator:bg-calc-bg text-gray-900 dark:text-gray-100 calculator:text-calc-text focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border focus:border-transparent outline-none transition-all calculator:rounded-none calculator:shadow-mac-inset calculator:font-mac',
-  buttonPrimary: 'w-full py-3 px-4 bg-[#2563FF] hover:bg-[#1d4ed8] calculator:bg-calc-accent calculator:hover:bg-calc-highlight text-white calculator:text-calc-text font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed calculator:rounded-none calculator:shadow-mac calculator:hover:shadow-mac calculator:hover:translate-y-0 calculator:font-mac',
-  buttonSecondary: 'w-full py-3 px-4 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-card hover:bg-gray-300 dark:hover:bg-gray-600 calculator:hover:bg-calc-highlight text-gray-800 dark:text-gray-200 calculator:text-calc-text font-bold rounded-lg transition-all duration-200 calculator:rounded-none calculator:shadow-mac calculator:border-2 calculator:border-calc-border calculator:font-mac',
-  card: 'bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl border border-gray-200 dark:border-gray-600 calculator:border-calc-border calculator:border-2 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 calculator:rounded-none calculator:shadow-mac calculator:hover:shadow-mac-lg',
-  textMuted: 'text-sm text-gray-500 dark:text-gray-300 calculator:text-calc-text-muted calculator:font-mac',
-  errorText: 'text-sm text-red-600 dark:text-red-400 calculator:text-calc-error calculator:font-mac',
-  infoText: 'bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 calculator:bg-calc-bg-surface calculator:text-calc-text calculator:border calculator:border-calc-border calculator:rounded-none',
+  label: 'block text-sm font-medium text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text light:font-mac dark:font-mac calculator:font-mac mb-1',
+  input: 'w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border light:border-2 dark:border-2 calculator:border-2 bg-white dark:bg-calc-bg light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text focus:ring-2 focus:ring-[#2563FF] light:focus:ring-calc-border dark:focus:ring-calc-border calculator:focus:ring-calc-border focus:border-transparent outline-none transition-all light:rounded-none dark:rounded-none calculator:rounded-none light:shadow-mac-inset dark:shadow-mac-inset calculator:shadow-mac-inset light:font-mac dark:font-mac calculator:font-mac',
+  buttonPrimary: 'w-full py-3 px-4 bg-[#2563FF] hover:bg-[#1d4ed8] light:bg-calc-accent dark:bg-calc-accent calculator:bg-calc-accent light:hover:bg-calc-highlight dark:hover:bg-calc-highlight calculator:hover:bg-calc-highlight text-white light:text-calc-text dark:text-calc-text calculator:text-calc-text font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed light:rounded-none dark:rounded-none calculator:rounded-none light:shadow-mac dark:shadow-mac calculator:shadow-mac light:hover:shadow-mac dark:hover:shadow-mac calculator:hover:shadow-mac light:hover:translate-y-0 dark:hover:translate-y-0 calculator:hover:translate-y-0 light:font-mac dark:font-mac calculator:font-mac',
+  buttonSecondary: 'w-full py-3 px-4 bg-gray-200 dark:bg-calc-bg-card light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card hover:bg-gray-300 dark:hover:bg-calc-highlight light:hover:bg-calc-highlight dark:hover:bg-calc-highlight calculator:hover:bg-calc-highlight text-gray-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text font-bold rounded-lg transition-all duration-200 light:rounded-none dark:rounded-none calculator:rounded-none light:shadow-mac dark:shadow-mac calculator:shadow-mac light:border-2 dark:border-2 calculator:border-2 light:border-calc-border dark:border-calc-border calculator:border-calc-border light:font-mac dark:font-mac calculator:font-mac',
+  card: 'bg-white dark:bg-calc-bg-card light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-6 rounded-xl border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border light:border-2 dark:border-2 calculator:border-2 shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 light:rounded-none dark:rounded-none calculator:rounded-none light:shadow-mac dark:shadow-mac calculator:shadow-mac light:hover:shadow-mac-lg dark:hover:shadow-mac-lg calculator:hover:shadow-mac-lg',
+  textMuted: 'text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted calculator:text-calc-text-muted light:font-mac dark:font-mac calculator:font-mac',
+  errorText: 'text-sm text-red-600 dark:text-red-400 light:text-calc-error dark:text-calc-error calculator:text-calc-error light:font-mac dark:font-mac calculator:font-mac',
+  infoText: 'bg-blue-50 text-blue-800 light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface light:text-calc-text dark:text-calc-text calculator:text-calc-text light:border light:border-calc-border dark:border dark:border-calc-border calculator:border calculator:border-calc-border light:rounded-none dark:rounded-none calculator:rounded-none',
 };
 
 export const Icons = {
@@ -95,6 +97,9 @@ export const Icons = {
   XCircleIcon,
   PlusCircleIcon,
   CalculatorIcon,
+  GeolocIcon,
+  SunIcon,
+  MoonIcon,
 };
 
 export const WortLabCircularLogo: React.FC<{ className?: string }> = ({ className }) => (
@@ -102,7 +107,7 @@ export const WortLabCircularLogo: React.FC<{ className?: string }> = ({ classNam
     <img src="/wortlab-logo-splashscreen.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain dark:hidden calculator:hidden" />
     <img src="/wortlab-logo-splashscreen-dark-mode.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain hidden dark:block calculator:hidden" />
     <img src="/wortlab-logo-splashscreen-calculator.svg" alt="WortLab" className="w-24 h-24 sm:w-32 sm:h-32 mb-2 object-contain hidden calculator:block" />
-    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">WortLab</span>
+    <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">WortLab</span>
   </div>
 );
 

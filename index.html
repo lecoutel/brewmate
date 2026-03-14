@@ -41,9 +41,9 @@
             mac: ['ChicagoFLF', 'Chicago', 'monospace']
           },
           boxShadow: {
-            mac: '4px 4px 0 #8C7200',
-            'mac-lg': '6px 6px 0 #8C7200',
-            'mac-inset': 'inset 2px 2px 0 #8C7200'
+            mac: '4px 4px 0 #000',
+            'mac-lg': '6px 6px 0 #000',
+            'mac-inset': 'inset 2px 2px 0 #000'
           },
           borderWidth: {
             3: '3px'
@@ -61,7 +61,9 @@
       },
       plugins: [
         function({ addVariant }) {
-          addVariant('calculator', '.calculator &')
+          addVariant('light', '.light &');
+          addVariant('dark', '.dark &');
+          addVariant('calculator', '.calculator &');
         }
       ]
     }
@@ -91,7 +93,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-[#F5F7FA] dark:bg-gray-900 calculator:bg-calc-bg text-gray-900 dark:text-gray-100 calculator:text-calc-text">
+<body class="bg-calc-bg text-calc-text">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>

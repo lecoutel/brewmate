@@ -625,20 +625,20 @@ const PhCalculatorScreen: React.FC = () => {
         )}
 
         {stage === CorrectionStage.MASH && (
-          <div className="space-y-4 border-t border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border py-4 my-4">
-            <h3 className="font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">Profil d'eau</h3>
-            <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg">
+          <div className="space-y-4 border-t border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border py-4 my-4">
+            <h3 className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">Profil d'eau</h3>
+            <div className="flex rounded-lg border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border p-1 bg-gray-50 dark:bg-calc-bg-card/50 light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg">
               <button
                 type="button"
                 onClick={() => setWaterSource('tap')}
-                className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
+                className={`flex-1 py-2 px-3 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow light:shadow-mac dark:shadow-mac calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text' : 'text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
               >
                 Eau du robinet
               </button>
               <button
                 type="button"
                 onClick={() => setWaterSource('bottle')}
-                className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-700 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
+                className={`flex-1 py-2 px-3 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow light:shadow-mac dark:shadow-mac calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text' : 'text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-200 calculator:hover:text-calc-text'}`}
               >
                 Eau en bouteille
               </button>
@@ -689,7 +689,7 @@ const PhCalculatorScreen: React.FC = () => {
                     title="Ma position"
                     disabled={isLoading}
                   >
-                    <Icons.TargetIcon className="w-5 h-5" />
+                    <Icons.GeolocIcon className="w-5 h-5" />
                   </Button>
                 </div>
                 {waterProfile && (
@@ -707,11 +707,11 @@ const PhCalculatorScreen: React.FC = () => {
               </div>
 
               {showAutocomplete && communes.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
                   {communes.map((c) => (
                     <div
                       key={c.code}
-                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
+                      className="p-3 hover:bg-gray-100 dark:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border"
                       onClick={() => handleSelectCommune(c, false)}
                     >
                       <div className="font-medium">{c.nom}</div>
@@ -721,15 +721,15 @@ const PhCalculatorScreen: React.FC = () => {
                 </div>
               )}
               {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
-                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted italic">
                     Aucune commune trouvée pour « {query} »
                   </p>
                 </div>
               )}
 
               {isLoading && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
+                <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mt-1">Chargement</p>
               )}
             </div>
             )}
@@ -760,11 +760,11 @@ const PhCalculatorScreen: React.FC = () => {
                 )}
               </div>
               {showBottleAutocomplete && bottleResults.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
                   {bottleResults.map((hit) => (
                     <div
                       key={hit.code}
-                      className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
+                      className="p-3 hover:bg-gray-100 dark:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border"
                       onClick={() => handleSelectBottle(hit)}
                     >
                       <div className="font-medium">{hit.name}</div>
@@ -774,25 +774,25 @@ const PhCalculatorScreen: React.FC = () => {
                 </div>
               )}
               {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
-                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl">
+                  <p className="px-4 py-3 text-sm text-gray-400 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted italic">
                     Aucune eau trouvée pour « {bottleQuery} »
                   </p>
                 </div>
               )}
               {isLoading && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
+                <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mt-1">Chargement</p>
               )}
             </div>
             )}
 
             {waterSource === 'tap' && networks.length > 1 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 calculator:bg-calc-bg-surface p-4 rounded-lg border border-blue-200 dark:border-blue-800 calculator:border-calc-border animate-in fade-in">
-                <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 calculator:text-calc-text mb-2">
+              <div className="bg-blue-50 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface p-4 rounded-lg border border-blue-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border animate-in fade-in">
+                <label className="block text-sm font-medium text-blue-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text mb-2">
                   Plusieurs points de captation (réseaux) disponibles. Veuillez en sélectionner un :
                 </label>
                 <select
-                  className={COMMON_CLASSES.input + " bg-white dark:bg-gray-700 calculator:bg-calc-bg-card"}
+                  className={COMMON_CLASSES.input + " bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card"}
                   value={selectedNetwork?.code || ''}
                   onChange={(e) => handleSelectNetwork(e.target.value)}
                 >
@@ -809,11 +809,11 @@ const PhCalculatorScreen: React.FC = () => {
             {waterError && <p className={COMMON_CLASSES.errorText}>{waterError}</p>}
             
             {waterProfile && (
-              <div className="bg-green-50 dark:bg-green-900/20 calculator:bg-calc-bg-card p-3 rounded-md border border-green-200 dark:border-green-800 calculator:border-calc-border">
-                <p className="text-sm text-green-800 dark:text-green-200 calculator:text-calc-text font-medium mb-1">
+              <div className="bg-green-50 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-3 rounded-md border border-green-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
+                <p className="text-sm text-green-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text font-medium mb-1">
                   Profil d'eau chargé pour {waterSource === 'bottle' ? phBottleProductName || '—' : `${selectedCommune?.nom || ''} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`.trim()}
                 </p>
-                <p className="text-xs text-green-700 dark:text-green-300 calculator:text-calc-text-muted">
+                <p className="text-xs text-green-700 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">
                   Ca: {waterProfile.ca.toFixed(1)}, Mg: {waterProfile.mg.toFixed(1)}, Na: {waterProfile.na?.toFixed(1) || '0.0'}, Cl: {waterProfile.cl?.toFixed(1) || '0.0'}, SO₄: {waterProfile.so4?.toFixed(1) || '0.0'}, HCO₃: {waterProfile.hco3.toFixed(1)} (mg/L)
                 </p>
               </div>
@@ -833,10 +833,10 @@ const PhCalculatorScreen: React.FC = () => {
             type="file" id="beerXmlFile" name="beerXmlFile" accept=".xml,text/xml"
             ref={beerXmlInputRef}
             onChange={handleFileChange}
-            className={`w-full text-sm p-2 border border-gray-300 dark:border-gray-600 calculator:border-calc-border rounded-lg calculator:rounded-none bg-white dark:bg-gray-800 calculator:bg-calc-bg-card text-gray-900 dark:text-gray-100 calculator:text-calc-text outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md calculator:file:rounded-none file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-gray-700 calculator:file:bg-calc-border file:text-gray-800 dark:file:text-gray-200 calculator:file:text-calc-highlight hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border`}
+            className={`w-full text-sm p-2 border border-gray-300 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md calculator:file:rounded-none file:border-0 file:text-sm file:font-semibold file:bg-gray-200 dark:file:bg-calc-border calculator:file:bg-calc-border file:text-gray-800 dark:file:text-calc-text calculator:file:text-calc-highlight hover:file:opacity-80 focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border`}
             aria-describedby="beerXmlFile_help"
           />
-          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted truncate">Fichier: {fileName}</p>}
+          {fileName && <p id="beerXmlFile_help" className="mt-1 text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted truncate">Fichier: {fileName}</p>}
           {(fileName || beerXmlContent) && (
             <button
               type="button"
@@ -847,7 +847,7 @@ const PhCalculatorScreen: React.FC = () => {
             </button>
           )}
           {stage === CorrectionStage.MASH && (
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
+            <p className="mt-2 text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">
               Pour l'empâtage, un fichier BeerXML est nécessaire pour analyser les malts et obtenir la meilleure précision. Le profil d'eau de votre commune est également requis.
             </p>
           )}

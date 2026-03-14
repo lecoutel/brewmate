@@ -110,7 +110,7 @@ const KombuchaGeneratorScreen: React.FC = () => {
             onChange={handleInputChange}
             options={KOMBUCHA_AROMATIC_PROFILE_OPTIONS}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">{KOMBUCHA_PROFILE_HELP}</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">{KOMBUCHA_PROFILE_HELP}</p>
         </div>
         <div>
           <Select
@@ -121,12 +121,12 @@ const KombuchaGeneratorScreen: React.FC = () => {
             onChange={handleInputChange}
             options={KOMBUCHA_TEA_TYPE_OPTIONS}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">{KOMBUCHA_TEA_HELP}</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">{KOMBUCHA_TEA_HELP}</p>
         </div>
 
-        <div className="rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-600 calculator:border-calc-border bg-gray-50/50 dark:bg-gray-800/50 calculator:bg-calc-bg p-4">
-          <strong className="block mb-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">Profil de goût attendu</strong>
-          <p className="text-gray-700 dark:text-gray-300 calculator:text-calc-text-muted text-sm">
+        <div className="rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border bg-gray-50/50 dark:bg-calc-bg/50 light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg p-4">
+          <strong className="block mb-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">Profil de goût attendu</strong>
+          <p className="text-gray-700 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted text-sm">
             {KOMBUCHA_PROFILES[inputs.aromaticProfileKey]?.descriptions[inputs.teaTypeKey] ?? '—'}
           </p>
         </div>
@@ -147,11 +147,11 @@ const KombuchaGeneratorScreen: React.FC = () => {
 
       {result && !result.error && (
         <div className="mt-8 space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{result.title}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.title}</h2>
 
           <div>
-            <strong className="block mb-1 text-gray-900 dark:text-gray-100 calculator:text-calc-text">Profil de goût attendu</strong>
-            <p className="text-gray-700 dark:text-gray-300 calculator:text-calc-text-muted">
+            <strong className="block mb-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">Profil de goût attendu</strong>
+            <p className="text-gray-700 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">
               {result.expectedTasteProfile}
             </p>
           </div>
@@ -160,9 +160,9 @@ const KombuchaGeneratorScreen: React.FC = () => {
             <SectionHeading icon={Icons.BeakerIcon}>Ingrédients</SectionHeading>
             <ul className="list-none space-y-2">
               {result.ingredients.map((ing, index) => (
-                <li key={index} className="p-3 rounded-lg calculator:rounded-none bg-gray-50 dark:bg-gray-700 calculator:bg-calc-bg flex justify-between items-center shadow-sm calculator:shadow-none calculator:border calculator:border-calc-border">
-                  <span className="text-gray-900 dark:text-gray-100 calculator:text-calc-text">{ing.name}</span>
-                  <span className="font-semibold text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text">
+                <li key={index} className="p-3 rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none bg-gray-50 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg flex justify-between items-center shadow-sm light:shadow-none dark:shadow-none calculator:shadow-none calculator:border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
+                  <span className="text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{ing.name}</span>
+                  <span className="font-semibold text-[#2563FF] dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
                     {ing.amount} {ing.unit}
                   </span>
                 </li>
@@ -174,17 +174,17 @@ const KombuchaGeneratorScreen: React.FC = () => {
             <SectionHeading icon={Icons.CogIcon}>Instructions (1ère Fermentation - F1)</SectionHeading>
             <ol className="list-decimal list-outside space-y-3 pl-5">
               {result.instructions.map((step) => (
-                <li key={step.step} className="text-gray-700 dark:text-gray-300 calculator:text-calc-text-muted leading-relaxed">
+                <li key={step.step} className="text-gray-700 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted leading-relaxed">
                   {step.text}
                 </li>
               ))}
             </ol>
-            <div className="mt-3 space-y-3 text-sm text-amber-800 dark:text-amber-200 calculator:text-calc-text rounded-lg calculator:rounded-none bg-amber-50 dark:bg-amber-900/20 calculator:bg-calc-bg-card p-4 border border-amber-200 dark:border-amber-800 calculator:border-calc-border">
+            <div className="mt-3 space-y-3 text-sm text-amber-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none bg-amber-50 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-4 border border-amber-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
               <p className="font-medium">Conseils de sécurité</p>
               <p><strong>Eau</strong> — Utilisez de l'eau filtrée ou de source. Si vous n'avez que l'eau du robinet : faites-la bouillir ou laissez-la reposer 24 h à l'air libre avant de l'utiliser.</p>
               <p><strong>À jeter (moisissure)</strong> — En surface du liquide ou du SCOBY : aspect sec, duveteux, velu ou poudreux ; couleurs blanc vif, vert, bleu, gris ou noir. → Jetez tout (liquide + SCOBY) et désinfectez le matériel.</p>
               <p><strong>Normal (à garder)</strong> — Sédiments bruns dans le liquide ou sous le SCOBY ; nouvelle membrane translucide à la surface (bébé SCOBY). C'est bon signe.</p>
-              <p className="text-amber-900 dark:text-amber-100 font-medium">En cas de doute, ne pas consommer.</p>
+              <p className="text-amber-900 dark:text-calc-text font-medium">En cas de doute, ne pas consommer.</p>
               <p><strong>Matériel</strong> — Privilégiez un récipient en verre ou en inox alimentaire (304/316). Évitez les récipients en métal non alimentaire ou en céramique émaillée non garantie sans plomb.</p>
             </div>
           </div>

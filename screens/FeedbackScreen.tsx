@@ -70,8 +70,8 @@ const FeedbackScreen: React.FC = () => {
   if (submitted) {
     return (
       <PageLayout title="Feedback" showBackButton>
-        <div className="rounded-xl calculator:rounded-none bg-green-50 dark:bg-green-900/20 calculator:bg-calc-bg-card border border-green-200 dark:border-green-800 calculator:border-calc-border p-6 text-center">
-          <p className="text-lg font-medium text-green-800 dark:text-green-200 calculator:text-calc-text">
+        <div className="rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none bg-green-50 dark:bg-calc-bg-card light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-green-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border p-6 text-center">
+          <p className="text-lg font-medium text-green-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
             Merci, votre message a bien été envoyé.
           </p>
           <p className={COMMON_CLASSES.textMuted + ' mt-2'}>
@@ -85,7 +85,7 @@ const FeedbackScreen: React.FC = () => {
   return (
     <PageLayout title="Donner mon avis" showBackButton>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300 calculator:text-calc-text-muted leading-relaxed">
+        <div className="space-y-3 text-sm text-gray-600 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text light:text-calc-text-muted dark:text-calc-text-muted calculator:text-calc-text-muted leading-relaxed">
           <p>
             {"Votre retour compte vraiment. Que vous ayez repéré un bug, une idée d'amélioration ou juste envie de dire bonjour — tous les messages sont lus et pris en compte."}
           </p>

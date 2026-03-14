@@ -64,7 +64,14 @@ export async function fetchNetworks(codeCommune: string): Promise<Network[]> {
   try {
     const url = `https://hubeau.eaufrance.fr/api/v1/qualite_eau_potable/communes_udi?code_commune=${codeCommune}`;
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Erreur API Hub\'Eau communes_udi');
+    if (!response.ok) {
+      // En cas de 5xx, retourner [] pour permettre un chargement sans réseau (fallback SISE ou resultats_dis sans code_reseau)
+      if (response.status >= 500 && response.status < 600) {
+        console.warn('Hub\'Eau API communes_udi 5xx, poursuite sans réseau:', response.status);
+        return [];
+      }
+      throw new Error('Erreur API Hub\'Eau communes_udi');
+    }
     const data = await response.json();
     
     const networksMap = new Map<string, Network>();
@@ -220,9 +227,18 @@ export async function fetchWaterQuality(codeCommune: string, codeReseau?: string
     
     const response = await fetch(url);
     if (!response.ok) {
+      // En cas d'erreur 5xx (ex. 500), tenter le fallback SISE-Eaux avant d'échouer
+      if (response.status >= 500 && response.status < 600) {
+        console.warn('Hub\'Eau API 5xx, tentative fallback SISE-Eaux:', response.status);
+        const siseResult = await fetchFromSiseEaux(codeCommune, codeReseau, nomCommune);
+        if (siseResult) return siseResult;
+      }
       const errorData = await response.json().catch(() => ({}));
       console.error('Hub\'Eau API Error:', response.status, errorData);
-      throw new Error(`Erreur API Hub'Eau (${response.status}). Veuillez réessayer plus tard.`);
+      const message = response.status >= 500
+        ? `Service Hub'Eau temporairement indisponible (${response.status}). Réessayez dans quelques instants.`
+        : `Erreur API Hub'Eau (${response.status}). Veuillez réessayer plus tard.`;
+      throw new Error(message);
     }
     
     const data = await response.json();
