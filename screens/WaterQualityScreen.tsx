@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout, Input, Button, COMMON_CLASSES, Icons } from '../components/Common';
-import { WaterQualityResult, Commune } from '../types';
-import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, getBeerStyleRecommendations } from '../services/waterQualityService';
+import { WaterQualityResult, Commune, WaterCapabilities } from '../types';
+import { fetchWaterQuality, searchCommunes, getCommuneByCoords, fetchNetworks, Network, getBrewableStyles } from '../services/waterQualityService';
 import { searchBottledWaters, getBottledWaterProfile, BottledWaterSearchHit } from '../services/openFoodFactsService';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
 import FormulaInfoSection from '../components/FormulaInfoSection';
+import BrewableStylesSection from '../components/BrewableStylesSection';
 
 export type WaterSourceType = 'tap' | 'bottle';
 
@@ -45,7 +46,7 @@ const WaterQualityScreen: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState('');
   const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [isProfilesExpanded, setIsProfilesExpanded] = useState(false);
+  const [isBrewableExpanded, setIsBrewableExpanded] = useState(false);
   const [geolocSuccess, setGeolocSuccess] = useState(false);
 
   const [bottleQuery, setBottleQuery, clearBottleQueryCache] = usePersistentState('brewmate:water:bottleQuery', '');
@@ -53,10 +54,11 @@ const WaterQualityScreen: React.FC = () => {
   const [isBottleSearching, setIsBottleSearching] = useState(false);
   const [showBottleAutocomplete, setShowBottleAutocomplete] = useState(false);
 
-  const [beerSearchQuery, setBeerSearchQuery, clearBeerSearchCache] = usePersistentState(
-    'brewmate:water:beerFilter',
-    ''
+  const [capabilities, setCapabilities] = usePersistentState<WaterCapabilities>(
+    'brewmate:water:capabilities',
+    { canAddAcid: true, canAddBicarbonate: true, canAddSalts: false }
   );
+  const [styleSearchQuery, setStyleSearchQuery] = usePersistentState('brewmate:water:styleSearch', '');
   
   const autocompleteRef = useRef<HTMLDivElement>(null);
   const searchActivatedRef = useRef(false);
@@ -306,7 +308,6 @@ const WaterQualityScreen: React.FC = () => {
 
   const handleClearWaterData = () => {
     clearQueryCache();
-    clearBeerSearchCache();
     clearWaterCache();
     clearBottleQueryCache();
     setBottleProductCode(null);
@@ -321,7 +322,8 @@ const WaterQualityScreen: React.FC = () => {
     setResult(null);
     setError('');
     setShowAutocomplete(false);
-    setIsProfilesExpanded(false);
+    setIsBrewableExpanded(false);
+    setStyleSearchQuery('');
   };
 
   const calculateStats = (params: any) => {
@@ -366,23 +368,23 @@ const WaterQualityScreen: React.FC = () => {
   };
 
   const stats = result ? calculateStats(result.parameters) : null;
-  const beerRecommendations = stats ? getBeerStyleRecommendations(stats) : null;
+  const brewableStyles = stats ? getBrewableStyles(stats, capabilities) : null;
 
   return (
     <PageLayout title="Qualité de l'eau (France)" showBackButton>
       <div className="space-y-6">
-        <div className="flex rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border p-1 bg-gray-50 dark:bg-calc-bg-card/50 light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg">
+        <div className="flex rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg">
           <button
             type="button"
             onClick={() => setWaterSource('tap')}
-            className={`flex-1 py-2 px-3 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text' : 'text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-calc-text calculator:hover:text-calc-text'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
           >
             Eau du robinet
           </button>
           <button
             type="button"
             onClick={() => setWaterSource('bottle')}
-            className={`flex-1 py-2 px-3 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text' : 'text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-calc-text calculator:hover:text-calc-text'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
           >
             Eau en bouteille
           </button>
@@ -408,7 +410,7 @@ const WaterQualityScreen: React.FC = () => {
                   setNetworks([]);
                   setSelectedNetwork(null);
                   setResult(null);
-                  setBeerSearchQuery('');
+                  setStyleSearchQuery('');
                 }}
                 onClear={() => {
                   setQuery('');
@@ -416,7 +418,7 @@ const WaterQualityScreen: React.FC = () => {
                   setNetworks([]);
                   setSelectedNetwork(null);
                   setResult(null);
-                  setBeerSearchQuery('');
+                  setStyleSearchQuery('');
                 }}
                 placeholder="Ex: Lyon, Paris, Nantes..."
                 autoComplete="off"
@@ -425,7 +427,7 @@ const WaterQualityScreen: React.FC = () => {
               />
               {isSearching && (
                 <div className="absolute right-3 top-10">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] light:border-calc-accent dark:border-calc-accent calculator:border-calc-accent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
                 </div>
               )}
             </div>
@@ -437,7 +439,7 @@ const WaterQualityScreen: React.FC = () => {
                 disabled={isLoading}
               >
                 {geolocSuccess
-                  ? <Icons.CheckCircleIcon className="w-5 h-5 text-green-300 dark:text-calc-text" />
+                  ? <Icons.CheckCircleIcon className="w-5 h-5 text-green-300 dark:text-gray-100" />
                   : <Icons.GeolocIcon className="w-5 h-5" />
                 }
               </Button>
@@ -457,26 +459,26 @@ const WaterQualityScreen: React.FC = () => {
           </div>
 
           {isLoading && (
-            <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mt-1">Chargement</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1">Chargement</p>
           )}
 
           {showAutocomplete && communes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl max-h-60 overflow-auto">
               {communes.map((c) => (
                 <div
                   key={c.code}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 light:hover:bg-calc-bg-surface dark:hover:bg-calc-bg-surface calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800:bg-calc-bg-surface dark:hover:bg-gray-700 calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border"
                   onClick={() => handleSelectCommune(c, false)}
                 >
-                  <div className="font-medium light:text-calc-text dark:text-calc-text calculator:text-calc-text">{c.nom}</div>
-                  <div className="text-xs text-gray-500 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">{c.codesPostaux.join(', ')}</div>
+                  <div className="font-medium dark:text-gray-100 calculator:text-calc-text">{c.nom}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">{c.codesPostaux.join(', ')}</div>
                 </div>
               ))}
             </div>
           )}
           {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted italic">
                 Aucune commune trouvée pour « {query} »
               </p>
             </div>
@@ -505,16 +507,16 @@ const WaterQualityScreen: React.FC = () => {
             />
             {isBottleSearching && (
               <div className="absolute right-3 top-10">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] light:border-calc-accent dark:border-calc-accent calculator:border-calc-accent"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2563FF] calculator:border-calc-accent"></div>
               </div>
             )}
           </div>
           {showBottleAutocomplete && bottleResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
               {bottleResults.map((hit) => (
                 <div
                   key={hit.code}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-calc-border"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
                   onClick={() => handleSelectBottle(hit)}
                 >
                   <div className="font-medium">{hit.name}</div>
@@ -524,8 +526,8 @@ const WaterQualityScreen: React.FC = () => {
             </div>
           )}
           {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted italic">
                 Aucune eau trouvée pour « {bottleQuery} »
               </p>
             </div>
@@ -534,12 +536,12 @@ const WaterQualityScreen: React.FC = () => {
         )}
 
         {waterSource === 'tap' && networks.length > 1 && (
-          <div className="bg-blue-50 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface p-4 rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border border-blue-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border animate-in fade-in">
-            <label className="block text-sm font-medium text-blue-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text mb-2">
+          <div className="bg-blue-50 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface p-4 rounded-lg calculator:rounded-none border border-blue-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border animate-in fade-in">
+            <label className="block text-sm font-medium text-blue-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text mb-2">
               Plusieurs points de captation (réseaux) disponibles pour cette commune. Veuillez en sélectionner un :
             </label>
             <select
-              className={COMMON_CLASSES.input + " bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card"}
+              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card"}
               value={selectedNetwork?.code || ''}
               onChange={(e) => handleSelectNetwork(e.target.value)}
             >
@@ -562,28 +564,28 @@ const WaterQualityScreen: React.FC = () => {
         {isLoading && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Skeleton qui préfigure la carte résultat */}
-            <div className="bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-6 rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border shadow-sm calculator:shadow-mac">
-              <div className="flex justify-between items-end border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div className="space-y-2">
-                  <div className="h-3 w-24 bg-gray-200 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
-                  <div className="h-6 w-48 bg-gray-200 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
-                  <div className="h-3 w-36 bg-gray-100 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
-                <div className="h-5 w-16 bg-gray-200 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
+                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
               </div>
               <div className="flex justify-between items-center gap-4">
                 <div className="space-y-1">
-                  <div className="h-3 w-16 bg-gray-100 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
-                  <div className="h-5 w-24 bg-gray-200 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
                 <div className="text-right space-y-1">
-                  <div className="h-3 w-8 bg-gray-100 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse ml-auto" />
-                  <div className="h-8 w-12 bg-gray-200 dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface rounded light:rounded-none dark:rounded-none calculator:rounded-none animate-pulse ml-auto" />
+                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
+                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
                 </div>
               </div>
             </div>
             <div className="flex flex-col items-center justify-center py-6">
-              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#2563FF]/30 border-t-[#2563FF] light:border-calc-accent dark:border-calc-accent calculator:border-calc-accent" />
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#2563FF]/30 border-t-[#2563FF] calculator:border-calc-accent" />
             </div>
           </div>
         )}
@@ -591,17 +593,17 @@ const WaterQualityScreen: React.FC = () => {
         {result && !isLoading && stats && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <div className="bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-6 rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border shadow-sm calculator:shadow-mac">
-              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">Nom de profil</p>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Nom de profil</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
                       ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
                       : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
                   </h3>
                   {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                    <p className="text-xs text-gray-400 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1">
                       {result.dataSource === 'openfoodfacts'
                         ? 'Source : Open Food Facts'
                         : result.dataSource === 'sise-eaux'
@@ -610,18 +612,18 @@ const WaterQualityScreen: React.FC = () => {
                     </p>
                   )}
                   {result.dataSource === 'local-db' && result.sourceNote && (
-                    <p className="text-xs text-amber-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
+                    <p className="text-xs text-amber-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
                   )}
                   {result.dataSource === 'local-db' && (
-                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border space-y-1">
+                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border space-y-1">
                       {result.citation && (
-                        <p className="text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">
+                        <p className="text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">
                           Source :{' '}
                           <a
                             href={result.citation.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text hover:underline"
+                            className="inline-flex items-center gap-1 text-blue-600 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text hover:underline"
                           >
                             {result.citation.source}
                             <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
@@ -629,7 +631,7 @@ const WaterQualityScreen: React.FC = () => {
                         </p>
                       )}
                       {result.citation?.verifiedDate && (
-                        <p className="text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">
+                        <p className="text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">
                           Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
                         </p>
                       )}
@@ -637,7 +639,7 @@ const WaterQualityScreen: React.FC = () => {
                   )}
                 </div>
                 {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                  <div className="px-2 py-1 rounded light:rounded-none dark:rounded-none calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-calc-bg-surface light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface text-[#1A237E] dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                  <div className="px-2 py-1 rounded calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
                       : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
                       : "Hub'Eau"}
@@ -646,14 +648,14 @@ const WaterQualityScreen: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">Type</p>
-                  <p className="font-medium text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Type</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">pH</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">pH</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                     {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
                   </p>
                 </div>
@@ -661,7 +663,7 @@ const WaterQualityScreen: React.FC = () => {
             </div>
 
             {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-amber-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none text-sm text-amber-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-amber-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none text-sm text-amber-800 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                 <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
               </div>
@@ -672,45 +674,45 @@ const WaterQualityScreen: React.FC = () => {
                   ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
                   : (result.mineralCompleteness ?? 0) >= 3)
             ) ? (
-              <div className="bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card p-6 rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
 
                 {/* Cations */}
                 <div className="mb-8">
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-bold text-green-700 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
-                    <span className="text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
+                    <h4 className="font-bold text-green-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border py-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.calcium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.calcium.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.magnesium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.magnesium.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.sodium.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sodium.value.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Anions */}
                 <div className="mb-8">
-                  <h4 className="font-bold text-green-700 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border py-4">
+                  <h4 className="font-bold text-green-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.chlorides.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.chlorides.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.sulfates.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sulfates.value.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{result.parameters.bicarbonates.value.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.bicarbonates.value.toFixed(2)}</p>
                     </div>
                   </div>
                   {result.parameters.bicarbonates.source === 'TAC' && (
@@ -722,32 +724,32 @@ const WaterQualityScreen: React.FC = () => {
 
                 {/* Statistiques */}
                 <div>
-                  <h4 className="font-bold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text mb-2">Statistiques</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border py-4">
+                  <h4 className="font-bold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text mb-2">Statistiques</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text">ratio</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{stats.ratio.toFixed(2)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ratio</span></p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.ratio.toFixed(2)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">Dureté</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{stats.durete.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Dureté</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.durete.toFixed(0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">Alcalinité</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{stats.alcalinite.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Alcalinité</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.alcalinite.toFixed(0)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted">Alcalinité résiduelle</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">{stats.alcaliniteResiduelle.toFixed(0)}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Alcalinité résiduelle</p>
+                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.alcaliniteResiduelle.toFixed(0)}</p>
                     </div>
                   </div>
                 </div>
 
               </div>
             ) : (
-              <div className="p-8 text-center bg-gray-50 dark:bg-calc-bg-card/50 light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border border-dashed border-gray-300 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
+              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border">
                 <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600 dark:text-calc-text-muted">
+                <p className="text-gray-600 dark:text-gray-400">
                   {result.dataSource === 'openfoodfacts'
                     ? 'Aucune donnée minérale disponible pour ce produit dans Open Food Facts. Essayez de scanner le code-barre ou de chercher une autre référence de la même marque.'
                     : 'Les analyses sanitaires récentes pour cette commune ne contiennent pas les paramètres minéraux nécessaires au brassage (Calcium, Magnésium, etc.).'}
@@ -755,108 +757,21 @@ const WaterQualityScreen: React.FC = () => {
               </div>
             )}
 
-            {/* Beer Style Recommendations */}
-            {beerRecommendations && (
-              <div className="bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border shadow-sm calculator:shadow-mac overflow-hidden">
-                <button 
-                  onClick={() => setIsProfilesExpanded(!isProfilesExpanded)}
-                  className="w-full flex items-center justify-between p-6 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 light:hover:bg-calc-bg-surface dark:hover:bg-calc-bg-surface calculator:hover:bg-calc-bg-surface transition-colors"
-                >
-                  <h4 className="font-bold text-lg text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text flex items-center gap-2">
-                    <Icons.BeakerIcon className="w-5 h-5 text-[#2563FF] light:text-calc-text dark:text-calc-text calculator:text-calc-text" />
-                    Profils d'eau & Styles (BJCP)
-                  </h4>
-                  <svg 
-                    className={`w-5 h-5 text-gray-500 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted transition-transform duration-200 ${isProfilesExpanded ? 'rotate-180' : ''}`}
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                
-                {isProfilesExpanded && (
-                  <div className="p-6 pt-0 border-t border-gray-100 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 mt-4">
-                      <div className="relative w-full md:w-64 ml-auto">
-                        <input
-                          type="text"
-                          placeholder="Filtrer un style ou profil..."
-                          value={beerSearchQuery}
-                          onChange={(e) => setBeerSearchQuery(e.target.value)}
-                          className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg light:text-calc-text dark:text-calc-text calculator:text-calc-text focus:ring-2 focus:ring-[#2563FF] calculator:focus:ring-calc-border focus:border-transparent outline-none transition-all"
-                        />
-                        {beerSearchQuery && (
-                          <button 
-                            onClick={() => setBeerSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                          >
-                            ×
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {beerRecommendations.filter(evaluation => {
-                        if (!beerSearchQuery) return true;
-                        const q = beerSearchQuery.toLowerCase();
-                        return evaluation.name.toLowerCase().includes(q) || evaluation.bjcpStyles.some(s => s.toLowerCase().includes(q));
-                      }).map(evaluation => (
-                        <div key={evaluation.id} className={`p-4 rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg light:border-calc-border dark:border-calc-border calculator:border-calc-border ${evaluation.statusBorderColor} ${evaluation.statusBgColor}`}>
-                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-2">
-                            <div>
-                              <h5 className="font-bold text-gray-900 dark:text-white">{evaluation.name}</h5>
-                              <p className="text-sm text-gray-600 dark:text-calc-text-muted mt-1">{evaluation.description}</p>
-                            </div>
-                            <div className={`px-3 py-1 rounded-full light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-semibold whitespace-nowrap border ${evaluation.statusBorderColor} ${evaluation.statusColor} bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card light:border-calc-border dark:border-calc-border calculator:border-calc-border light:text-calc-text dark:text-calc-text calculator:text-calc-text`}>
-                              {evaluation.statusLabel}
-                            </div>
-                          </div>
-                          {evaluation.differences && evaluation.differences.length > 0 && (
-                            <div className="mt-3 mb-1">
-                              <ul className="space-y-1">
-                                {evaluation.differences.map((diff, idx) => (
-                                  <li key={idx} className="text-sm flex items-start gap-2">
-                                    {diff.startsWith('Trop') ? (
-                                      <Icons.XCircleIcon className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                                    ) : (
-                                      <Icons.PlusCircleIcon className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0" />
-                                    )}
-                                    <span className="text-gray-700 dark:text-calc-text-muted">{diff}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {evaluation.bjcpStyles.filter(s => !beerSearchQuery || s.toLowerCase().includes(beerSearchQuery.toLowerCase())).map(style => (
-                              <span key={style} className="px-2 py-0.5 bg-white/60 dark:bg-black/20 light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card text-gray-700 dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text rounded light:rounded-none dark:rounded-none calculator:rounded-none text-xs border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
-                                {style}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-
-                      {beerRecommendations.length > 0 && beerRecommendations.filter(evaluation => {
-                        if (!beerSearchQuery) return true;
-                        const q = beerSearchQuery.toLowerCase();
-                        return evaluation.name.toLowerCase().includes(q) || evaluation.bjcpStyles.some(s => s.toLowerCase().includes(q));
-                      }).length === 0 && (
-                        <p className="text-sm text-gray-500 italic py-4 text-center">
-                          Aucun profil ou style ne correspond à "{beerSearchQuery}".
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+            {/* Quels styles puis-je brasser ? */}
+            {brewableStyles && (
+              <BrewableStylesSection
+                brewableStyles={brewableStyles}
+                capabilities={capabilities}
+                onCapabilityChange={(key, value) => setCapabilities({ ...capabilities, [key]: value })}
+                styleSearchQuery={styleSearchQuery}
+                onStyleSearchChange={setStyleSearchQuery}
+                isExpanded={isBrewableExpanded}
+                onToggleExpanded={() => setIsBrewableExpanded(!isBrewableExpanded)}
+              />
             )}
 
-            <div className="p-4 bg-gray-50 dark:bg-calc-bg-card/50 light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border">
-              <p className="text-xs text-gray-500 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted leading-relaxed">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border">
+              <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted leading-relaxed">
                 <strong>Note :</strong> Ces données proviennent {result.dataSource === 'openfoodfacts' ? 'd\'Open Food Facts (base collaborative)' : result.dataSource === 'sise-eaux' ? 'de la base nationale SISE-Eaux (data.gouv.fr) via moneaudebrassage.fr' : 'du portail national Hub\'Eau'}. Les valeurs peuvent varier selon le point de prélèvement et la période de l'année. Pour un brassage de précision, une analyse d'eau à domicile reste la référence.
               </p>
             </div>

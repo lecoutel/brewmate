@@ -1,6 +1,7 @@
 
-import { WaterQualityResult, Commune, ProfileEvaluation, WaterProfile } from '../types';
+import { WaterQualityResult, Commune, ProfileEvaluation, WaterProfile, WaterCapabilities, BrewableStyleResult, StyleBrewabilityStatus, IonKey, IonRangeInfo } from '../types';
 import { WATER_PROFILES, BJCP_STYLE_NAMES } from '../constants';
+import { BJCP_STYLE_WATER_TARGETS } from '../data/bjcpStyleWaterProfiles';
 
 /** Build a WaterProfile from WaterQualityResult.parameters (Hub'Eau or Open Food Facts). */
 export function parametersToWaterProfile(parameters: WaterQualityResult['parameters']): WaterProfile {
@@ -324,4 +325,182 @@ export async function fetchWaterQuality(codeCommune: string, codeReseau?: string
       error: error.message || 'Une erreur est survenue lors de la récupération des données.'
     };
   }
+}
+
+type WaterStats = { ca: number; mg: number; na: number; cl: number; so4: number; hco3: number };
+
+function bjcpCodeSort(a: string, b: string): number {
+  const numA = parseInt(a, 10);
+  const numB = parseInt(b, 10);
+  if (numA !== numB) return numA - numB;
+  return a.localeCompare(b);
+}
+
+const STATUS_ORDER: Record<StyleBrewabilityStatus, number> = {
+  'IDEAL': 0,
+  'AVEC_SELS': 1,
+  'AVEC_ACIDE': 2,
+  'AVEC_BICARBONATE': 3,
+  'AVEC_SELS_ET_ACIDE': 4,
+  'HORS_PORTEE': 5,
+  'SPECIALITE': 6,
+};
+
+const ION_KEYS: IonKey[] = ['ca', 'mg', 'na', 'so4', 'cl', 'hco3'];
+const ION_SYMBOLS: Record<IonKey, string> = {
+  ca: 'Ca²⁺', mg: 'Mg²⁺', na: 'Na⁺', so4: 'SO₄²⁻', cl: 'Cl⁻', hco3: 'HCO₃⁻',
+};
+
+function niceAxisMax(rangeMax: number, current: number, adjusted: number): number {
+  const raw = Math.max(rangeMax * 2.5, current * 1.2, adjusted * 1.2, 10);
+  return Math.ceil(raw / 25) * 25;
+}
+
+function computeAdjusted(
+  ion: IonKey,
+  current: number,
+  rangeMin: number,
+  rangeMax: number,
+  target: number,
+  capabilities: WaterCapabilities,
+): number {
+  if (current >= rangeMin && current <= rangeMax) return current;
+  switch (ion) {
+    case 'ca':
+    case 'so4':
+    case 'cl':
+      return (current < rangeMin && capabilities.canAddSalts) ? target : current;
+    case 'hco3':
+      if (current > rangeMax && capabilities.canAddAcid) return target;
+      if (current < rangeMin && capabilities.canAddBicarbonate) return target;
+      return current;
+    default: // mg, na: not directly adjustable
+      return current;
+  }
+}
+
+export function getBrewableStyles(
+  stats: WaterStats,
+  capabilities: WaterCapabilities
+): BrewableStyleResult[] {
+  const results: BrewableStyleResult[] = [];
+
+  for (const [code, entry] of Object.entries(BJCP_STYLE_WATER_TARGETS)) {
+    const name = BJCP_STYLE_NAMES[code] ?? code;
+
+    if (!entry.target) {
+      results.push({
+        bjcpCode: code,
+        name,
+        status: 'SPECIALITE',
+        isAchievable: false,
+        needsAcid: false,
+        needsBicarbonate: false,
+        needsSalts: false,
+        isHorsPorteeAbsolute: false,
+        actionRequise: entry.actionRequise,
+        differences: [],
+        brewersFriendSlug: entry.brewersFriendSlug,
+      });
+      continue;
+    }
+
+    const t = entry.target;
+    const differences: string[] = [];
+
+    // Excess minerals that cannot be removed without reverse osmosis
+    // Thresholds use per-style margins from charlienewey data (or macro-profile defaults)
+    const tooMuchSo4 = stats.so4 > t.so4 + t.so4_margin;
+    const tooMuchCl  = stats.cl  > t.cl  + t.cl_margin;
+    const tooMuchNa  = stats.na  > t.na  + t.na_margin;
+    const tooMuchMg  = stats.mg  > t.mg  + t.mg_margin;
+    const isHorsPorteeAbsolute = tooMuchSo4 || tooMuchCl || tooMuchNa || tooMuchMg;
+
+    if (tooMuchSo4) differences.push(`Sulfates trop élevés (−${(stats.so4 - t.so4).toFixed(0)} mg/L, non réductible sans osmose)`);
+    if (tooMuchCl)  differences.push(`Chlorures trop élevés (−${(stats.cl - t.cl).toFixed(0)} mg/L, non réductible sans osmose)`);
+    if (tooMuchNa)  differences.push(`Sodium trop élevé (−${(stats.na - t.na).toFixed(0)} mg/L, non réductible sans osmose)`);
+    if (tooMuchMg)  differences.push(`Magnésium trop élevé (−${(stats.mg - t.mg).toFixed(0)} mg/L, non réductible sans osmose)`);
+
+    // Adjustment needs — per-style symmetric tolerance from charlienewey
+    const needsAcid        = stats.hco3 > t.hco3 + t.hco3_margin;
+    const needsBicarbonate = stats.hco3 < t.hco3 - t.hco3_margin;
+    const needsSalts       = stats.so4 < t.so4 - t.so4_margin || stats.cl < t.cl - t.cl_margin || stats.ca < t.ca - t.ca_margin;
+
+    if (needsAcid)        differences.push(`HCO₃⁻ trop élevé (+${(stats.hco3 - t.hco3).toFixed(0)} mg/L → traitement acide requis)`);
+    if (needsBicarbonate) differences.push(`HCO₃⁻ trop bas (+${(t.hco3 - stats.hco3).toFixed(0)} mg/L → bicarbonate requis)`);
+    if (!tooMuchSo4 && stats.so4 < t.so4 - t.so4_margin) differences.push(`Sulfates insuffisants (+${(t.so4 - stats.so4).toFixed(0)} mg/L)`);
+    if (!tooMuchCl  && stats.cl  < t.cl  - t.cl_margin)  differences.push(`Chlorures insuffisants (+${(t.cl  - stats.cl).toFixed(0)} mg/L)`);
+    if (stats.ca < t.ca - t.ca_margin)                    differences.push(`Calcium insuffisant (+${(t.ca - stats.ca).toFixed(0)} mg/L)`);
+
+    // HORS_PORTEE uniquement pour les minéraux en excès absolus (non réductibles sans osmose)
+    const isHorsPortee = isHorsPorteeAbsolute;
+
+    let isAchievable: boolean;
+    if (isHorsPortee) {
+      isAchievable = false;
+    } else {
+      isAchievable =
+        (!needsAcid        || capabilities.canAddAcid) &&
+        (!needsBicarbonate || capabilities.canAddBicarbonate) &&
+        (!needsSalts       || capabilities.canAddSalts);
+    }
+
+    let status: StyleBrewabilityStatus;
+    if (isHorsPortee) {
+      status = 'HORS_PORTEE';
+    } else if (!needsAcid && !needsBicarbonate && !needsSalts) {
+      status = 'IDEAL';
+    } else if (needsSalts && needsAcid) {
+      status = 'AVEC_SELS_ET_ACIDE';
+    } else if (needsSalts && needsBicarbonate) {
+      status = 'AVEC_SELS_ET_ACIDE';
+    } else if (needsSalts) {
+      status = 'AVEC_SELS';
+    } else if (needsAcid) {
+      status = 'AVEC_ACIDE';
+    } else {
+      status = 'AVEC_BICARBONATE';
+    }
+
+    const ionRanges: IonRangeInfo[] = ION_KEYS.map(ion => {
+      const targetVal = t[ion as keyof typeof t] as number;
+      const margin    = t[`${ion}_margin` as keyof typeof t] as number;
+      const rangeMin  = targetVal - margin;
+      const rangeMax  = targetVal + margin;
+      const current   = stats[ion];
+      const adjusted  = computeAdjusted(ion, current, rangeMin, rangeMax, targetVal, capabilities);
+      const axisMax   = niceAxisMax(rangeMax, current, adjusted);
+      return { ion, symbol: ION_SYMBOLS[ion], target: targetVal, rangeMin, rangeMax, current, adjusted, axisMax };
+    });
+
+    // Detect data source: D() uses fixed default margins (30/15/50/50/50/40)
+    const isDefaultMargins =
+      t.ca_margin === 30 && t.mg_margin === 15 && t.na_margin === 50 &&
+      t.so4_margin === 50 && t.cl_margin === 50 && t.hco3_margin === 40;
+    const rangeSource = isDefaultMargins ? 'palmer-kaminski' as const : 'charlienewey' as const;
+
+    results.push({
+      bjcpCode: code,
+      name,
+      status,
+      isAchievable,
+      needsAcid,
+      needsBicarbonate,
+      needsSalts,
+      isHorsPorteeAbsolute,
+      actionRequise: entry.actionRequise,
+      differences,
+      brewersFriendSlug: entry.brewersFriendSlug,
+      ionRanges,
+      rangeSource,
+    });
+  }
+
+  results.sort((a, b) => {
+    const orderDiff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+    if (orderDiff !== 0) return orderDiff;
+    return bjcpCodeSort(a.bjcpCode, b.bjcpCode);
+  });
+
+  return results;
 }

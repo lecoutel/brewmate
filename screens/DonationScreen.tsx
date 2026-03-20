@@ -32,7 +32,7 @@ const DonationScreen: React.FC = () => {
     }
     const url = getDonationPayPalUrl(value);
     if (!url) {
-      setCustomError('Le lien de don n’est pas configuré (VITE_DONATION_PAYPAL_ME).');
+      setCustomError("Le lien de don n'est pas configuré (VITE_DONATION_PAYPAL_ME).");
       return;
     }
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -41,26 +41,26 @@ const DonationScreen: React.FC = () => {
   const isConfigured = Boolean(DONATION_PAYPAL_ME_BASE);
 
   return (
-    <PageLayout title="Offrir une bière" showBackButton>
+    <PageLayout title="Offrir une bière 🍻" showBackButton>
       <div className="space-y-6">
-        <div className="space-y-3 text-sm text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted leading-relaxed">
+        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300 calculator:text-calc-text-muted leading-relaxed">
           <p>
-            {"Je m’appelle Simon Gavelle, brasseur amateur depuis 2016. Comme beaucoup d’entre vous, j’ai tout appris grâce au "}
+            {"Je m'appelle Simon Gavelle, brasseur amateur depuis 2016. Comme beaucoup d'entre vous, j'ai tout appris grâce au "}
             <a
               href="https://www.brassageamateur.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#2563FF] dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text hover:underline"
+              className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text hover:underline"
             >
               forum brassageamateur
             </a>
             {" et à sa communauté Facebook — des ressources précieuses que je consulte encore régulièrement."}
           </p>
           <p>
-            {"J’ai développé WortLab pour m’accompagner pendant mes sessions de brassage : quelques calculs rapides, accessibles d’un coup d’œil sur le téléphone. Rien de plus, rien de moins. Ce n’est pas un Beersmith ou un Brewfather — juste un petit compagnon de poche, gratuit et sans fioritures."}
+            {"J'ai développé WortLab pour m'accompagner pendant mes sessions de brassage : quelques calculs rapides, accessibles d'un coup d'œil sur le téléphone. Rien de plus, rien de moins. Ce n'est pas un Beersmith ou un Brewfather — juste un petit compagnon de poche, gratuit et sans fioritures."}
           </p>
           <p>
-            {"Si ça vous plaît et que vous souhaitez soutenir le projet, n’hésitez pas à me payer une bière — ça fait toujours plaisir et ça m’encourage à continuer !"}
+            {"Si ça vous plaît et que vous souhaitez soutenir le projet, n'hésitez pas à me payer une bière — ça fait toujours plaisir et ça m'encourage à continuer !"}<span className="calculator:hidden"> 🍻</span>
           </p>
         </div>
 
@@ -70,12 +70,12 @@ const DonationScreen: React.FC = () => {
 
         {!isConfigured && (
           <p className={COMMON_CLASSES.errorText}>
-            Le lien de don n’est pas configuré. Définissez VITE_DONATION_PAYPAL_ME (ex. https://paypal.me/VotrePseudo).
+            Le lien de don n'est pas configuré. Définissez VITE_DONATION_PAYPAL_ME (ex. https://paypal.me/VotrePseudo).
           </p>
         )}
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">Montant</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">Montant</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {PRESET_AMOUNTS.map((amount) => (
               <button
@@ -83,7 +83,7 @@ const DonationScreen: React.FC = () => {
                 type="button"
                 onClick={() => handlePresetClick(amount)}
                 disabled={!isConfigured}
-                className="flex items-center justify-center py-4 px-4 rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border bg-white dark:bg-calc-bg-card light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card hover:border-[#2563FF] dark:hover:border-calc-border light:hover:border-calc-accent dark:hover:border-calc-accent calculator:hover:border-calc-accent hover:shadow-md light:shadow-mac dark:shadow-mac calculator:shadow-mac transition-all duration-200 font-semibold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center py-4 px-4 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-600 calculator:border-calc-border bg-white dark:bg-gray-800 calculator:bg-calc-bg-card hover:border-[#2563FF] dark:hover:border-[#6b99ff] calculator:hover:border-calc-accent hover:shadow-md calculator:shadow-mac transition-all duration-200 font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {amount} €
               </button>
@@ -92,7 +92,7 @@ const DonationScreen: React.FC = () => {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">Autre montant</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">Autre montant</h2>
           <form onSubmit={handleCustomSubmit} className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <label htmlFor="custom-amount" className="sr-only">

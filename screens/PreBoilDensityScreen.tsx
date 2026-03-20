@@ -195,7 +195,7 @@ const PreBoilDensityScreen: React.FC = () => {
         <button
           type="button"
           onClick={handleClearInputs}
-          className="w-full py-2 px-4 bg-gray-100 dark:bg-calc-bg-surface light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface hover:bg-gray-200 dark:hover:bg-calc-border light:hover:bg-calc-border dark:hover:bg-calc-border calculator:hover:bg-calc-border text-gray-700 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text text-sm font-semibold rounded-lg transition-colors"
+          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 dark:bg-gray-700 calculator:bg-calc-bg-surface hover:bg-gray-200 dark:hover:bg-calc-border:bg-calc-border dark:hover:bg-calc-border calculator:hover:bg-calc-border text-gray-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text text-sm font-semibold rounded-lg transition-colors"
         >
           Vider les champs
         </button>

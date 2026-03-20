@@ -59,6 +59,54 @@ export interface ProfileEvaluation {
   differences: string[];
 }
 
+// --- BJCP Water Brewing Compatibility ---
+export interface WaterCapabilities {
+  canAddAcid: boolean;         // acide lactique ou phosphorique (baisse HCO3)
+  canAddBicarbonate: boolean;  // bicarbonate de sodium (monte HCO3)
+  canAddSalts: boolean;        // sulfates, CaCl2... (peut ajouter, jamais retirer)
+}
+
+export type StyleBrewabilityStatus =
+  | 'IDEAL'
+  | 'AVEC_SELS'
+  | 'AVEC_ACIDE'
+  | 'AVEC_BICARBONATE'
+  | 'AVEC_SELS_ET_ACIDE'
+  | 'HORS_PORTEE'
+  | 'SPECIALITE';
+
+export interface BrewableStyleResult {
+  bjcpCode: string;
+  name: string;
+  status: StyleBrewabilityStatus;
+  isAchievable: boolean;
+  needsAcid: boolean;
+  needsBicarbonate: boolean;
+  needsSalts: boolean;
+  isHorsPorteeAbsolute: boolean;
+  actionRequise?: 'prompt_user_for_color' | 'prompt_user_for_base_style';
+  differences: string[];
+  /** Brewer's Friend URL slug for recipe lookup */
+  brewersFriendSlug?: string;
+  /** Per-ion range data for visual bars. Absent for SPECIALITE styles. */
+  ionRanges?: IonRangeInfo[];
+  /** Source of the water profile ranges. */
+  rangeSource?: 'charlienewey' | 'palmer-kaminski';
+}
+
+export type IonKey = 'ca' | 'mg' | 'na' | 'so4' | 'cl' | 'hco3';
+
+export interface IonRangeInfo {
+  ion: IonKey;
+  symbol: string;    // e.g. "Ca²⁺", "SO₄²⁻"
+  target: number;    // midpoint of acceptable range
+  rangeMin: number;  // target - margin (raw value, may be slightly negative)
+  rangeMax: number;  // target + margin
+  current: number;   // current water value
+  adjusted: number;  // projected value after optimal adjustment given capabilities
+  axisMax: number;   // display axis maximum for bar scaling
+}
+
 export interface WaterCitation {
   url: string;            // lien cliquable vers la source officielle
   source: string;         // ex: "Site officiel Évian"

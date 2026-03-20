@@ -16,9 +16,9 @@ const SplashScreen: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F5F7FA] dark:bg-calc-bg light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F5F7FA] dark:bg-gray-900 dark:bg-gray-900 calculator:bg-calc-bg p-4">
       <WortLabCircularLogo className="w-40 h-auto sm:w-56" />
-      <p className="mt-4 text-lg text-gray-600 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted calculator:text-calc-text-muted animate-pulse">Chargement des calculateurs...</p>
+      <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 dark:text-gray-400 calculator:text-calc-text-muted animate-pulse">Chargement des calculateurs...</p>
     </div>
   );
 };

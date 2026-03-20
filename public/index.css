@@ -9,31 +9,29 @@
   font-display: swap;
 }
 
-/* Theme CSS variables — default: Macintosh light (neutral cold gray, Platinum-style) */
-:root {
-  --calc-bg: #d4d4d4;
-  --calc-bg-card: #e5e5e5;
-  --calc-surface: #e0e0e0;
-  --calc-text: #000000;
-  --calc-text-muted: #444444;
-  --calc-border: #8a8a8a;
-  --calc-accent: #c0c0c0;
-  --calc-highlight: #ffffff;
-  --calc-error: #8b2914;
+/* Courier Prime — lisible, style machine à écrire rétro */
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/CourierPrime-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* Mac dark theme (Mac retro neutral gray palette) */
-html.dark {
-  --calc-bg: #262626;
-  --calc-bg-card: #323232;
-  --calc-surface: #3a3a3a;
-  --calc-text: #f2f2f2;
-  --calc-text-muted: #b8b8b8;
-  --calc-text-muted-secondary: #8a8a8a;
-  --calc-border: #6a6a6a;
-  --calc-accent: #444444;
-  --calc-highlight: #444444;
-  --calc-error: #D34A3A;
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/CourierPrime-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/CourierPrime-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
 }
 
 /* Mac yellow (calculator) theme */
@@ -49,23 +47,19 @@ html.calculator {
   --calc-error: #8b2914;
 }
 
-/* Placeholder color (all Mac themes) */
-html.light ::placeholder,
-html.dark ::placeholder,
+/* Placeholder color (calculator) */
 html.calculator ::placeholder {
   color: var(--calc-text-muted);
   opacity: 1;
 }
 
-/* File input button (all Mac themes) */
-html.light input[type="file"]::file-selector-button,
-html.dark input[type="file"]::file-selector-button,
+/* File input button (calculator) */
 html.calculator input[type="file"]::file-selector-button {
   background: var(--calc-border);
   color: var(--calc-highlight);
   border-radius: 0;
   border: 0;
-  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 8px 16px;
@@ -73,27 +67,17 @@ html.calculator input[type="file"]::file-selector-button {
   cursor: pointer;
 }
 
-/* Body: Mac typography and rendering (all three themes) */
-html.light body,
-html.dark body,
+/* Body: typographie et rendu (calculator) */
 html.calculator body {
-  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   background: var(--calc-bg);
   color: var(--calc-text);
   image-rendering: pixelated;
-  -webkit-font-smoothing: none;
-  font-smooth: never;
+  -webkit-font-smoothing: auto;
+  font-smooth: auto;
 }
 
-/* Mac window — light & dark: 2px border, hard black shadow; calculator: border-color shadow */
-html.light .mac-window,
-html.dark .mac-window {
-  background: var(--calc-bg-card);
-  border: 2px solid var(--calc-border);
-  box-shadow: 6px 6px 0 #000;
-  padding: 24px;
-}
-
+/* Mac window — calculator: border-color shadow */
 html.calculator .mac-window {
   background: var(--calc-bg-card);
   border: 3px solid var(--calc-border);
@@ -101,30 +85,12 @@ html.calculator .mac-window {
   padding: 24px;
 }
 
-/* Mac button — light & dark: hard black shadow */
-html.light .mac-button,
-html.dark .mac-button {
-  background: var(--calc-accent);
-  border: 2px solid var(--calc-border);
-  padding: 8px 16px;
-  box-shadow: 4px 4px 0 #000;
-  color: var(--calc-text);
-  font-family: 'ChicagoFLF', 'Chicago', monospace;
-  font-size: 0.875rem;
-  transition: background 0.1s;
-}
-
-html.light .mac-button:hover,
-html.dark .mac-button:hover {
-  background: var(--calc-highlight);
-}
-
 html.calculator .mac-button {
   background: var(--calc-bg-card);
   border: 2px solid var(--calc-border);
   padding: 8px 16px;
   box-shadow: 4px 4px 0 var(--calc-border);
-  font-family: 'ChicagoFLF', 'Chicago', monospace;
+  font-family: 'Courier Prime', 'Courier New', monospace;
   font-size: 0.875rem;
   transition: background 0.1s;
 }
@@ -133,51 +99,12 @@ html.calculator .mac-button:hover {
   background: var(--calc-highlight);
 }
 
-/* Mac input — light: white bg; dark/calculator: theme bg, inset black shadow */
-html.light .mac-input {
-  background: #FFFFFF;
-  border: 2px solid var(--calc-border);
-  padding: 8px;
-  box-shadow: inset 2px 2px 0 #000;
-}
-
-html.dark .mac-input {
-  background: var(--calc-surface);
-  border: 2px solid var(--calc-border);
-  padding: 8px;
-  box-shadow: inset 2px 2px 0 #000;
-  color: var(--calc-text);
-}
-
+/* Mac input — calculator: theme bg, inset border shadow */
 html.calculator .mac-input {
   background: var(--calc-bg);
   border: 2px solid var(--calc-border);
   padding: 8px;
   box-shadow: inset 2px 2px 0 var(--calc-border);
-}
-
-/* Dithering — light gray */
-html.light .bg-dither {
-  background-color: var(--calc-bg);
-  background-image:
-    linear-gradient(45deg, #C0C0C0 25%, transparent 25%),
-    linear-gradient(-45deg, #C0C0C0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #C0C0C0 75%),
-    linear-gradient(-45deg, transparent 75%, #C0C0C0 75%);
-  background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
-}
-
-/* Dithering — dark gray */
-html.dark .bg-dither {
-  background-color: var(--calc-bg);
-  background-image:
-    linear-gradient(45deg, #3A3A3A 25%, transparent 25%),
-    linear-gradient(-45deg, #3A3A3A 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #3A3A3A 75%),
-    linear-gradient(-45deg, transparent 75%, #3A3A3A 75%);
-  background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
 
 /* Dithering — yellow (calculator) */

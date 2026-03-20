@@ -160,23 +160,23 @@ const RefractometerScreen: React.FC = () => {
   return (
     <PageLayout title="Calcul % Abv" showBackButton>
       <div className="mb-6 space-y-4">
-          <div className="flex p-1 bg-gray-100 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg calculator:bg-calc-bg calculator:border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-lg light:rounded-none dark:rounded-none calculator:rounded-none w-full max-w-md mx-auto">
+          <div className="flex p-1 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 calculator:bg-calc-bg calculator:border dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none w-full max-w-md mx-auto">
             <button
               onClick={() => setTool('hydrometer')}
-              className={`flex-1 py-2 px-4 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-all duration-200 ${
+              className={`flex-1 py-2 px-4 rounded-md calculator:rounded-none text-sm font-medium transition-all duration-200 ${
                 tool === 'hydrometer'
-? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow-sm light:shadow-mac dark:shadow-mac calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted light:hover:text-calc-text dark:hover:text-calc-text calculator:hover:text-calc-text'
+? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow-sm calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted:text-calc-text dark:hover:text-gray-100 calculator:hover:text-calc-text'
               }`}
             >
               Densimètre
             </button>
             <button
               onClick={() => setTool('refractometer')}
-              className={`flex-1 py-2 px-4 rounded-md light:rounded-none dark:rounded-none calculator:rounded-none text-sm font-medium transition-all duration-200 ${
+              className={`flex-1 py-2 px-4 rounded-md calculator:rounded-none text-sm font-medium transition-all duration-200 ${
                 tool === 'refractometer'
-? 'bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card shadow-sm light:shadow-mac dark:shadow-mac calculator:shadow-mac text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted light:hover:text-calc-text dark:hover:text-calc-text calculator:hover:text-calc-text'
+? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow-sm calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted:text-calc-text dark:hover:text-gray-100 calculator:hover:text-calc-text'
               }`}
             >
               Réfractomètre
@@ -221,7 +221,7 @@ const RefractometerScreen: React.FC = () => {
         <button
           type="button"
           onClick={handleClearInputs}
-          className="w-full py-2 px-4 bg-gray-100 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-surface dark:bg-calc-bg-surface calculator:bg-calc-bg-surface hover:bg-gray-200 dark:hover:bg-calc-bg-surface calculator:hover:bg-calc-border text-gray-700 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text text-sm font-semibold rounded-lg transition-colors"
+          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface hover:bg-gray-200 dark:hover:bg-gray-700 calculator:hover:bg-calc-border text-gray-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text text-sm font-semibold rounded-lg transition-colors"
         >
           Vider les champs
         </button>
@@ -233,32 +233,32 @@ const RefractometerScreen: React.FC = () => {
               <ResultDisplay results={[]} error={result.error} type="error" />
             ) : (
               <>
-                <div className="bg-green-50 dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-green-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none p-6 text-center shadow-sm light:shadow-mac dark:shadow-mac calculator:shadow-mac">
-                  <p className="text-sm text-green-700 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted font-medium uppercase tracking-wider mb-1">Taux d'alcool estimé (ABV)</p>
-                  <div className="text-5xl font-black text-green-800 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                <div className="bg-green-50 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-green-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none p-6 text-center shadow-sm calculator:shadow-mac">
+                  <p className="text-sm text-green-700 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted font-medium uppercase tracking-wider mb-1">Taux d'alcool estimé (ABV)</p>
+                  <div className="text-5xl font-black text-green-800 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                     {result.abv} %
                   </div>
                 </div>
 
                 {tool === 'refractometer' && (
-<div className="bg-white dark:bg-calc-bg-card light:bg-calc-bg dark:bg-calc-bg light:bg-calc-bg-card dark:bg-calc-bg-card calculator:bg-calc-bg-card border border-gray-200 dark:border-calc-border light:border-calc-border dark:border-calc-border calculator:border-calc-border rounded-xl light:rounded-none dark:rounded-none calculator:rounded-none p-5 shadow-sm light:shadow-mac dark:shadow-mac calculator:shadow-mac">
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted uppercase tracking-wider mb-3">Densité finale corrigée</h3>
+<div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none p-5 shadow-sm calculator:shadow-mac">
+                  <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted uppercase tracking-wider mb-3">Densité finale corrigée</h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mb-1">SG</div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mb-1">SG</div>
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                           {result.correctedFinalGravity.toFixed(3)}
                         </div>
                       </div>
-                      <div className="text-center border-x border-gray-100 dark:border-calc-border">
-                        <div className="text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mb-1">°Brix</div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                      <div className="text-center border-x border-gray-100 dark:border-gray-700">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mb-1">°Brix</div>
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                           {sgToBrix(result.correctedFinalGravity).toFixed(1)}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 dark:text-calc-text-muted light:text-calc-text-muted dark:text-calc-text-muted light:text-calc-text dark:text-calc-text calculator:text-calc-text-muted mb-1">°Plato</div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-calc-text light:text-calc-text dark:text-calc-text calculator:text-calc-text">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mb-1">°Plato</div>
+                        <div className="text-lg font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
                           {sgToPlato(result.correctedFinalGravity).toFixed(1)}
                         </div>
                       </div>
