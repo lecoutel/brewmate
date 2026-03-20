@@ -49,6 +49,51 @@ function buildSensoryText(ionRanges: IonRangeInfo[]): string | null {
   return impacts.join(', ') + ' et ' + last;
 }
 
+/** Types d’ajustement d’eau à prévoir pour brasser ce style (lisible au dépliage). */
+function buildAdjustmentTypeLines(style: BrewableStyleResult): string[] {
+  if (style.status === 'IDEAL') {
+    return [
+      "Aucun ajustement minéral n'est nécessaire : les ions sont déjà dans la plage cible pour ce style.",
+    ];
+  }
+  if (style.status === 'HORS_PORTEE') {
+    return [
+      'Réduire des minéraux en excès (sulfates, chlorures, sodium ou magnésium) : seulement possible en diluant avec de l’eau osmosée ou par osmose inverse.',
+      'Les ajouts (sels, acide) ne permettent pas d’abaisser ces concentrations.',
+    ];
+  }
+  if (style.status === 'SPECIALITE') {
+    return [];
+  }
+  const lines: string[] = [];
+  if (style.needsAcid) {
+    lines.push(
+      'Traitement acide (lactique ou phosphorique) pour réduire les bicarbonates (HCO₃⁻) — typique si l’eau est trop « dure » pour le style.',
+    );
+  }
+  if (style.needsBicarbonate) {
+    lines.push(
+      'Ajout de bicarbonate de sodium pour augmenter les bicarbonates (HCO₃⁻) — lorsque l’eau est trop peu minéralisée pour le style.',
+    );
+  }
+  if (style.needsSalts) {
+    lines.push(
+      'Ajout de sels minéraux (gypse CaSO₄, chlorure de calcium CaCl₂, etc.) pour augmenter sulfates, chlorures et/ou calcium.',
+    );
+  }
+  return lines;
+}
+
+function adjustmentPlanBoxClass(status: BrewableStyleResult['status']): string {
+  if (status === 'IDEAL') {
+    return 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/70 dark:bg-emerald-950/30';
+  }
+  if (status === 'HORS_PORTEE') {
+    return 'border-red-200 dark:border-red-800/50 bg-red-50/60 dark:bg-red-950/25';
+  }
+  return 'border-blue-200 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/20';
+}
+
 interface StyleStatusConfig {
   dot: string;
   chip: string;
@@ -84,7 +129,9 @@ interface StyleRowProps {
 const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }) => {
   const [expanded, setExpanded] = useState(false);
   const staticCfg = STATUS_CONFIG[style.status];
-  const hasDiffs = style.differences.length > 0;
+  const canExpand =
+    (style.ionRanges != null && style.ionRanges.length > 0) || style.differences.length > 0;
+  const adjustmentLines = buildAdjustmentTypeLines(style);
 
   const specialiteNote = style.actionRequise === 'prompt_user_for_color'
     ? 'Dépend de la couleur choisie (IPA de Spécialité)'
@@ -112,8 +159,8 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
     }`}>
       <button
         type="button"
-        onClick={() => hasDiffs && setExpanded(!expanded)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left ${hasDiffs ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/30:bg-calc-bg-surface calculator:hover:bg-calc-bg-surface' : 'cursor-default'} rounded-lg calculator:rounded-none transition-colors`}
+        onClick={() => canExpand && setExpanded(!expanded)}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left ${canExpand ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/30 calculator:hover:bg-calc-bg-surface' : 'cursor-default'} rounded-lg calculator:rounded-none transition-colors`}
       >
         <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dotClass}`} />
         <span className="text-xs font-mono font-bold text-gray-500 dark:text-gray-400 w-8 shrink-0">{style.bjcpCode}</span>
@@ -144,19 +191,31 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
             <Icons.ArrowTopRightOnSquareIcon className="w-3 h-3" />
           </a>
         )}
-        {hasDiffs && (
+        {canExpand && (
           <svg className={`w-3.5 h-3.5 shrink-0 text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         )}
       </button>
 
-      {expanded && hasDiffs && (
+      {expanded && canExpand && (
         <div className="px-3 pb-3 pt-0">
           {specialiteNote && (
             <p className="text-xs italic text-gray-400 dark:text-gray-500 mb-1 sm:hidden">{specialiteNote}</p>
           )}
           <div className="border-t border-gray-100 dark:border-gray-700 pt-2 mt-0.5 space-y-2">
+            {adjustmentLines.length > 0 && (
+              <div className={`rounded-lg calculator:rounded-none border px-2.5 py-2 ${adjustmentPlanBoxClass(style.status)}`}>
+                <p className="text-xs font-semibold text-gray-800 dark:text-gray-100 calculator:text-calc-text mb-1.5 font-mac">
+                  Ajustement pour ce style
+                </p>
+                <ul className="space-y-1.5 list-disc list-inside text-xs text-gray-700 dark:text-gray-300 calculator:text-calc-text leading-snug">
+                  {adjustmentLines.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {style.ionRanges ? (
               <>
                 {/* Ion range bars */}
