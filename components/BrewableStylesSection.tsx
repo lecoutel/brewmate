@@ -235,6 +235,18 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
           <span className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full shrink-0 ${dotClass}`} />
           <span className="text-[11px] sm:text-xs font-mono font-bold text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted shrink-0">{style.bjcpCode}</span>
           <span className="flex-1 text-sm text-gray-900 dark:text-gray-100 calculator:text-calc-text calculator:font-mac leading-snug min-w-0 truncate">{style.name}</span>
+          {style.brewersFriendSlug && (
+            <a
+              href={`https://www.brewersfriend.com/styles/${style.brewersFriendSlug}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded calculator:rounded-none border font-medium text-[#2563FF] dark:text-blue-400 calculator:text-calc-text border-[#2563FF]/30 dark:border-blue-400/30 calculator:border-calc-border bg-blue-50/50 dark:bg-blue-900/10 calculator:bg-calc-bg-surface hover:bg-blue-50 dark:hover:bg-blue-900/20 calculator:hover:bg-calc-highlight transition-colors shrink-0"
+            >
+              Recettes
+              <Icons.ArrowTopRightOnSquareIcon className="w-3 h-3" />
+            </a>
+          )}
           {specialiteNote && (
             <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic hidden lg:block mr-2 shrink-0">{specialiteNote}</span>
           )}
@@ -256,18 +268,6 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
                 {label}
               </span>
             ))
-          )}
-          {style.brewersFriendSlug && (
-            <a
-              href={`https://www.brewersfriend.com/styles/${style.brewersFriendSlug}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded calculator:rounded-none border font-medium text-[#2563FF] dark:text-blue-400 calculator:text-calc-text border-[#2563FF]/30 dark:border-blue-400/30 calculator:border-calc-border bg-blue-50/50 dark:bg-blue-900/10 calculator:bg-calc-bg-surface hover:bg-blue-50 dark:hover:bg-blue-900/20 calculator:hover:bg-calc-highlight transition-colors"
-            >
-              Recettes
-              <Icons.ArrowTopRightOnSquareIcon className="w-3 h-3" />
-            </a>
           )}
         </div>
       </button>
