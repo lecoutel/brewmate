@@ -12,12 +12,48 @@ const SectionHeading: React.FC<{ children: React.ReactNode }> = ({ children }) =
   </h5>
 );
 
-const IonPanelContent: React.FC<{ entry: IonEducationEntry; ionKey: IonKey; currentValue?: number }> = ({ entry, ionKey, currentValue }) => {
-  const interpretation = currentValue != null ? interpretIonValue(ionKey, currentValue) : null;
-  const statusColor = interpretation
-    ? interpretation.status === 'ok'
+interface StyleContext {
+  styleName: string;
+  rangeMin: number;
+  rangeMax: number;
+  target: number;
+  adjusted: number;
+}
+
+function interpretIonForStyle(ionKey: IonKey, currentValue: number, ctx: StyleContext): { text: string; status: 'ok' | 'low' | 'high' } {
+  const { rangeMin, rangeMax, styleName } = ctx;
+  if (currentValue < rangeMin) {
+    const deficit = Math.round(rangeMin - currentValue);
+    return {
+      text: `${currentValue.toFixed(0)} ppm — en dessous de la plage cible (${Math.round(rangeMin)}–${Math.round(rangeMax)} ppm) pour ${styleName}. Il manque ~${deficit} ppm.`,
+      status: 'low',
+    };
+  }
+  if (currentValue > rangeMax) {
+    const excess = Math.round(currentValue - rangeMax);
+    return {
+      text: `${currentValue.toFixed(0)} ppm — au-dessus de la plage cible (${Math.round(rangeMin)}–${Math.round(rangeMax)} ppm) pour ${styleName}. Excès de ~${excess} ppm.`,
+      status: 'high',
+    };
+  }
+  return {
+    text: `${currentValue.toFixed(0)} ppm — dans la plage cible (${Math.round(rangeMin)}–${Math.round(rangeMax)} ppm) pour ${styleName}.`,
+    status: 'ok',
+  };
+}
+
+const IonPanelContent: React.FC<{ entry: IonEducationEntry; ionKey: IonKey; currentValue?: number; styleContext?: StyleContext }> = ({ entry, ionKey, currentValue, styleContext }) => {
+  const styleInterp = currentValue != null && styleContext
+    ? interpretIonForStyle(ionKey, currentValue, styleContext)
+    : null;
+  const genericInterp = currentValue != null ? interpretIonValue(ionKey, currentValue) : null;
+
+  // When style context is present, use style interpretation as primary
+  const primaryInterp = styleInterp ?? genericInterp;
+  const statusColor = primaryInterp
+    ? primaryInterp.status === 'ok'
       ? 'text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20'
-      : interpretation.status === 'low'
+      : primaryInterp.status === 'low'
       ? 'text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20'
       : 'text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'
     : '';
@@ -30,11 +66,23 @@ const IonPanelContent: React.FC<{ entry: IonEducationEntry; ionKey: IonKey; curr
       <span className="text-sm text-gray-600 dark:text-gray-300 calculator:text-calc-text">{entry.name}</span>
     </div>
 
-    {/* Current value interpretation */}
-    {interpretation && (
+    {/* Style-specific interpretation (primary when in style context) */}
+    {styleInterp && (
       <div className={`p-2.5 rounded-lg border text-sm leading-relaxed calculator:bg-calc-bg-surface calculator:border-calc-border calculator:text-calc-text ${statusColor}`}>
-        <SectionHeading>Votre eau</SectionHeading>
-        {interpretation.text}
+        <SectionHeading>Votre eau vs {styleContext!.styleName}</SectionHeading>
+        {styleInterp.text}
+      </div>
+    )}
+
+    {/* Generic interpretation (secondary when style context, primary otherwise) */}
+    {genericInterp && (
+      <div className={`p-2.5 rounded-lg border text-sm leading-relaxed calculator:bg-calc-bg-surface calculator:border-calc-border calculator:text-calc-text ${
+        styleInterp
+          ? 'text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
+          : statusColor
+      }`}>
+        <SectionHeading>{styleInterp ? 'Seuils généraux brassage' : 'Votre eau'}</SectionHeading>
+        {genericInterp.text}
       </div>
     )}
 
@@ -50,22 +98,46 @@ const IonPanelContent: React.FC<{ entry: IonEducationEntry; ionKey: IonKey; curr
       <p className="text-sm text-gray-700 dark:text-gray-200 calculator:text-calc-text leading-relaxed">{entry.sensoryImpact}</p>
     </div>
 
-    {/* Thresholds */}
-    <div>
-      <SectionHeading>Seuils</SectionHeading>
-      <div className="space-y-1 text-sm">
-        {entry.thresholds.low && entry.thresholds.low.value > 0 && (
-          <p className="text-amber-700 dark:text-amber-300 calculator:text-calc-text leading-relaxed">
-            <span className="font-semibold">&lt; {entry.thresholds.low.value} ppm :</span> {entry.thresholds.low.text}
+    {/* Style-specific thresholds */}
+    {styleContext && (
+      <div>
+        <SectionHeading>Plage cible — {styleContext.styleName}</SectionHeading>
+        <div className="space-y-1 text-sm">
+          <p className="text-emerald-700 dark:text-emerald-400 calculator:text-calc-text leading-relaxed">
+            <span className="font-semibold">{Math.round(styleContext.rangeMin)}–{Math.round(styleContext.rangeMax)} ppm</span> — plage idéale (cible : {Math.round(styleContext.target)} ppm)
           </p>
-        )}
-        {entry.thresholds.high && (
-          <p className="text-red-700 dark:text-red-300 calculator:text-calc-text leading-relaxed">
-            <span className="font-semibold">&gt; {entry.thresholds.high.value} ppm :</span> {entry.thresholds.high.text}
-          </p>
-        )}
+          {currentValue != null && currentValue < styleContext.rangeMin && (
+            <p className="text-amber-700 dark:text-amber-300 calculator:text-calc-text leading-relaxed">
+              <span className="font-semibold">+{Math.round(styleContext.rangeMin - currentValue)} ppm</span> minimum à ajouter pour atteindre la plage
+            </p>
+          )}
+          {currentValue != null && currentValue > styleContext.rangeMax && (
+            <p className="text-red-700 dark:text-red-300 calculator:text-calc-text leading-relaxed">
+              <span className="font-semibold">−{Math.round(currentValue - styleContext.rangeMax)} ppm</span> en excès — dilution ou traitement nécessaire
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+    )}
+
+    {/* Generic thresholds — hidden when in style context */}
+    {!styleContext && (
+      <div>
+        <SectionHeading>Seuils</SectionHeading>
+        <div className="space-y-1 text-sm">
+          {entry.thresholds.low && entry.thresholds.low.value > 0 && (
+            <p className="text-amber-700 dark:text-amber-300 calculator:text-calc-text leading-relaxed">
+              <span className="font-semibold">&lt; {entry.thresholds.low.value} ppm :</span> {entry.thresholds.low.text}
+            </p>
+          )}
+          {entry.thresholds.high && (
+            <p className="text-red-700 dark:text-red-300 calculator:text-calc-text leading-relaxed">
+              <span className="font-semibold">&gt; {entry.thresholds.high.value} ppm :</span> {entry.thresholds.high.text}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
 
     {/* Ratio info */}
     {entry.ratioInfo && (
@@ -195,9 +267,10 @@ interface IonInfoTriggerProps {
   ionKey: IonKey;
   currentValue?: number;
   iconClassName?: string;
+  styleContext?: StyleContext;
 }
 
-export const IonInfoTrigger: React.FC<IonInfoTriggerProps> = ({ ionKey, currentValue, iconClassName }) => {
+export const IonInfoTrigger: React.FC<IonInfoTriggerProps> = ({ ionKey, currentValue, iconClassName, styleContext }) => {
   const [isOpen, setIsOpen] = useState(false);
   const entry = ION_EDUCATION[ionKey];
   const handleClose = useCallback(() => setIsOpen(false), []);
@@ -216,7 +289,7 @@ export const IonInfoTrigger: React.FC<IonInfoTriggerProps> = ({ ionKey, currentV
       </button>
       {isOpen && (
         <InfoPanelOverlay onClose={handleClose}>
-          <IonPanelContent entry={entry} ionKey={ionKey} currentValue={currentValue} />
+          <IonPanelContent entry={entry} ionKey={ionKey} currentValue={currentValue} styleContext={styleContext} />
         </InfoPanelOverlay>
       )}
     </>

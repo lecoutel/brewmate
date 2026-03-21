@@ -274,10 +274,10 @@ export const BJCP_STYLE_WATER_TARGETS: Record<string, BjcpStyleWaterEntry> = {
   // -------------------------------------------------------------------------
   // 28 — American Wild Ale  (absent charlienewey → SOUR macro)
   // -------------------------------------------------------------------------
-  "28A": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages" },
-  "28B": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages" },
-  "28C": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages" },
-  "28D": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages" },
+  "28A": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages", brewersFriendSlug: "brett-beer" },
+  "28B": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages", brewersFriendSlug: "mixed-fermentation-sour-beer" },
+  "28C": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages", brewersFriendSlug: "wild-specialty-beer" },
+  "28D": { target: D(50,  5,  10,  25,  75,  40), profileGroupId: "sours_sauvages", brewersFriendSlug: "straight-sour-beer" },
 
   // -------------------------------------------------------------------------
   // 29–34 — Specialty Styles  (profil dépend du style de base → null)

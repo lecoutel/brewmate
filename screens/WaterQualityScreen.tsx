@@ -50,6 +50,7 @@ const WaterQualityScreen: React.FC = () => {
   const [error, setError] = useState('');
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [isBrewableExpanded, setIsBrewableExpanded] = useState(false);
+  const [isProfileExpanded, setIsProfileExpanded] = useState(true);
   const [geolocSuccess, setGeolocSuccess] = useState(false);
 
   const [bottleQuery, setBottleQuery, clearBottleQueryCache] = usePersistentState('brewmate:water:bottleQuery', '');
@@ -442,7 +443,7 @@ const WaterQualityScreen: React.FC = () => {
                 disabled={isLoading}
               >
                 {geolocSuccess
-                  ? <Icons.CheckCircleIcon className="w-5 h-5 text-green-300 dark:text-gray-100" />
+                  ? <Icons.CheckCircleIcon className="w-5 h-5 text-green-300 dark:text-gray-100 calculator:text-calc-text" />
                   : <Icons.GeolocIcon className="w-5 h-5" />
                 }
               </Button>
@@ -519,11 +520,11 @@ const WaterQualityScreen: React.FC = () => {
               {bottleResults.map((hit) => (
                 <div
                   key={hit.code}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
                   onClick={() => handleSelectBottle(hit)}
                 >
-                  <div className="font-medium">{hit.name}</div>
-                  {hit.brand && hit.brand !== hit.name && <div className="text-xs text-gray-500">{hit.brand}</div>}
+                  <div className="font-medium calculator:text-calc-text">{hit.name}</div>
+                  {hit.brand && hit.brand !== hit.name && <div className="text-xs text-gray-500 calculator:text-calc-text-muted">{hit.brand}</div>}
                 </div>
               ))}
             </div>
@@ -596,200 +597,241 @@ const WaterQualityScreen: React.FC = () => {
         {result && !isLoading && stats && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
-              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Nom de profil</p>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
-                    {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
-                      ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
-                      : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
-                  </h3>
-                  {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted mt-1">
-                      {result.dataSource === 'openfoodfacts'
-                        ? 'Source : Open Food Facts'
-                        : result.dataSource === 'sise-eaux'
-                        ? 'Source : SISE-Eaux'
-                        : "Source : Hub'Eau"}
-                    </p>
-                  )}
-                  {result.dataSource === 'local-db' && result.sourceNote && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
-                  )}
-                  {result.dataSource === 'local-db' && (
-                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 calculator:border-calc-border space-y-1">
-                      {result.citation && (
-                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
-                          Source :{' '}
-                          <a
-                            href={result.citation.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 calculator:text-calc-text hover:underline"
-                          >
-                            {result.citation.source}
-                            <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
-                          </a>
+            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac overflow-hidden">
+              {/* Collapsible header */}
+              <button
+                onClick={() => setIsProfileExpanded(!isProfileExpanded)}
+                className="w-full flex items-center justify-between px-4 py-4 sm:p-6 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 calculator:hover:bg-calc-bg-surface transition-colors"
+              >
+                <div className="flex-1 min-w-0 text-left">
+                  <h4 className="font-bold text-base sm:text-lg text-gray-900 dark:text-gray-100 calculator:text-calc-text flex items-center gap-2 flex-wrap">
+                    <Icons.BeakerIcon className="w-5 h-5 text-[#2563FF] dark:text-gray-100 calculator:text-calc-text shrink-0" />
+                    <span className="truncate">
+                      {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
+                        ? `${result.productName || bottleProductName || 'Eau en bouteille'}`
+                        : `${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
+                    </span>
+                  </h4>
+                  <div className="flex flex-wrap items-center gap-2 mt-1 ml-7">
+                    {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
+                      <span className="text-xs px-2 py-0.5 rounded-full calculator:rounded-none bg-[#E6EEFF] dark:bg-gray-700 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-gray-100 calculator:text-calc-text font-medium">
+                        {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
+                          : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
+                          : "Hub'Eau"}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
+                      {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Bouteille' : 'Réseau'}
+                    </span>
+                    {result.parameters.ph?.value && (
+                      <span className="text-xs font-mono font-semibold text-gray-700 dark:text-gray-300 calculator:text-calc-text">
+                        pH {result.parameters.ph.value.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <svg
+                  className={`w-5 h-5 shrink-0 ml-2 text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted transition-transform duration-200 ${isProfileExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isProfileExpanded && (
+                <div className="px-4 pb-6 sm:px-6 pt-0 border-t border-gray-100 dark:border-gray-700 calculator:border-calc-border">
+                  {/* Profile details */}
+                  <div className="mt-4 mb-5 space-y-2">
+                    <div className="flex flex-wrap justify-between items-end gap-2">
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Nom de profil</p>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
+                          {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
+                            ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
+                            : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
+                        </h3>
+                        {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
+                          <p className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted mt-1">
+                            {result.dataSource === 'openfoodfacts'
+                              ? 'Source : Open Food Facts'
+                              : result.dataSource === 'sise-eaux'
+                              ? 'Source : SISE-Eaux'
+                              : "Source : Hub'Eau"}
+                          </p>
+                        )}
+                        {result.dataSource === 'local-db' && result.sourceNote && (
+                          <p className="text-xs text-amber-600 dark:text-amber-400 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
+                        )}
+                        {result.dataSource === 'local-db' && (
+                          <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 calculator:border-calc-border space-y-1">
+                            {result.citation && (
+                              <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
+                                Source :{' '}
+                                <a
+                                  href={result.citation.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 calculator:text-calc-text hover:underline"
+                                >
+                                  {result.citation.source}
+                                  <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
+                                </a>
+                              </p>
+                            )}
+                            {result.citation?.verifiedDate && (
+                              <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
+                                Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700 calculator:border-calc-border">
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Type</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text">
+                          {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
                         </p>
-                      )}
-                      {result.citation?.verifiedDate && (
-                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
-                          Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">pH</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
+                          {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
                         </p>
-                      )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
+                    <div className="flex items-start gap-3 p-4 mb-5 bg-amber-50 dark:bg-gray-800 calculator:bg-calc-bg-card border border-amber-200 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none text-sm text-amber-800 dark:text-gray-100 calculator:text-calc-text">
+                      <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
+                      <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
+                    </div>
+                  )}
+
+                  {/* Water analysis */}
+                  {(result.dataSource === 'local-db'
+                    || (result.dataSource !== 'openfoodfacts'
+                        ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
+                        : (result.mineralCompleteness ?? 0) >= 3)
+                  ) ? (
+                    <>
+                      {/* Cations */}
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted inline-flex items-center">équilibre ionique {stats.ionBalance.toFixed(0)}%<StatInfoTrigger statKey="equilibreIonique" currentValue={stats.ionBalance} iconClassName="w-3.5 h-3.5" /></span>
+                        </div>
+                        <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                          {([
+                            { key: 'ca' as IonKey, param: result.parameters.calcium },
+                            { key: 'mg' as IonKey, param: result.parameters.magnesium },
+                            { key: 'na' as IonKey, param: result.parameters.sodium },
+                          ]).map(({ key, param }) => {
+                            const interp = interpretIonValue(key, param.value);
+                            const edu = ION_EDUCATION[key];
+                            return (
+                              <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                                <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
+                                <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
+                                <span className="ml-auto flex items-center gap-2">
+                                  <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
+                                    interp.status === 'ok'
+                                      ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                      : interp.status === 'low'
+                                      ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                      : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
+                                  }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
+                                  <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Anions */}
+                      <div className="mb-6">
+                        <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text mb-3">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
+                        <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                          {([
+                            { key: 'cl' as IonKey, param: result.parameters.chlorides },
+                            { key: 'so4' as IonKey, param: result.parameters.sulfates },
+                            { key: 'hco3' as IonKey, param: result.parameters.bicarbonates },
+                          ]).map(({ key, param }) => {
+                            const interp = interpretIonValue(key, param.value);
+                            const edu = ION_EDUCATION[key];
+                            return (
+                              <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                                <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
+                                <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
+                                <span className="ml-auto flex items-center gap-2">
+                                  <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
+                                    interp.status === 'ok'
+                                      ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                      : interp.status === 'low'
+                                      ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                      : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
+                                  }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
+                                  <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {result.parameters.bicarbonates.source === 'TAC' && (
+                          <p className="text-[10px] mt-2 text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic text-right">
+                            * Bicarbonates estimés à partir du TAC.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Statistiques */}
+                      <div>
+                        <h4 className="font-bold text-gray-700 dark:text-gray-200 calculator:text-calc-text mb-3">Caractère de l'eau</h4>
+                        <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                          {([
+                            { key: 'ratio', label: 'SO₄²⁻/Cl⁻', value: stats.ratio, display: stats.ratio.toFixed(2), unit: 'ratio' },
+                            { key: 'durete', label: 'Dureté', value: stats.durete, display: stats.durete.toFixed(0), unit: 'ppm' },
+                            { key: 'alcalinite', label: 'Alcalinité', value: stats.alcalinite, display: stats.alcalinite.toFixed(0), unit: 'ppm' },
+                            { key: 'alcaliniteResiduelle', label: 'Alc. résiduelle', value: stats.alcaliniteResiduelle, display: stats.alcaliniteResiduelle.toFixed(0), unit: '' },
+                          ]).map(({ key, label, value, display, unit }) => {
+                            const interp = interpretStatValue(key, value);
+                            return (
+                              <div key={key} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                                <span className="text-gray-700 dark:text-gray-200 calculator:text-calc-text">{label}</span>
+                                <span className="ml-auto flex items-center gap-2">
+                                  <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{display}</span>
+                                  {unit && <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">{unit}</span>}
+                                  <StatInfoTrigger statKey={key} currentValue={value} iconClassName="w-3.5 h-3.5" />
+                                </span>
+                                <span className="w-full text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted leading-snug">{interp.text.split('—')[0].trim()}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-700 calculator:border-calc-border">
+                      <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 calculator:text-calc-text-muted mb-4" />
+                      <p className="text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted">
+                        {result.dataSource === 'openfoodfacts'
+                          ? 'Aucune donnée minérale disponible pour ce produit dans Open Food Facts. Essayez de scanner le code-barre ou de chercher une autre référence de la même marque.'
+                          : 'Les analyses sanitaires récentes pour cette commune ne contiennent pas les paramètres minéraux nécessaires au brassage (Calcium, Magnésium, etc.).'}
+                      </p>
                     </div>
                   )}
                 </div>
-                {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                  <div className="px-2 py-1 rounded calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-gray-700 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-gray-100 calculator:text-calc-text">
-                    {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
-                      : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
-                      : "Hub'Eau"}
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Type</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text">
-                    {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">pH</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
-                    {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
-
-            {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-gray-800 calculator:bg-calc-bg-card border border-amber-200 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none text-sm text-amber-800 dark:text-gray-100 calculator:text-calc-text">
-                <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
-                <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
-              </div>
-            )}
-
-            {(result.dataSource === 'local-db'
-              || (result.dataSource !== 'openfoodfacts'
-                  ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
-                  : (result.mineralCompleteness ?? 0) >= 3)
-            ) ? (
-              <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
-
-                {/* Cations */}
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-3">
-                    <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted inline-flex items-center">équilibre ionique {stats.ionBalance.toFixed(0)}%<StatInfoTrigger statKey="equilibreIonique" currentValue={stats.ionBalance} iconClassName="w-3.5 h-3.5" /></span>
-                  </div>
-                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
-                    {([
-                      { key: 'ca' as IonKey, param: result.parameters.calcium },
-                      { key: 'mg' as IonKey, param: result.parameters.magnesium },
-                      { key: 'na' as IonKey, param: result.parameters.sodium },
-                    ]).map(({ key, param }) => {
-                      const interp = interpretIonValue(key, param.value);
-                      const edu = ION_EDUCATION[key];
-                      return (
-                        <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
-                          <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
-                          <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
-                          <span className="ml-auto flex items-center gap-2">
-                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
-                            <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
-                              interp.status === 'ok'
-                                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
-                                : interp.status === 'low'
-                                ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
-                                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
-                            }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
-                            <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Anions */}
-                <div className="mb-6">
-                  <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text mb-3">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
-                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
-                    {([
-                      { key: 'cl' as IonKey, param: result.parameters.chlorides },
-                      { key: 'so4' as IonKey, param: result.parameters.sulfates },
-                      { key: 'hco3' as IonKey, param: result.parameters.bicarbonates },
-                    ]).map(({ key, param }) => {
-                      const interp = interpretIonValue(key, param.value);
-                      const edu = ION_EDUCATION[key];
-                      return (
-                        <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
-                          <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
-                          <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
-                          <span className="ml-auto flex items-center gap-2">
-                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
-                            <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
-                              interp.status === 'ok'
-                                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
-                                : interp.status === 'low'
-                                ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
-                                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
-                            }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
-                            <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {result.parameters.bicarbonates.source === 'TAC' && (
-                    <p className="text-[10px] mt-2 text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic text-right">
-                      * Bicarbonates estimés à partir du TAC.
-                    </p>
-                  )}
-                </div>
-
-                {/* Statistiques */}
-                <div>
-                  <h4 className="font-bold text-gray-700 dark:text-gray-200 calculator:text-calc-text mb-3">Caractère de l'eau</h4>
-                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
-                    {([
-                      { key: 'ratio', label: 'SO₄²⁻/Cl⁻', value: stats.ratio, display: stats.ratio.toFixed(2), unit: 'ratio' },
-                      { key: 'durete', label: 'Dureté', value: stats.durete, display: stats.durete.toFixed(0), unit: 'ppm' },
-                      { key: 'alcalinite', label: 'Alcalinité', value: stats.alcalinite, display: stats.alcalinite.toFixed(0), unit: 'ppm' },
-                      { key: 'alcaliniteResiduelle', label: 'Alc. résiduelle', value: stats.alcaliniteResiduelle, display: stats.alcaliniteResiduelle.toFixed(0), unit: '' },
-                    ]).map(({ key, label, value, display, unit }) => {
-                      const interp = interpretStatValue(key, value);
-                      return (
-                        <div key={key} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 py-2.5 text-sm">
-                          <span className="text-gray-700 dark:text-gray-200 calculator:text-calc-text">{label}</span>
-                          <span className="ml-auto flex items-center gap-2">
-                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{display}</span>
-                            {unit && <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">{unit}</span>}
-                            <StatInfoTrigger statKey={key} currentValue={value} iconClassName="w-3.5 h-3.5" />
-                          </span>
-                          <span className="w-full text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted leading-snug">{interp.text.split('—')[0].trim()}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-              </div>
-            ) : (
-              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-700 calculator:border-calc-border">
-                <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">
-                  {result.dataSource === 'openfoodfacts'
-                    ? 'Aucune donnée minérale disponible pour ce produit dans Open Food Facts. Essayez de scanner le code-barre ou de chercher une autre référence de la même marque.'
-                    : 'Les analyses sanitaires récentes pour cette commune ne contiennent pas les paramètres minéraux nécessaires au brassage (Calcium, Magnésium, etc.).'}
-                </p>
-              </div>
-            )}
 
             {/* Quels styles puis-je brasser ? */}
             {brewableStyles && (

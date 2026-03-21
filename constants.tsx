@@ -1,27 +1,102 @@
 import React from 'react';
+
+// --- Pixel art icons (calculator mode only) ---
 import {
-  Calculator as CalculatorIcon,
-  Scale as ScaleIcon,
-  Eye as EyeIcon,
-  Sparkles as SparklesIcon,
-  Globe as GlobeAltIcon,
-  Target as TargetIcon,
-  Reload as RefreshIcon,
-  ExternalLink as ArrowTopRightOnSquareIcon,
-  InfoBox as InformationCircleIcon,
-  ArrowLeft as ArrowLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Check as CheckCircleIcon,
-  SquareAlert as ExclamationTriangleIcon,
-  Settings2 as CogIcon,
-  Cancel as XCircleIcon,
-  PlusBox as PlusCircleIcon,
-  TestTube as BeakerIcon,
-  Gps as GeolocIcon,
-  CloudSun as SunIcon,
-  Moon as MoonIcon,
+  Calculator as PixelCalculatorIcon,
+  Scale as PixelScaleIcon,
+  Eye as PixelEyeIcon,
+  Sparkles as PixelSparklesIcon,
+  Globe as PixelGlobeAltIcon,
+  Target as PixelTargetIcon,
+  Reload as PixelRefreshIcon,
+  ExternalLink as PixelArrowTopRightOnSquareIcon,
+  InfoBox as PixelInformationCircleIcon,
+  ArrowLeft as PixelArrowLeftIcon,
+  ChevronRight as PixelChevronRightIcon,
+  Check as PixelCheckCircleIcon,
+  SquareAlert as PixelExclamationTriangleIcon,
+  Settings2 as PixelCogIcon,
+  Cancel as PixelXCircleIcon,
+  PlusBox as PixelPlusCircleIcon,
+  TestTube as PixelBeakerIcon,
+  Gps as PixelGeolocIcon,
+  CloudSun as PixelSunIcon,
+  Moon as PixelMoonIcon,
 } from 'pixelarticons/react';
+
+// --- Heroicons (light/dark mode) ---
+import {
+  CalculatorIcon as HeroCalculatorIcon,
+  ScaleIcon as HeroScaleIcon,
+  EyeIcon as HeroEyeIcon,
+  SparklesIcon as HeroSparklesIcon,
+  GlobeAltIcon as HeroGlobeAltIcon,
+  ViewfinderCircleIcon as HeroTargetIcon,
+  ArrowPathIcon as HeroRefreshIcon,
+  ArrowTopRightOnSquareIcon as HeroArrowTopRightOnSquareIcon,
+  InformationCircleIcon as HeroInformationCircleIcon,
+  ArrowLeftIcon as HeroArrowLeftIcon,
+  ChevronRightIcon as HeroChevronRightIcon,
+  CheckCircleIcon as HeroCheckCircleIcon,
+  ExclamationTriangleIcon as HeroExclamationTriangleIcon,
+  CogIcon as HeroCogIcon,
+  XCircleIcon as HeroXCircleIcon,
+  PlusCircleIcon as HeroPlusCircleIcon,
+  BeakerIcon as HeroBeakerIcon,
+  MapPinIcon as HeroGeolocIcon,
+  SunIcon as HeroSunIcon,
+  MoonIcon as HeroMoonIcon,
+} from '@heroicons/react/24/outline';
+
 import { CalculatorRoute, CalculatorMeta, HomeSection } from './types';
+
+// --- Themed icon factory: heroicon by default, pixelarticon in calculator mode ---
+function createThemedIcon(
+  HeroIcon: React.ElementType,
+  PixelIcon: React.ElementType,
+  name: string,
+): React.FC<{ className?: string }> {
+  const ThemedIcon: React.FC<{ className?: string }> = ({ className = '', ...props }) => (
+    <>
+      <HeroIcon className={`${className} calculator:hidden`} {...props} />
+      <PixelIcon className={`${className} hidden calculator:block`} {...props} />
+    </>
+  );
+  ThemedIcon.displayName = name;
+  return ThemedIcon;
+}
+
+const CalculatorIcon = createThemedIcon(HeroCalculatorIcon, PixelCalculatorIcon, 'CalculatorIcon');
+const ScaleIcon = createThemedIcon(HeroScaleIcon, PixelScaleIcon, 'ScaleIcon');
+const EyeIcon = createThemedIcon(HeroEyeIcon, PixelEyeIcon, 'EyeIcon');
+const SparklesIcon = createThemedIcon(HeroSparklesIcon, PixelSparklesIcon, 'SparklesIcon');
+const GlobeAltIcon = createThemedIcon(HeroGlobeAltIcon, PixelGlobeAltIcon, 'GlobeAltIcon');
+const TargetIcon = createThemedIcon(HeroTargetIcon, PixelTargetIcon, 'TargetIcon');
+const RefreshIcon = createThemedIcon(HeroRefreshIcon, PixelRefreshIcon, 'RefreshIcon');
+const ArrowTopRightOnSquareIcon = createThemedIcon(HeroArrowTopRightOnSquareIcon, PixelArrowTopRightOnSquareIcon, 'ArrowTopRightOnSquareIcon');
+const InformationCircleIcon = createThemedIcon(HeroInformationCircleIcon, PixelInformationCircleIcon, 'InformationCircleIcon');
+const ArrowLeftIcon = createThemedIcon(HeroArrowLeftIcon, PixelArrowLeftIcon, 'ArrowLeftIcon');
+const ChevronRightIcon = createThemedIcon(HeroChevronRightIcon, PixelChevronRightIcon, 'ChevronRightIcon');
+const CheckCircleIcon = createThemedIcon(HeroCheckCircleIcon, PixelCheckCircleIcon, 'CheckCircleIcon');
+const ExclamationTriangleIcon = createThemedIcon(HeroExclamationTriangleIcon, PixelExclamationTriangleIcon, 'ExclamationTriangleIcon');
+const CogIcon = createThemedIcon(HeroCogIcon, PixelCogIcon, 'CogIcon');
+const XCircleIcon = createThemedIcon(HeroXCircleIcon, PixelXCircleIcon, 'XCircleIcon');
+const PlusCircleIcon = createThemedIcon(HeroPlusCircleIcon, PixelPlusCircleIcon, 'PlusCircleIcon');
+const BeakerIcon = createThemedIcon(HeroBeakerIcon, PixelBeakerIcon, 'BeakerIcon');
+const GeolocIcon = createThemedIcon(HeroGeolocIcon, PixelGeolocIcon, 'GeolocIcon');
+const SunIcon = createThemedIcon(HeroSunIcon, PixelSunIcon, 'SunIcon');
+const MoonIcon = createThemedIcon(HeroMoonIcon, PixelMoonIcon, 'MoonIcon');
+
+// --- Pixel art sun icon from public/sun.svg ---
+const PixelSunProperIcon: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <img
+    src="/sun.svg"
+    alt="sun"
+    className={className}
+    style={{ display: 'inline-block' }}
+  />
+);
+const LightModeIcon = createThemedIcon(HeroSunIcon, PixelSunProperIcon, 'LightModeIcon');
 
 export const APP_TITLE = 'WortLab';
 export const SPLASH_DURATION = 2000;
@@ -99,6 +174,7 @@ export const Icons = {
   CalculatorIcon,
   GeolocIcon,
   SunIcon,
+  LightModeIcon,
   MoonIcon,
 };
 

@@ -311,7 +311,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
               type="button"
               title="Thème clair"
             >
-              <IconsConst.SunIcon className="w-5 h-5" />
+              <IconsConst.LightModeIcon className="w-5 h-5" />
             </button>
             <button
               onClick={() => setTheme(Theme.Dark)}
