@@ -1,5 +1,6 @@
 import React from 'react';
 import { IonRangeInfo } from '../types';
+import { IonInfoTrigger } from './IonInfoPanel';
 
 interface IonRangeBarProps {
   info: IonRangeInfo;
@@ -40,8 +41,9 @@ const IonRangeBar: React.FC<IonRangeBarProps> = ({ info }) => {
   return (
     <div className="flex items-start gap-2 text-xs">
       {/* Ion label — fixed width, right-aligned */}
-      <span className="w-12 shrink-0 text-right font-mono text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted select-none mt-0.5">
+      <span className="w-12 shrink-0 text-right font-mono text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted select-none mt-0.5 inline-flex items-center justify-end gap-0.5">
         {symbol}
+        <IonInfoTrigger ionKey={info.ion} currentValue={info.current} iconClassName="w-3 h-3" />
       </span>
 
       {/* Bar + min/max labels */}

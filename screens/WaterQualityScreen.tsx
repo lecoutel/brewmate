@@ -8,6 +8,9 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import { useUrlParams } from '../hooks/useUrlParams';
 import FormulaInfoSection from '../components/FormulaInfoSection';
 import BrewableStylesSection from '../components/BrewableStylesSection';
+import { IonInfoTrigger, StatInfoTrigger } from '../components/IonInfoPanel';
+import { interpretIonValue, interpretStatValue, ION_EDUCATION } from '../data/ionEducation';
+import { IonKey } from '../types';
 
 export type WaterSourceType = 'tap' | 'bottle';
 
@@ -373,18 +376,18 @@ const WaterQualityScreen: React.FC = () => {
   return (
     <PageLayout title="Qualité de l'eau (France)" showBackButton>
       <div className="space-y-6">
-        <div className="flex rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg">
+        <div className="flex rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border p-1 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg">
           <button
             type="button"
             onClick={() => setWaterSource('tap')}
-            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'tap' ? 'bg-white dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
           >
             Eau du robinet
           </button>
           <button
             type="button"
             onClick={() => setWaterSource('bottle')}
-            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
+            className={`flex-1 py-2 px-3 rounded-md calculator:rounded-none text-sm font-medium transition-colors ${waterSource === 'bottle' ? 'bg-white dark:bg-gray-800 calculator:bg-calc-bg-card shadow calculator:shadow-mac text-gray-900 dark:text-gray-100 calculator:text-calc-text' : 'text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted hover:text-gray-900 dark:hover:text-gray-100 calculator:hover:text-calc-text'}`}
           >
             Eau en bouteille
           </button>
@@ -459,15 +462,15 @@ const WaterQualityScreen: React.FC = () => {
           </div>
 
           {isLoading && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1">Chargement</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">Chargement</p>
           )}
 
           {showAutocomplete && communes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl max-h-60 overflow-auto">
               {communes.map((c) => (
                 <div
                   key={c.code}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800:bg-calc-bg-surface dark:hover:bg-gray-700 calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border"
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 calculator:hover:bg-calc-bg-surface cursor-pointer border-b last:border-0 border-gray-100 dark:border-gray-700 calculator:border-calc-border"
                   onClick={() => handleSelectCommune(c, false)}
                 >
                   <div className="font-medium dark:text-gray-100 calculator:text-calc-text">{c.nom}</div>
@@ -477,8 +480,8 @@ const WaterQualityScreen: React.FC = () => {
             </div>
           )}
           {showAutocomplete && communes.length === 0 && query.length > 2 && !isSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg calculator:rounded-none shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 calculator:text-calc-text-muted italic">
                 Aucune commune trouvée pour « {query} »
               </p>
             </div>
@@ -512,7 +515,7 @@ const WaterQualityScreen: React.FC = () => {
             )}
           </div>
           {showBottleAutocomplete && bottleResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl max-h-60 overflow-auto">
               {bottleResults.map((hit) => (
                 <div
                   key={hit.code}
@@ -526,8 +529,8 @@ const WaterQualityScreen: React.FC = () => {
             </div>
           )}
           {showBottleAutocomplete && bottleResults.length === 0 && bottleQuery.trim().length >= 2 && !isBottleSearching && (
-            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
-              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted italic">
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border border-gray-200 dark:border-gray-700 calculator:border-calc-border rounded-lg shadow-xl">
+              <p className="px-4 py-3 text-sm text-gray-400 dark:text-gray-400 calculator:text-calc-text-muted italic">
                 Aucune eau trouvée pour « {bottleQuery} »
               </p>
             </div>
@@ -536,12 +539,12 @@ const WaterQualityScreen: React.FC = () => {
         )}
 
         {waterSource === 'tap' && networks.length > 1 && (
-          <div className="bg-blue-50 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface p-4 rounded-lg calculator:rounded-none border border-blue-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border animate-in fade-in">
-            <label className="block text-sm font-medium text-blue-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text mb-2">
+          <div className="bg-blue-50 dark:bg-gray-700 calculator:bg-calc-bg-surface p-4 rounded-lg calculator:rounded-none border border-blue-200 dark:border-gray-700 calculator:border-calc-border animate-in fade-in">
+            <label className="block text-sm font-medium text-blue-900 dark:text-gray-100 calculator:text-calc-text mb-2">
               Plusieurs points de captation (réseaux) disponibles pour cette commune. Veuillez en sélectionner un :
             </label>
             <select
-              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card"}
+              className={COMMON_CLASSES.input + " bg-white dark:bg-gray-800 calculator:bg-calc-bg-card"}
               value={selectedNetwork?.code || ''}
               onChange={(e) => handleSelectNetwork(e.target.value)}
             >
@@ -564,23 +567,23 @@ const WaterQualityScreen: React.FC = () => {
         {isLoading && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Skeleton qui préfigure la carte résultat */}
-            <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
-              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div className="space-y-2">
-                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
-                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
-                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-36 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
-                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                <div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
               </div>
               <div className="flex justify-between items-center gap-4">
                 <div className="space-y-1">
-                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
-                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-3 w-16 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
+                  <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse" />
                 </div>
                 <div className="text-right space-y-1">
-                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
-                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
+                  <div className="h-3 w-8 bg-gray-100 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
+                  <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 calculator:bg-calc-bg-surface rounded calculator:rounded-none animate-pulse ml-auto" />
                 </div>
               </div>
             </div>
@@ -593,17 +596,17 @@ const WaterQualityScreen: React.FC = () => {
         {result && !isLoading && stats && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
-              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
+            <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="flex flex-wrap justify-between items-end gap-2 border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border pb-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Nom de profil</p>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Nom de profil</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db'
                       ? `Eau en bouteille ${result.productName || bottleProductName || '—'}`
                       : `Eau robinet ${result.commune} ${selectedNetwork ? `(${selectedNetwork.name})` : ''}`}
                   </h3>
                   {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                    <p className="text-xs text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted mt-1">
                       {result.dataSource === 'openfoodfacts'
                         ? 'Source : Open Food Facts'
                         : result.dataSource === 'sise-eaux'
@@ -612,18 +615,18 @@ const WaterQualityScreen: React.FC = () => {
                     </p>
                   )}
                   {result.dataSource === 'local-db' && result.sourceNote && (
-                    <p className="text-xs text-amber-600 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 calculator:text-calc-text-muted mt-1 italic">{result.sourceNote}</p>
                   )}
                   {result.dataSource === 'local-db' && (
-                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border space-y-1">
+                    <div className="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 calculator:border-calc-border space-y-1">
                       {result.citation && (
-                        <p className="text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">
+                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
                           Source :{' '}
                           <a
                             href={result.citation.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text hover:underline"
+                            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 calculator:text-calc-text hover:underline"
                           >
                             {result.citation.source}
                             <Icons.ArrowTopRightOnSquareIcon className="w-4 h-4 shrink-0" aria-hidden />
@@ -631,7 +634,7 @@ const WaterQualityScreen: React.FC = () => {
                         </p>
                       )}
                       {result.citation?.verifiedDate && (
-                        <p className="text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">
+                        <p className="text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">
                           Dernière mise à jour : {formatVerifiedDate(result.citation.verifiedDate)}
                         </p>
                       )}
@@ -639,7 +642,7 @@ const WaterQualityScreen: React.FC = () => {
                   )}
                 </div>
                 {(result.dataSource === 'openfoodfacts' || result.dataSource === 'sise-eaux' || result.dataSource === 'hubeau') && (
-                  <div className="px-2 py-1 rounded calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-gray-700 dark:bg-gray-900 dark:bg-gray-700 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
+                  <div className="px-2 py-1 rounded calculator:rounded-none text-[10px] font-bold uppercase tracking-wider bg-[#E6EEFF] dark:bg-gray-700 calculator:bg-calc-bg-surface text-[#1A237E] dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' ? 'Open Food Facts'
                       : result.dataSource === 'sise-eaux' ? 'SISE-Eaux'
                       : "Hub'Eau"}
@@ -648,14 +651,14 @@ const WaterQualityScreen: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Type</p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">Type</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.dataSource === 'openfoodfacts' || result.dataSource === 'local-db' ? 'Eau en bouteille' : 'Eau du réseau'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">pH</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted">pH</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 calculator:text-calc-text">
                     {result.parameters.ph?.value ? result.parameters.ph.value.toFixed(1) : '-'}
                   </p>
                 </div>
@@ -663,7 +666,7 @@ const WaterQualityScreen: React.FC = () => {
             </div>
 
             {result.dataSource === 'openfoodfacts' && (result.mineralCompleteness ?? 0) > 0 && (result.mineralCompleteness ?? 0) < 3 && (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card border border-amber-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none text-sm text-amber-800 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">
+              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-gray-800 calculator:bg-calc-bg-card border border-amber-200 dark:border-gray-700 calculator:border-calc-border rounded-xl calculator:rounded-none text-sm text-amber-800 dark:text-gray-100 calculator:text-calc-text">
                 <Icons.InformationCircleIcon className="w-5 h-5 shrink-0 mt-0.5" />
                 <span>Données minérales partielles dans Open Food Facts ({result.mineralCompleteness}/6 ions renseignés). L'équilibre ionique n'est pas fiable — essayez une autre référence du même produit.</span>
               </div>
@@ -674,49 +677,77 @@ const WaterQualityScreen: React.FC = () => {
                   ? Object.values(result.parameters).some((p: any) => p && p.name !== 'Potentiel en hydrogène (pH)' && p.value > 0)
                   : (result.mineralCompleteness ?? 0) >= 3)
             ) ? (
-              <div className="bg-white dark:bg-gray-800 dark:bg-gray-900 dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
+              <div className="bg-white dark:bg-gray-800 calculator:bg-calc-bg-card p-6 rounded-xl calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border shadow-sm calculator:shadow-mac">
 
                 {/* Cations */}
-                <div className="mb-8">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-bold text-green-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">équilibre ionique {stats.ionBalance.toFixed(0)}%</span>
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text">Cations {stats.totalCations.toFixed(2)} mEq/L</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted inline-flex items-center">équilibre ionique {stats.ionBalance.toFixed(0)}%<StatInfoTrigger statKey="equilibreIonique" currentValue={stats.ionBalance} iconClassName="w-3.5 h-3.5" /></span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Calcium Ca²⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.calcium.value.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Magnésium Mg²⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.magnesium.value.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Sodium Na⁺ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sodium.value.toFixed(2)}</p>
-                    </div>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                    {([
+                      { key: 'ca' as IonKey, param: result.parameters.calcium },
+                      { key: 'mg' as IonKey, param: result.parameters.magnesium },
+                      { key: 'na' as IonKey, param: result.parameters.sodium },
+                    ]).map(({ key, param }) => {
+                      const interp = interpretIonValue(key, param.value);
+                      const edu = ION_EDUCATION[key];
+                      return (
+                        <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                          <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
+                          <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
+                          <span className="ml-auto flex items-center gap-2">
+                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
+                              interp.status === 'ok'
+                                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                : interp.status === 'low'
+                                ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
+                            }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
+                            <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Anions */}
-                <div className="mb-8">
-                  <h4 className="font-bold text-green-700 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text mb-2">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Chlorure Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.chlorides.value.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Sulfate SO₄²⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.sulfates.value.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">Bicarbonate HCO₃⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ppm</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{result.parameters.bicarbonates.value.toFixed(2)}</p>
-                    </div>
+                <div className="mb-6">
+                  <h4 className="font-bold text-green-700 dark:text-emerald-400 calculator:text-calc-text mb-3">Anions {stats.totalAnions.toFixed(2)} mEq/L</h4>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                    {([
+                      { key: 'cl' as IonKey, param: result.parameters.chlorides },
+                      { key: 'so4' as IonKey, param: result.parameters.sulfates },
+                      { key: 'hco3' as IonKey, param: result.parameters.bicarbonates },
+                    ]).map(({ key, param }) => {
+                      const interp = interpretIonValue(key, param.value);
+                      const edu = ION_EDUCATION[key];
+                      return (
+                        <div key={key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                          <span className="w-12 shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted text-right">{edu.symbol}</span>
+                          <span className="min-w-[4rem] text-gray-700 dark:text-gray-200 calculator:text-calc-text">{edu.name}</span>
+                          <span className="ml-auto flex items-center gap-2">
+                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{param.value.toFixed(0)}</span>
+                            <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">ppm</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full calculator:rounded-none ${
+                              interp.status === 'ok'
+                                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                : interp.status === 'low'
+                                ? 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30 calculator:text-calc-text calculator:bg-calc-bg-surface'
+                                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/30 calculator:text-calc-error calculator:bg-calc-bg-surface'
+                            }`}>{interp.status === 'ok' ? 'normal' : interp.status === 'low' ? 'bas' : 'élevé'}</span>
+                            <IonInfoTrigger ionKey={key} currentValue={param.value} iconClassName="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                   {result.parameters.bicarbonates.source === 'TAC' && (
-                    <p className="text-[10px] mt-2 text-gray-400 italic text-right">
+                    <p className="text-[10px] mt-2 text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted italic text-right">
                       * Bicarbonates estimés à partir du TAC.
                     </p>
                   )}
@@ -724,30 +755,33 @@ const WaterQualityScreen: React.FC = () => {
 
                 {/* Statistiques */}
                 <div>
-                  <h4 className="font-bold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text mb-2">Statistiques</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border py-4">
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted flex justify-between">SO₄²⁻/Cl⁻ <span className="font-semibold text-gray-700 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text">ratio</span></p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.ratio.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Dureté</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.durete.toFixed(0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Alcalinité</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.alcalinite.toFixed(0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted">Alcalinité résiduelle</p>
-                      <p className="text-2xl font-bold text-right mt-1 text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text">{stats.alcaliniteResiduelle.toFixed(0)}</p>
-                    </div>
+                  <h4 className="font-bold text-gray-700 dark:text-gray-200 calculator:text-calc-text mb-3">Caractère de l'eau</h4>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700/50 calculator:divide-calc-border">
+                    {([
+                      { key: 'ratio', label: 'SO₄²⁻/Cl⁻', value: stats.ratio, display: stats.ratio.toFixed(2), unit: 'ratio' },
+                      { key: 'durete', label: 'Dureté', value: stats.durete, display: stats.durete.toFixed(0), unit: 'ppm' },
+                      { key: 'alcalinite', label: 'Alcalinité', value: stats.alcalinite, display: stats.alcalinite.toFixed(0), unit: 'ppm' },
+                      { key: 'alcaliniteResiduelle', label: 'Alc. résiduelle', value: stats.alcaliniteResiduelle, display: stats.alcaliniteResiduelle.toFixed(0), unit: '' },
+                    ]).map(({ key, label, value, display, unit }) => {
+                      const interp = interpretStatValue(key, value);
+                      return (
+                        <div key={key} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 py-2.5 text-sm">
+                          <span className="text-gray-700 dark:text-gray-200 calculator:text-calc-text">{label}</span>
+                          <span className="ml-auto flex items-center gap-2">
+                            <span className="font-mono tabular-nums font-semibold text-gray-900 dark:text-gray-100 calculator:text-calc-text">{display}</span>
+                            {unit && <span className="text-xs text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted">{unit}</span>}
+                            <StatInfoTrigger statKey={key} currentValue={value} iconClassName="w-3.5 h-3.5" />
+                          </span>
+                          <span className="w-full text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted leading-snug">{interp.text.split('—')[0].trim()}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
               </div>
             ) : (
-              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border">
+              <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-dashed border-gray-300 dark:border-gray-700 calculator:border-calc-border">
                 <Icons.InformationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">
                   {result.dataSource === 'openfoodfacts'
@@ -770,8 +804,8 @@ const WaterQualityScreen: React.FC = () => {
               />
             )}
 
-            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-900 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border">
-              <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-100 calculator:text-calc-text-muted leading-relaxed">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 calculator:bg-calc-bg rounded-lg calculator:rounded-none border border-gray-200 dark:border-gray-700 calculator:border-calc-border">
+              <p className="text-xs text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted leading-relaxed">
                 <strong>Note :</strong> Ces données proviennent {result.dataSource === 'openfoodfacts' ? 'd\'Open Food Facts (base collaborative)' : result.dataSource === 'sise-eaux' ? 'de la base nationale SISE-Eaux (data.gouv.fr) via moneaudebrassage.fr' : 'du portail national Hub\'Eau'}. Les valeurs peuvent varier selon le point de prélèvement et la période de l'année. Pour un brassage de précision, une analyse d'eau à domicile reste la référence.
               </p>
             </div>
