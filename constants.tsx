@@ -93,7 +93,6 @@ const PixelSunProperIcon: React.FC<{ className?: string }> = ({ className = '' }
     src="/sun.svg"
     alt="sun"
     className={className}
-    style={{ display: 'inline-block' }}
   />
 );
 const LightModeIcon = createThemedIcon(HeroSunIcon, PixelSunProperIcon, 'LightModeIcon');
