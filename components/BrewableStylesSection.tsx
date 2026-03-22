@@ -135,9 +135,7 @@ function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
       });
     }
 
-    const so4AlreadyLow = so4 && so4.current < so4.rangeMin;
-    const clAlreadyLow  = cl  && cl.current  < cl.rangeMin;
-    if (ca && ca.current < ca.rangeMin && !so4AlreadyLow && !clAlreadyLow) {
+    if (ca && ca.current < ca.rangeMin) {
       items.push({
         salt: 'Gypse (CaSO₄) ou CaCl₂',
         action: 'Augmenter le calcium (Ca²⁺)',
@@ -362,6 +360,15 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
                     Plage cible
                   </span>
                 </div>
+
+                {/* Source */}
+                {style.rangeSource && (
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 calculator:text-calc-text-muted pt-1">
+                    Source : {style.rangeSource === 'charlienewey'
+                      ? 'charlienewey/brewing-salt-calculator (MIT) — BJCP 2015'
+                      : 'Palmer & Kaminski, "Water: A Comprehensive Guide for Brewers" (2013)'}
+                  </p>
+                )}
               </>
             ) : (
               /* Fallback text list for SPECIALITE or styles without ionRanges */
