@@ -5,31 +5,69 @@ import { Icons } from '../components/Common';
 import IonRangeBar from './IonRangeBar';
 
 type IonDirection = 'tooHigh' | 'tooLow';
+type Severity = 'léger' | 'modéré' | 'important';
 
-const SENSORY_IMPACT: Partial<Record<IonKey, Partial<Record<IonDirection, string>>>> = {
+/**
+ * Seuils d'écart [léger→modéré, modéré→important] en mg/L par ion.
+ * Calés sur les seuils de perception sensorielle (Palmer & Kaminski "Water",
+ * BJCP Guidelines, ASBC sensory panel thresholds).
+ */
+const ECART_THRESHOLDS: Partial<Record<IonKey, [number, number]>> = {
+  hco3: [25, 70],  // excès → seuil de pH saponneux ~5.7 (Palmer ch.4)
+  so4:  [20, 55],  // déficit → seuil de perception amertume sèche (ASBC)
+  cl:   [15, 35],  // déficit → seuil moelleux en bouche
+  ca:   [15, 30],  // déficit → seuil structure/clarification (BJCP)
+  mg:   [5,  15],
+  na:   [10, 30],
+};
+
+function getEcartSeverity(ion: IonKey, ecart: number): Severity {
+  const [t1, t2] = ECART_THRESHOLDS[ion] ?? [20, 50];
+  if (ecart < t1) return 'léger';
+  if (ecart < t2) return 'modéré';
+  return 'important';
+}
+
+const SENSORY_IMPACT: Partial<Record<IonKey, Partial<Record<IonDirection, Record<Severity, string>>>>> = {
+  hco3: {
+    tooHigh: {
+      léger:     "risque d'un léger arrière-goût savonneux et d'une amertume discrètement gommée",
+      modéré:    "arrière-goût savonneux perceptible — amertume gommée, finale terne",
+      important: "arrière-goût savonneux prononcé — amertume fortement gommée, bière plate en bouche",
+    },
+    tooLow: {
+      léger:     "risque d'une légère acidité et d'une amertume légèrement mordante",
+      modéré:    "bière trop acide, amertume tranchante et peu ronde",
+      important: "acidité excessive — amertume astringente, extraction de tannins indésirables",
+    },
+  },
   so4: {
-    tooHigh: "trop amère avec une sécheresse désagréable",
-    tooLow:  "manquera de mordant amer — houblon « plat »",
+    tooLow: {
+      léger:     "risque d'un houblon légèrement plat, sans mordant amer",
+      modéré:    "manquera de mordant amer — houblon mou, sans sécheresse finale",
+      important: "amertume molle et peu définie — caractère houblonné très estompé",
+    },
   },
   cl: {
-    tooHigh: "trop sucrée et épaisse, côté sirupeux",
-    tooLow:  "aqueuse et « vide » en bouche — pas de rondeur maltée",
-  },
-  hco3: {
-    tooHigh: "arrière-goût savonneux, amertume gommée",
-    tooLow:  "trop acide et mordante",
+    tooLow: {
+      léger:     "risque d'une rondeur maltée discrète — bière légèrement fine en bouche",
+      modéré:    "bière aqueuse, manque de rondeur et de moelleux malté",
+      important: "bière vide en bouche — aucune rondeur maltée, texture très fine",
+    },
   },
   ca: {
-    tooHigh: "goût minéral ou crayeux prononcé",
-    tooLow:  "manquera de « texture » — légère et sans relief",
-  },
-  mg: {
-    tooHigh: "sensation âpre et sèche sur la langue",
-  },
-  na: {
-    tooHigh: "goût salé perceptible",
+    tooLow: {
+      léger:     "risque d'une légère perte de texture et de définition aromatique",
+      modéré:    "manquera de texture — bière légère et sans relief, clarification ralentie",
+      important: "eau trop douce : fermentation difficile, clarification compromise, manque de structure",
+    },
   },
 };
+
+function getSensoryMessage(ion: IonKey, direction: IonDirection, ecart: number): string | null {
+  const severity = getEcartSeverity(ion, ecart);
+  return SENSORY_IMPACT[ion]?.[direction]?.[severity] ?? null;
+}
 
 interface AdjustmentItem {
   salt: string;
@@ -49,8 +87,8 @@ function ionInfo(style: BrewableStyleResult, ion: IonKey): IonRangeInfo | undefi
 function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
   if (style.status === 'IDEAL') {
     return [{
-      salt: 'Aucun ajustement',
-      action: 'Votre eau est déjà dans la plage cible pour ce style.',
+      salt: 'Aucun ajustement nécessaire — votre eau est déjà dans la plage cible pour ce style.',
+      action: '',
       detail: '',
       delta: '',
       sensory: null,
@@ -66,8 +104,8 @@ function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
       }
     }
     return [{
-      salt: 'Dilution requise',
-      action: "Minéraux en excès non réductibles sans dilution à l'eau osmosée.",
+      salt: "Dilution à l'eau osmosée requise — minéraux en excès non réductibles autrement.",
+      action: '',
       detail: excessParts.length > 0 ? excessParts.join('  ·  ') : '',
       delta: '',
       sensory: null,
@@ -83,12 +121,13 @@ function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
   if (style.needsAcid) {
     const hco3 = ionInfo(style, 'hco3');
     if (hco3) {
+      const ecart = hco3.current - hco3.rangeMax;
       items.push({
-        salt: 'Acide lactique ou phosphorique',
-        action: 'Réduire les bicarbonates (HCO₃⁻)',
-        detail: `${Math.round(hco3.current)} → ${Math.round(hco3.rangeMax)} mg/L`,
-        delta: `−${Math.round(hco3.current - hco3.rangeMax)}`,
-        sensory: SENSORY_IMPACT.hco3!.tooHigh!,
+        salt: "Ajout d'acide lactique ou phosphorique conseillé pour réduire les bicarbonates (HCO₃⁻).",
+        action: '',
+        detail: `${Math.round(hco3.current)} → ${Math.round(hco3.target)} mg/L`,
+        delta: `−${Math.round(hco3.current - hco3.target)}`,
+        sensory: getSensoryMessage('hco3', 'tooHigh', ecart),
         type: 'reduce',
       });
     }
@@ -97,12 +136,13 @@ function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
   if (style.needsBicarbonate) {
     const hco3 = ionInfo(style, 'hco3');
     if (hco3) {
+      const ecart = hco3.rangeMin - hco3.current;
       items.push({
-        salt: 'Bicarbonate de sodium (NaHCO₃)',
-        action: 'Augmenter les bicarbonates (HCO₃⁻)',
-        detail: `${Math.round(hco3.current)} → ${Math.round(hco3.rangeMin)} mg/L`,
-        delta: `+${Math.round(hco3.rangeMin - hco3.current)}`,
-        sensory: SENSORY_IMPACT.hco3!.tooLow!,
+        salt: 'Ajout de bicarbonate de sodium (NaHCO₃) conseillé pour augmenter les bicarbonates (HCO₃⁻).',
+        action: '',
+        detail: `${Math.round(hco3.current)} → ${Math.round(hco3.target)} mg/L`,
+        delta: `+${Math.round(hco3.target - hco3.current)}`,
+        sensory: getSensoryMessage('hco3', 'tooLow', ecart),
         type: 'add',
       });
     }
@@ -114,34 +154,37 @@ function buildAdjustmentItems(style: BrewableStyleResult): AdjustmentItem[] {
     const ca  = ionInfo(style, 'ca');
 
     if (so4 && so4.current < so4.rangeMin) {
+      const ecart = so4.rangeMin - so4.current;
       items.push({
-        salt: 'Gypse (CaSO₄)',
-        action: 'Augmenter les sulfates (SO₄²⁻)',
+        salt: 'Ajout de gypse (CaSO₄) conseillé pour augmenter les sulfates (SO₄²⁻).',
+        action: '',
         detail: `${Math.round(so4.current)} → ${Math.round(so4.target)} mg/L`,
-        delta: `+${Math.round(so4.rangeMin - so4.current)}`,
-        sensory: SENSORY_IMPACT.so4!.tooLow!,
+        delta: `+${Math.round(so4.target - so4.current)}`,
+        sensory: getSensoryMessage('so4', 'tooLow', ecart),
         type: 'add',
       });
     }
 
     if (cl && cl.current < cl.rangeMin) {
+      const ecart = cl.rangeMin - cl.current;
       items.push({
-        salt: 'Chlorure de calcium (CaCl₂)',
-        action: 'Augmenter les chlorures (Cl⁻)',
+        salt: 'Ajout de chlorure de calcium (CaCl₂) conseillé pour augmenter les chlorures (Cl⁻).',
+        action: '',
         detail: `${Math.round(cl.current)} → ${Math.round(cl.target)} mg/L`,
-        delta: `+${Math.round(cl.rangeMin - cl.current)}`,
-        sensory: SENSORY_IMPACT.cl!.tooLow!,
+        delta: `+${Math.round(cl.target - cl.current)}`,
+        sensory: getSensoryMessage('cl', 'tooLow', ecart),
         type: 'add',
       });
     }
 
     if (ca && ca.current < ca.rangeMin) {
+      const ecart = ca.rangeMin - ca.current;
       items.push({
-        salt: 'Gypse (CaSO₄) ou CaCl₂',
-        action: 'Augmenter le calcium (Ca²⁺)',
+        salt: 'Ajout de gypse (CaSO₄) ou de CaCl₂ conseillé pour augmenter le calcium (Ca²⁺).',
+        action: '',
         detail: `${Math.round(ca.current)} → ${Math.round(ca.target)} mg/L`,
-        delta: `+${Math.round(ca.rangeMin - ca.current)}`,
-        sensory: SENSORY_IMPACT.ca!.tooLow!,
+        delta: `+${Math.round(ca.target - ca.current)}`,
+        sensory: getSensoryMessage('ca', 'tooLow', ecart),
         type: 'add',
       });
     }
@@ -278,9 +321,6 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
           <div className="border-t border-gray-100 dark:border-gray-700 calculator:border-calc-border pt-2 mt-0.5 space-y-2">
             {adjustmentItems.length > 0 && (
               <div className={`rounded-lg calculator:rounded-none border px-2.5 py-2 ${adjustmentPlanBoxClass(style.status)}`}>
-                <p className="text-xs font-semibold text-gray-800 dark:text-gray-100 calculator:text-calc-text mb-1.5 calculator:font-mac">
-                  Ajustement pour ce style
-                </p>
                 <div className="space-y-2">
                   {adjustmentItems.map((item, i) => (
                     <div key={i} className={`text-xs ${i > 0 ? 'border-t border-gray-200/50 dark:border-gray-600/30 calculator:border-calc-border pt-2' : ''}`}>
@@ -304,9 +344,11 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
                           <p className="font-semibold text-[13px] text-gray-800 dark:text-gray-100 calculator:text-calc-text leading-snug">
                             {item.salt}
                           </p>
-                          <p className="text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted leading-snug mt-0.5">
-                            {item.action}
-                          </p>
+                          {item.action && (
+                            <p className="text-gray-600 dark:text-gray-400 calculator:text-calc-text-muted leading-snug mt-0.5">
+                              {item.action}
+                            </p>
+                          )}
                         </div>
                         {item.delta && (
                           <span className={`shrink-0 font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded calculator:rounded-none ${
@@ -319,12 +361,12 @@ const StyleRow: React.FC<StyleRowProps> = ({ style, capabilities, searchActive }
                         )}
                       </div>
                       {item.detail && (
-                        <p className="font-mono text-[11px] text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1 ml-[22px]">
+                        <p className="font-mono text-[11px] text-gray-500 dark:text-gray-400 calculator:text-calc-text-muted mt-1">
                           {item.detail}
                         </p>
                       )}
                       {item.sensory && (
-                        <div className="flex items-start gap-1.5 mt-1.5 ml-[22px] px-2 py-1 rounded calculator:rounded-none bg-amber-50/80 dark:bg-amber-950/20 calculator:bg-calc-bg-surface">
+                        <div className="flex items-start gap-1.5 mt-1.5 px-2 py-1 rounded calculator:rounded-none bg-amber-50/80 dark:bg-amber-950/20 calculator:bg-calc-bg-surface">
                           <Icons.ExclamationTriangleIcon className="w-3 h-3 text-amber-500 dark:text-amber-400 calculator:text-calc-text-muted shrink-0 mt-0.5" />
                           <p className="text-amber-700 dark:text-amber-400 calculator:text-calc-text italic leading-snug">
                             Sans ajustement : {item.sensory}

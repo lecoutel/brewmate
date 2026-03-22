@@ -74,8 +74,8 @@ const IonPanelContent: React.FC<{ entry: IonEducationEntry; ionKey: IonKey; curr
       </div>
     )}
 
-    {/* Generic interpretation (secondary when style context, primary otherwise) */}
-    {genericInterp && (
+    {/* Generic interpretation (primary when no style context; hidden when style context active) */}
+    {genericInterp && !styleInterp && (
       <div className={`p-2.5 rounded-lg border text-sm leading-relaxed calculator:bg-calc-bg-surface calculator:border-calc-border calculator:text-calc-text ${
         styleInterp
           ? 'text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
