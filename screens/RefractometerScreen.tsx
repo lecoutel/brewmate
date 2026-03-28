@@ -282,7 +282,7 @@ const RefractometerScreen: React.FC = () => {
                     "L'alcool produit pendant la fermentation fausse la lecture du réfractomètre. Ce polynôme cubique, dérivé empiriquement par Sean Terrill, corrige la densité finale mesurée (Rf) en tenant compte de la densité initiale (Ri), les deux en °Brix.",
                   formulas: [
                     'FG = 1.0000 − 0.0044993·Ri + 0.011774·Rf',
-                    '       + 0.00027581·Ri² − 0.00012717·Rf²',
+                    '       + 0.00027581·Ri² − 0.0012717·Rf²',
                     '       − 0.0000072800·Ri³ + 0.0000063293·Rf³',
                     '',
                     'Ri = OG en °Brix (lecture initiale)',

@@ -233,7 +233,7 @@ export function calculateRefractometer(inputs: RefractometerInputs): Refractomet
                         (0.0044993 * ogBrix) + 
                         (0.011774 * fgMeasuredBrix) + 
                         (0.00027581 * Math.pow(ogBrix, 2)) - 
-                        (0.00012717 * Math.pow(fgMeasuredBrix, 2)) - 
+                        (0.0012717 * Math.pow(fgMeasuredBrix, 2)) -
                         (0.0000072800 * Math.pow(ogBrix, 3)) + 
                         (0.0000063293 * Math.pow(fgMeasuredBrix, 3));
 
