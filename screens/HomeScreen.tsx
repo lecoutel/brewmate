@@ -1,9 +1,55 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CALCULATORS, HOME_SECTIONS, APP_TITLE } from '../constants';
 import { Card, PageLayout } from '../components/Common';
 import { CalculatorRoute } from '../types';
+
+const MigrationBanner: React.FC = () => {
+  const [dismissed, setDismissed] = useState(() =>
+    localStorage.getItem('migration-banner-dismissed') === '1'
+  );
+
+  const isLegacyDomain =
+    typeof window !== 'undefined' && window.location.hostname === 'wortlab.com';
+
+  if (!isLegacyDomain || dismissed) return null;
+
+  const handleDismiss = () => {
+    localStorage.setItem('migration-banner-dismissed', '1');
+    setDismissed(true);
+  };
+
+  return (
+    <div className="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 calculator:bg-calc-bg-card calculator:border-calc-border">
+      <div className="flex items-start gap-3">
+        <span className="text-amber-500 text-xl shrink-0">📦</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-amber-900 dark:text-amber-200 calculator:text-calc-text">
+            WortLab déménage sur app.wortlab.com
+          </p>
+          <p className="text-sm text-amber-700 dark:text-amber-300 calculator:text-calc-text-muted mt-0.5">
+            L'app est désormais accessible à{' '}
+            <a
+              href="https://app.wortlab.com"
+              className="underline font-medium"
+            >
+              app.wortlab.com
+            </a>
+            . Si tu l'as installée en PWA, pense à la réinstaller depuis la nouvelle adresse pour continuer à recevoir les mises à jour.
+          </p>
+        </div>
+        <button
+          onClick={handleDismiss}
+          className="shrink-0 text-amber-400 hover:text-amber-600 dark:hover:text-amber-200 text-lg leading-none"
+          aria-label="Fermer"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +57,7 @@ const HomeScreen: React.FC = () => {
 
   return (
     <PageLayout title={APP_TITLE}>
+      <MigrationBanner />
       <div className="-mx-6 -mt-6 mb-6 px-6 pt-6 pb-5 bg-gradient-to-br from-[#2563FF]/10 to-[#E6EEFF]/60 dark:from-calc-bg-surface dark:to-calc-bg-card calculator:from-calc-bg-surface dark:to-calc-bg-card calculator:to-calc-bg-card border-b border-blue-100 dark:border-gray-700 dark:border-gray-700 calculator:border-calc-border rounded-t-xl calculator:rounded-none">
         <h1 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100 dark:text-gray-100 calculator:text-calc-text mb-1">Bonjour, brasseur</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-100 dark:text-gray-400 calculator:text-calc-text-muted">Choisissez un outil selon ce que vous voulez faire.</p>
