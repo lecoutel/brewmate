@@ -283,9 +283,11 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
       <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 calculator:bg-calc-bg-card border-b border-gray-200 dark:border-gray-700 calculator:border-calc-border">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <img src="/wortlab-logo-header.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 dark:hidden calculator:hidden" />
-            <img src="/wortlab-logo-header-dark-mode.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden dark:block calculator:hidden" />
-            <img src="/wortlab-logo-header-calculator.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden calculator:block" />
+            <Link to="/">
+              <img src="/wortlab-logo-header.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 dark:hidden calculator:hidden" />
+              <img src="/wortlab-logo-header-dark-mode.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden dark:block calculator:hidden" />
+              <img src="/wortlab-logo-header-calculator.svg" alt="WortLab" className="h-7 w-auto flex-shrink-0 hidden calculator:block" />
+            </Link>
             <Link
               to="/feedback"
               className="text-xs font-medium px-2 py-0.5 rounded-full calculator:rounded-none bg-amber-100 dark:bg-amber-900/40 calculator:bg-calc-bg-surface calculator:text-calc-text border border-amber-300 dark:border-amber-700 calculator:border calculator:border-calc-border transition-colors"
@@ -364,7 +366,13 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ title, showBackButton, c
             Offrir une bière
           </Link>
           {' · '}
-          <span>WortLab &copy; {new Date().getFullYear()}</span>
+          <a
+            href="https://www.wortlab.com"
+            className="text-[#2563FF] dark:text-[#6b99ff] calculator:text-calc-text hover:underline font-medium"
+          >
+            WortLab
+          </a>
+          {' '}&copy; {new Date().getFullYear()}
         </p>
       </footer>
     </div>
